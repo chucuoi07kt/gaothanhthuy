@@ -3,37 +3,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Newspaper } from 'lucide-react';
-import { toast } from 'sonner';
+import { fetchBlogPosts } from '@/src/lib/products';
+import type { BlogPost } from '@/src/types';
 
 export default function BlogPage() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Hàm gọi API lấy danh sách bài viết thật từ Google Sheets
   const loadLiveBlogs = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/blog', { cache: 'no-store' }); // Hoặc /api/posts tùy cấu trúc route của anh
-      const data = await res.json();
-      
-      const liveList = data.blogs || data.blog || data.posts || [];
-      
-      // Chuẩn hóa dữ liệu từ Google Sheet sang các trường giao diện Card đang chờ
-      const formattedList = liveList.map((post: any) => ({
-        id: post.id,
-        title: post.title || 'Bài viết chưa có tiêu đề',
-        slug: post.slug || '',
-        // Nhận diện linh hoạt cả thumbnail hoặc image từ Sheet
-        image: post.thumbnail || post.image || 'https://images.unsplash.com/photo-1586201375761-83865001e31c', 
-        category: post.category || 'Cẩm nang gạo',
-        excerpt: post.summary || post.excerpt || 'Đang cập nhật nội dung tóm tắt...',
-        publishedAt: post.created_at ? new Date(post.created_at).toLocaleDateString('vi-VN') : 'Mới cập nhật',
-        readingMinutes: post.reading_minutes || post.readingMinutes || 3
-      }));
-
-      setPosts(formattedList);
+      const blogList = await fetchBlogPosts();
+      setPosts(blogList);
     } catch {
-      toast.error('Không thể tải danh sách bài viết thực tế');
+      setPosts([]);
     } finally {
       setLoading(false);
     }
@@ -65,7 +48,7 @@ export default function BlogPage() {
         <div className="container-page">
           {loading ? (
             <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">
-              🔄 Đang cập nhật tin tức mới nhất từ Google Sheets...
+              Đang cập nhật tin tức mới nhất từ Google Sheets...
             </div>
           ) : posts.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-white p-12 text-center">
