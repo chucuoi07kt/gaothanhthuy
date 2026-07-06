@@ -8,6 +8,17 @@ import { categories } from '@/src/data/mockData';
 import { applyFilters } from '@/src/lib/filters';
 import { toast } from 'sonner';
 
+// Hàm phụ trợ tự động chuyển đổi danh mục Tiếng Việt có dấu thành slug chuẩn
+function convertCategoryToSlug(categoryStr: string): string {
+  if (!categoryStr) return 'gao-an-gia-dinh';
+  const lower = categoryStr.toLowerCase().trim();
+  if (lower.includes('gia đình') || lower.includes('gao-an-gia-dinh')) return 'gao-an-gia-dinh';
+  if (lower.includes('quán') || lower.includes('nhà hàng') || lower.includes('gao-quan-com')) return 'gao-quan-com';
+  if (lower.includes('từ thiện') || lower.includes('gao-tu-thien')) return 'gao-tu-thien';
+  if (lower.includes('bún') || lower.includes('mì') || lower.includes('phở') || lower.includes('gao-nau-bun')) return 'gao-nau-bun-mi-pho';
+  return 'gao-an-gia-dinh';
+}
+
 function ProductsContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') ?? 'all';
@@ -30,9 +41,8 @@ function ProductsContent() {
       
       const liveList = data.products || data.sp || [];
       
-      // BỌC LÓT AN TOÀN TRÁNH LỖI CRASH CLIENT (SPLIT / UNDEFINED)
       const formattedList = liveList.map((p: any) => {
-        // 1. Kiểm tra an toàn cho cột weight_options tránh lỗi .split() làm sập trang
+        // 1. Kiểm tra an toàn cho cột weight_options tránh lỗi .split()
         let weightArray = ['5kg']; 
         if (p.weight_options && typeof p.weight_options === 'string') {
           weightArray = p.weight_options.split(',').map((w: string) => w.trim());
@@ -40,7 +50,6 @@ function ProductsContent() {
           weightArray = [p.weight_options + 'kg'];
         }
 
-        // 2. Ép kiểu an toàn cho các cột đặc tính dẻo, nở, mềm
         const deoVal = parseInt(p.deo || p.dẻo) || 0;
         const noVal = parseInt(p.no || p.nở) || 0;
         const memVal = parseInt(p.mem || p.mềm) || 0;
@@ -48,12 +57,13 @@ function ProductsContent() {
         return {
           id: p.id ? String(p.id) : String(Math.random()),
           name: p.name || 'Gạo Chưa Đặt Tên',
-          category: p.category || 'Gạo ăn gia đình',
+          // TỰ ĐỘNG CHUYỂN DANH MỤC SANG SLUG ĐỂ PHỤC VỤ HÀM LỌC ĐỠ SẬP TRANG
+          category: convertCategoryToSlug(p.category), 
           price: parseInt(p.price) || 0,
           image: p.image || 'https://images.unsplash.com/photo-1586201375761-83865001e31c',
           description: p.description || 'Đang cập nhật mô tả...',
           weight_options: p.weight_options || '5kg',
-          weights: weightArray, // Mảng cắt ra phục vụ ProductCard
+          weights: weightArray, 
           features: {
             aroma: deoVal >= 4 ? 'Thơm nhiều' : 'Thơm nhẹ',
             texture: memVal >= 4 ? 'Mềm dẻo' : 'Nở xốp cơm'
@@ -77,9 +87,15 @@ function ProductsContent() {
     loadLiveProducts();
   }, [loadLiveProducts]);
 
+  // BỌC CHỐNG SẬP CHO BỘ LỌC KIỂU DỮ LIỆU CŨ CỦA BOLT
   const filtered = useMemo(() => {
-    // Đảm bảo applyFilters nhận đầu vào là một mảng, không lỗi crash
-    return applyFilters(Array.isArray(products) ? products : [], filters);
+    try {
+      const dataArray = Array.isArray(products) ? products : [];
+      return applyFilters(dataArray, filters);
+    } catch (err) {
+      console.error('Apply filters failed:', err);
+      return Array.isArray(products) ? products : []; // Nếu bộ lọc sập, trả về mảng gốc không lọc chứ không làm sập cả trang web
+    }
   }, [products, filters]);
 
   const activeCategory = categories.find((c) => c.slug === filters.category);
@@ -121,7 +137,7 @@ function ProductsContent() {
           </div>
 
           {loading ? (
-            <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">
+            <div className="py-20 text-center text-sm text-muted-foreground">
               🔄 Đang quét kho gạo thực tế từ hệ thống...
             </div>
           ) : filtered.length === 0 ? (
