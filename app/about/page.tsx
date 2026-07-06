@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Award, Building2, HandHeart, MapPin, Phone, Truck, Users, Wheat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { BRAND, categories } from '@/src/data/mockData';
+import { BRAND } from '@/src/lib/brand';
+import { categories } from '@/src/lib/categories';
 
 export const metadata = {
   title: 'Về chúng tôi',
