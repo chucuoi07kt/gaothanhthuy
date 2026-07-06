@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Plus, Search, Pencil, Trash2, X, Package } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Package, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -49,6 +48,7 @@ export default function AdminProductsPage() {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false); // Trạng thái đồng bộ cache
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -64,6 +64,27 @@ export default function AdminProductsPage() {
   }, []);
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
+
+  // Hàm xử lý kích hoạt đồng bộ (xóa bộ nhớ đệm cache tĩnh)
+  const handleSyncCache = async () => {
+    setSyncing(true);
+    toast.loading('Đang làm mới dữ liệu từ Google Sheet...', { id: 'sync-cache' });
+    try {
+      const res = await fetch('/api/revalidate', { method: 'POST' });
+      const data = await res.json();
+      
+      if (data.success) {
+        toast.success('Đã đồng bộ dữ liệu mới nhất!', { id: 'sync-cache' });
+        await fetchProducts(); // Tải lại danh sách sản phẩm mới về admin
+      } else {
+        toast.error(data.message || 'Lỗi đồng bộ cache', { id: 'sync-cache' });
+      }
+    } catch {
+      toast.error('Không thể kết nối tới API đồng bộ', { id: 'sync-cache' });
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -112,7 +133,6 @@ export default function AdminProductsPage() {
       mem: parseInt(form.mem) || 0,
     };
 
-    // Optimistic UI: update immediately
     if (editing) {
       setProducts((prev) => prev.map((p) => p.id === form.id ? {
         ...p, name: form.name, category: form.category,
@@ -143,7 +163,7 @@ export default function AdminProductsPage() {
         toast.success('Đồng bộ Google Sheets thành công!', { id: 'sync' });
       } else {
         toast.error(`Lỗi: ${data.error || 'Không thể đồng bộ'}`, { id: 'sync' });
-        fetchProducts(); // Revert on failure
+        fetchProducts();
       }
     } catch {
       toast.error('Lỗi kết nối server', { id: 'sync' });
@@ -177,14 +197,27 @@ export default function AdminProductsPage() {
 
   return (
     <div className="p-6 lg:p-8">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold text-foreground">Quản lý sản phẩm</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">{products.length} sản phẩm</p>
         </div>
-        <Button onClick={openAdd} className="gap-2 bg-brand-600 text-white hover:bg-brand-700">
-          <Plus className="h-4 w-4" /> Thêm sản phẩm
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Nút đồng bộ từ Google Sheet mới thêm */}
+          <Button 
+            variant="outline" 
+            onClick={handleSyncCache} 
+            disabled={syncing || loading}
+            className="gap-2 border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
+          >
+            <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+            {syncing ? 'Đang đồng bộ...' : 'Đồng bộ Sheet'}
+          </Button>
+
+          <Button onClick={openAdd} className="gap-2 bg-brand-600 text-white hover:bg-brand-700">
+            <Plus className="h-4 w-4" /> Thêm sản phẩm
+          </Button>
+        </div>
       </div>
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row">
