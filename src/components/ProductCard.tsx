@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Check, MapPin, MessageCircle, Plus } from 'lucide-react';
+import { Check, MapPin, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { ProductImage } from './ProductImage';
 import { VisualMeters } from './VisualMeters';
 import { useCartStore } from '@/src/store/cartStore';
-import { quickZaloConsult } from '@/src/lib/zalo';
 import type { Product, WeightOption } from '@/src/types';
 
 export function ProductCard({ product }: { product: Product }) {
@@ -26,11 +25,6 @@ export function ProductCard({ product }: { product: Product }) {
     setAdded(true);
     toast.success(`Đã thêm "${product.name} - ${selectedWeight}" vào danh sách báo giá`);
     setTimeout(() => setAdded(false), 1600);
-  };
-
-  const handleZaloClick = () => {
-    const msg = `Kính gửi Gạo Thanh Thuỷ, tôi muốn tư vấn báo giá sỉ cho: ${product.name} - quy cách ${selectedWeight}. Xin cảm ơn!`;
-    quickZaloConsult(msg);
   };
 
   return (
@@ -94,12 +88,13 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         </div>
 
-        <div className="mt-3 flex gap-2">
+        {/* Khu vực nút bấm đã loại bỏ nút Zalo trùng lặp, giao diện dàn hàng ngang cân đối hơn */}
+        <div className="mt-4 flex gap-2">
           <Button
             onClick={handleAdd}
             size="sm"
             className={cn(
-              'flex-1 gap-1.5 transition-all',
+              'flex-1 gap-1.5 transition-all text-xs',
               added
                 ? 'bg-brand-700 text-white'
                 : 'bg-brand-600 text-white hover:bg-brand-700'
@@ -107,30 +102,21 @@ export function ProductCard({ product }: { product: Product }) {
           >
             {added ? (
               <>
-                <Check className="h-4 w-4" /> Đã thêm
+                <Check className="h-3.5 w-3.5" /> Đã thêm
               </>
             ) : (
               <>
-                <Plus className="h-4 w-4" /> Báo giá
+                <Plus className="h-3.5 w-3.5" /> Thêm báo giá
               </>
             )}
-          </Button>
-          <Button
-            onClick={handleZaloClick}
-            size="sm"
-            variant="outline"
-            className="border-zalo/30 text-zalo hover:bg-zalo/5"
-            aria-label="Tư vấn qua Zalo"
-          >
-            <MessageCircle className="h-4 w-4" />
           </Button>
           <Button
             onClick={() => setOpen(true)}
             size="sm"
             variant="outline"
-            className="border-brand-200 text-brand-700 hover:bg-brand-50"
+            className="border-brand-200 text-brand-700 hover:bg-brand-50 text-xs px-3"
           >
-            Xem
+            Xem giỏ
           </Button>
         </div>
       </div>
