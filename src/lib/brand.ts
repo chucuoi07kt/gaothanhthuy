@@ -1,0 +1,17 @@
+export const BRAND = {
+  name: 'Gạo Thanh Thuỷ',
+  shortName: 'Thanh Thuỷ',
+  domain: 'gaothanhthuy.vn',
+  yearsExperience: 30,
+  dailyTons: 15,
+  hotline: '036 6219 885',
+  hotlineRaw: '0366219885',
+  zalo: '0366219885',
+  zaloUrl: 'https://zalo.me/0366219885',
+  address: '126 Nguyễn Lương Bằng, Phường Hòa Khánh Bắc, Quận Liên Chiểu, TP. Đà Nẵng',
+  city: 'Đà Nẵng',
+  usp: 'Giao hỏa tốc nội thành Đà Nẵng (Nhận trong 1-2 tiếng)',
+  email: 'lienhe@gaothanhthuy.vn',
+  hours: '7:00 - 19:00 (T2 - CN)',
+  partners: ['Sun Group', 'Grand Tourane Resort', 'FPT City Đà Nẵng', 'Vinpearl'],
+};
