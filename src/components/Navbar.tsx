@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Menu, ShoppingBag, X, Phone, MapPin, Wheat, ShieldAlert } from 'lucide-react';
+import { Menu, ShoppingBag, X, Phone, MapPin, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/src/store/cartStore';
@@ -75,12 +75,17 @@ export function Navbar() {
       </div>
 
       <div className="container-page flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl brand-gradient text-white shadow-soft">
-            <Wheat className="h-5 w-5" />
+        {/* KHU VỰC LOGO + CHỮ: Giữ lại tên thương hiệu, thay icon cũ bằng logo.png lớn hết cỡ */}
+        <Link href="/" className="flex h-16 items-center gap-3 shrink-0 py-1 group">
+          <div className="flex h-full items-center justify-center">
+            <img 
+              src="/logo.png" 
+              alt="Logo Gạo Thanh Thủy" 
+              className="h-full w-auto object-contain max-h-14 transition-transform duration-200 group-hover:scale-102"
+            />
           </div>
           <div className="leading-tight">
-            <span className="block text-base font-bold text-brand-800">
+            <span className="block text-base font-bold text-brand-800 transition-colors group-hover:text-brand-600">
               Gạo Thanh Thuỷ
             </span>
             <span className="hidden text-[11px] text-muted-foreground sm:block">
