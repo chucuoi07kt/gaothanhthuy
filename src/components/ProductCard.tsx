@@ -106,7 +106,7 @@ export function ProductCard({ product }: { product: Product }) {
               </>
             ) : (
               <>
-                <Plus className="h-3.5 w-3.5" /> Thêm báo giá
+                <Plus className="h-3.5 w-3.5" /> Báo Giá
               </>
             )}
           </Button>
