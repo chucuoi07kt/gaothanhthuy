@@ -4,7 +4,7 @@ import { Suspense, useMemo, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ProductCard } from '@/src/components/ProductCard';
 import { QuickSearch, defaultFilters, type FilterState } from '@/src/components/QuickSearch';
-import { categories } from '@/src/data/mockData'; // Giữ lại categories mẫu cho bộ lọc
+import { categories } from '@/src/data/mockData'; 
 import { applyFilters } from '@/src/lib/filters';
 import { toast } from 'sonner';
 
@@ -22,7 +22,6 @@ function ProductsContent() {
       : 'all',
   });
 
-  // Hàm gọi API lấy sản phẩm gạo thật từ Google Sheets
   const loadLiveProducts = useCallback(async () => {
     setLoading(true);
     try {
@@ -31,22 +30,43 @@ function ProductsContent() {
       
       const liveList = data.products || data.sp || [];
       
-      // Chuẩn hóa cấu trúc đặc tính gạo từ Sheet sang biến component Card hiểu
-      const formattedList = liveList.map((p: any) => ({
-        ...p,
-        // Đảm bảo có các trường tiếng Việt lẫn tiếng Anh phòng hờ cấu trúc của Card cũ
-        weights: p.weight_options ? p.weight_options.split(',').map((w: string) => w.trim()) : ['5kg'],
-        features: {
-          aroma: parseInt(p.deo || p.dẻo) >= 4 ? 'Thơm nhiều' : 'Thơm nhẹ',
-          texture: parseInt(p.mem || p.mềm) >= 4 ? 'Mềm dẻo' : 'Nở xốp cơm'
-        },
-        dẻo: parseInt(p.deo || p.dẻo) || 0,
-        nở: parseInt(p.no || p.nở) || 0,
-        mềm: parseInt(p.mem || p.mềm) || 0
-      }));
+      // BỌC LÓT AN TOÀN TRÁNH LỖI CRASH CLIENT (SPLIT / UNDEFINED)
+      const formattedList = liveList.map((p: any) => {
+        // 1. Kiểm tra an toàn cho cột weight_options tránh lỗi .split() làm sập trang
+        let weightArray = ['5kg']; 
+        if (p.weight_options && typeof p.weight_options === 'string') {
+          weightArray = p.weight_options.split(',').map((w: string) => w.trim());
+        } else if (p.weight_options && typeof p.weight_options === 'number') {
+          weightArray = [p.weight_options + 'kg'];
+        }
+
+        // 2. Ép kiểu an toàn cho các cột đặc tính dẻo, nở, mềm
+        const deoVal = parseInt(p.deo || p.dẻo) || 0;
+        const noVal = parseInt(p.no || p.nở) || 0;
+        const memVal = parseInt(p.mem || p.mềm) || 0;
+
+        return {
+          id: p.id ? String(p.id) : String(Math.random()),
+          name: p.name || 'Gạo Chưa Đặt Tên',
+          category: p.category || 'Gạo ăn gia đình',
+          price: parseInt(p.price) || 0,
+          image: p.image || 'https://images.unsplash.com/photo-1586201375761-83865001e31c',
+          description: p.description || 'Đang cập nhật mô tả...',
+          weight_options: p.weight_options || '5kg',
+          weights: weightArray, // Mảng cắt ra phục vụ ProductCard
+          features: {
+            aroma: deoVal >= 4 ? 'Thơm nhiều' : 'Thơm nhẹ',
+            texture: memVal >= 4 ? 'Mềm dẻo' : 'Nở xốp cơm'
+          },
+          dẻo: deoVal,
+          nở: noVal,
+          mềm: memVal
+        };
+      });
 
       setProducts(formattedList);
-    } catch {
+    } catch (error) {
+      console.error('Live products load error:', error);
       toast.error('Không thể tải danh sách gạo thực tế');
     } finally {
       setLoading(false);
@@ -57,7 +77,10 @@ function ProductsContent() {
     loadLiveProducts();
   }, [loadLiveProducts]);
 
-  const filtered = useMemo(() => applyFilters(products, filters), [products, filters]);
+  const filtered = useMemo(() => {
+    // Đảm bảo applyFilters nhận đầu vào là một mảng, không lỗi crash
+    return applyFilters(Array.isArray(products) ? products : [], filters);
+  }, [products, filters]);
 
   const activeCategory = categories.find((c) => c.slug === filters.category);
 
