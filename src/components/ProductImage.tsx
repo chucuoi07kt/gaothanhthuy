@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { BRAND } from '@/src/data/mockData';
+import { BRAND } from '@/src/lib/brand';
 
 interface ProductImageProps {
   src: string;

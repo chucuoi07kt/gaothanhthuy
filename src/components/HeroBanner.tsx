@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight, MessageCircle, Truck, Award, TrendingUp, Wheat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { BRAND } from '@/src/data/mockData';
+import { BRAND } from '@/src/lib/brand';
 import { quickZaloConsult } from '@/src/lib/zalo';
 
 const trustBadges = [

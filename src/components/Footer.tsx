@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { Wheat, Phone, MapPin, Clock, Mail, MessageCircle } from 'lucide-react';
-import { BRAND, categories } from '@/src/data/mockData';
+import { BRAND } from '@/src/lib/brand';
+import { categories } from '@/src/lib/categories';
 import { quickZaloConsult } from '@/src/lib/zalo';
 
 export function Footer() {

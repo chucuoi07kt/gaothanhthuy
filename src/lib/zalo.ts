@@ -1,7 +1,7 @@
 'use client';
 
 import { toast } from 'sonner';
-import { BRAND } from '@/src/data/mockData';
+import { BRAND } from '@/src/lib/brand';
 import { formatQuoteMessage } from '@/src/store/cartStore';
 import type { CartItem } from '@/src/types';
 
@@ -42,21 +42,16 @@ export async function sendQuoteViaZalo(
     return;
   }
 
-  // Step 1: Format cart items into a clean readable string.
   const message = formatQuoteMessage(items);
 
-  // Step 2: Await clipboard write so the text is copied before redirecting.
   await copyToClipboard(message);
 
-  // Step 3: Show a success toast via sonner.
   toast.success('Đã sao chép danh sách! Đang chuyển hướng đến Zalo...');
 
-  // Step 4: Open Zalo inside a setTimeout(800ms) so browsers don't block the popup.
   setTimeout(() => {
     window.open(BRAND.zaloUrl, '_blank', 'noopener,noreferrer');
   }, 800);
 
-  // Desktop fallback still surfaces the hotline/QR modal alongside the redirect.
   if (isDesktop() && opts?.onDesktopFallback) {
     opts.onDesktopFallback();
   }

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Building2, HandHeart, Utensils, Home, Wheat } from 'lucide-react';
-import { categories } from '@/src/data/mockData';
+import { categories } from '@/src/lib/categories';
 import { cn } from '@/lib/utils';
 
 const iconMap: Record<string, React.ElementType> = {
