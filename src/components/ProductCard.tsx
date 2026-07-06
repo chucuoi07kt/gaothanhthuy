@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Check, Plus, MapPin } from 'lucide-react';
+import { Check, MapPin, MessageCircle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ProductImage } from './ProductImage';
 import { VisualMeters } from './VisualMeters';
 import { useCartStore } from '@/src/store/cartStore';
+import { quickZaloConsult } from '@/src/lib/zalo';
 import type { Product, WeightOption } from '@/src/types';
 
 export function ProductCard({ product }: { product: Product }) {
@@ -25,6 +26,11 @@ export function ProductCard({ product }: { product: Product }) {
     setAdded(true);
     toast.success(`Đã thêm "${product.name} - ${selectedWeight}" vào danh sách báo giá`);
     setTimeout(() => setAdded(false), 1600);
+  };
+
+  const handleZaloClick = () => {
+    const msg = `Kính gửi Gạo Thanh Thuỷ, tôi muốn tư vấn báo giá sỉ cho: ${product.name} - quy cách ${selectedWeight}. Xin cảm ơn!`;
+    quickZaloConsult(msg);
   };
 
   return (
@@ -48,7 +54,7 @@ export function ProductCard({ product }: { product: Product }) {
       </Link>
 
       <div className="flex flex-1 flex-col p-4">
-        <Link href={`/products/${product.slug}`}
+        <Link href={`/products/${product.slug}`}>
           <h3 className="line-clamp-1 text-base font-semibold text-foreground transition-colors group-hover:text-brand-700">
             {product.name}
           </h3>
@@ -108,6 +114,15 @@ export function ProductCard({ product }: { product: Product }) {
                 <Plus className="h-4 w-4" /> Báo giá
               </>
             )}
+          </Button>
+          <Button
+            onClick={handleZaloClick}
+            size="sm"
+            variant="outline"
+            className="border-zalo/30 text-zalo hover:bg-zalo/5"
+            aria-label="Tư vấn qua Zalo"
+          >
+            <MessageCircle className="h-4 w-4" />
           </Button>
           <Button
             onClick={() => setOpen(true)}
