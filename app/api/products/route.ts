@@ -4,9 +4,20 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    return NextResponse.json({ products: await getProductsFromSheet() });
+    const productsData = await getProductsFromSheet();
+    
+    // Đảm bảo trả về mảng sản phẩm chuẩn hóa
+    const productList = Array.isArray(productsData) ? productsData : [];
+
+    // Trả về đồng thời tất cả các định dạng cấu trúc mà trang Admin và trang Khách đang tìm kiếm
+    return NextResponse.json({ 
+      success: true, 
+      products: productList, // Đáp ứng trang Admin (data.products)
+      sp: productList,       // Đáp ứng trang Sản phẩm khách (data.sp nếu có)
+      data: productList      // Dự phòng trường hợp khác
+    });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    return NextResponse.json({ error: String(err), products: [], sp: [] }, { status: 500 });
   }
 }
 
