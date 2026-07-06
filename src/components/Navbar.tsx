@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Menu, ShoppingBag, X, Phone, MapPin, Wheat } from 'lucide-react';
+import { Menu, ShoppingBag, X, Phone, MapPin, Wheat, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/src/store/cartStore';
@@ -24,6 +24,9 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const totalItems = useCartStore((s) => s.totalItems());
   const setOpen = useCartStore((s) => s.setOpen);
+
+  // Ẩn thanh điều hướng chính khi đang ở trong không gian trang quản trị CMS
+  if (pathname?.startsWith('/admin')) return null;
 
   useEffect(() => setMounted(true), []);
 
@@ -130,6 +133,16 @@ export function Navbar() {
             )}
           </button>
 
+          {/* NÚT ADMIN TRÊN DESKTOP */}
+          <Link
+            href="/admin/login"
+            className="hidden sm:flex h-10 px-3.5 items-center gap-1.5 rounded-xl border border-border bg-white text-xs font-medium text-muted-foreground transition-all hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200 shadow-sm"
+            title="Hệ thống quản trị nội bộ"
+          >
+            <ShieldAlert className="h-4 w-4 text-brand-600" />
+            <span className="hidden lg:inline">Quản trị</span>
+          </Link>
+
           <button
             onClick={() => setMobileOpen((v) => !v)}
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-foreground md:hidden"
@@ -142,7 +155,7 @@ export function Navbar() {
 
       {mobileOpen && (
         <div className="border-t border-border bg-white md:hidden animate-fade-in">
-          <nav className="container-page flex flex-col py-3">
+          <nav className="container-page flex flex-col py-3 space-y-1">
             {navLinks.map((link) => {
               const active =
                 link.href === '/'
@@ -165,11 +178,20 @@ export function Navbar() {
             })}
             <Button
               onClick={() => quickZaloConsult()}
-              className="mt-2 bg-zalo text-white hover:bg-zalo/90"
+              className="mt-2 bg-zalo text-white hover:bg-zalo/90 w-full"
               size="sm"
             >
               Tư vấn nhanh qua Zalo
             </Button>
+            
+            {/* NÚT ADMIN TRÊN MOBILE */}
+            <Link
+              href="/admin/login"
+              className="flex items-center justify-center gap-2 mt-1 py-2.5 px-3 rounded-lg text-xs font-medium text-muted-foreground bg-gray-50 border border-border active:bg-brand-50 active:text-brand-700"
+            >
+              <ShieldAlert className="h-4 w-4 text-brand-600" />
+              <span>Đăng nhập hệ thống Admin</span>
+            </Link>
           </nav>
         </div>
       )}
