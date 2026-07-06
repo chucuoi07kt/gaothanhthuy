@@ -25,8 +25,7 @@ export function Navbar() {
   const totalItems = useCartStore((s) => s.totalItems());
   const setOpen = useCartStore((s) => s.setOpen);
 
-  // Ẩn thanh điều hướng chính khi đang ở trong không gian trang quản trị CMS
-  if (pathname?.startsWith('/admin')) return null;
+  const isAdmin = pathname?.startsWith('/admin');
 
   useEffect(() => setMounted(true), []);
 
@@ -40,6 +39,9 @@ export function Navbar() {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  // Ẩn thanh điều hướng chính khi đang ở trong không gian trang quản trị CMS
+  if (isAdmin) return null;
 
   return (
     <header
