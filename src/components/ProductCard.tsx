@@ -116,7 +116,7 @@ export function ProductCard({ product }: { product: Product }) {
             variant="outline"
             className="border-brand-200 text-brand-700 hover:bg-brand-50 text-xs px-3"
           >
-            Xem giỏ
+            Xem
           </Button>
         </div>
       </div>
