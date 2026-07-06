@@ -78,9 +78,9 @@ export async function getProductsFromSheet(): Promise<SheetProduct[]> {
     weight_options: row.weight_options || '',
     image: row.image || '',
     description: row.description || '',
-    dẻo: parseInt(row['dẻo'] || row['deo'] || '0', 10) || 0,
-    nở: parseInt(row['nở'] || row['no'] || '0', 10) || 0,
-    mềm: parseInt(row['mềm'] || row['mem'] || '0', 10) || 0,
+    dẻo: parseInt(row['deo'] || row['dẻo'] || '0', 10) || 0,
+    nở: parseInt(row['no'] || row['nở'] || '0', 10) || 0,
+    mềm: parseInt(row['mem'] || row['mềm'] || '0', 10) || 0,
   }));
 }
 
