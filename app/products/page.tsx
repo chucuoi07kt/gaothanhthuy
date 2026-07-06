@@ -1,29 +1,19 @@
 'use client';
 
-import { Suspense, useMemo, useState, useEffect, useCallback } from 'react';
+import { Suspense, useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ProductCard } from '@/src/components/ProductCard';
 import { QuickSearch, defaultFilters, type FilterState } from '@/src/components/QuickSearch';
-import { categories } from '@/src/data/mockData'; 
+import { categories } from '@/src/lib/categories';
 import { applyFilters } from '@/src/lib/filters';
-import { toast } from 'sonner';
-
-// Hàm phụ trợ tự động chuyển đổi danh mục Tiếng Việt có dấu thành slug chuẩn
-function convertCategoryToSlug(categoryStr: string): string {
-  if (!categoryStr) return 'gao-an-gia-dinh';
-  const lower = categoryStr.toLowerCase().trim();
-  if (lower.includes('gia đình') || lower.includes('gao-an-gia-dinh')) return 'gao-an-gia-dinh';
-  if (lower.includes('quán') || lower.includes('nhà hàng') || lower.includes('gao-quan-com')) return 'gao-quan-com';
-  if (lower.includes('từ thiện') || lower.includes('gao-tu-thien')) return 'gao-tu-thien';
-  if (lower.includes('bún') || lower.includes('mì') || lower.includes('phở') || lower.includes('gao-nau-bun')) return 'gao-nau-bun-mi-pho';
-  return 'gao-an-gia-dinh';
-}
+import { fetchProducts } from '@/src/lib/products';
+import type { Product } from '@/src/types';
 
 function ProductsContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') ?? 'all';
 
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [filters, setFilters] = useState<FilterState>({
@@ -33,68 +23,19 @@ function ProductsContent() {
       : 'all',
   });
 
-  const loadLiveProducts = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/products', { cache: 'no-store' });
-      const data = await res.json();
-      
-      const liveList = data.products || data.sp || [];
-      
-      const formattedList = liveList.map((p: any) => {
-        // 1. Kiểm tra an toàn cho cột weight_options tránh lỗi .split()
-        let weightArray = ['5kg']; 
-        if (p.weight_options && typeof p.weight_options === 'string') {
-          weightArray = p.weight_options.split(',').map((w: string) => w.trim());
-        } else if (p.weight_options && typeof p.weight_options === 'number') {
-          weightArray = [p.weight_options + 'kg'];
-        }
-
-        const deoVal = parseInt(p.deo || p.dẻo) || 0;
-        const noVal = parseInt(p.no || p.nở) || 0;
-        const memVal = parseInt(p.mem || p.mềm) || 0;
-
-        return {
-          id: p.id ? String(p.id) : String(Math.random()),
-          name: p.name || 'Gạo Chưa Đặt Tên',
-          // TỰ ĐỘNG CHUYỂN DANH MỤC SANG SLUG ĐỂ PHỤC VỤ HÀM LỌC ĐỠ SẬP TRANG
-          category: convertCategoryToSlug(p.category), 
-          price: parseInt(p.price) || 0,
-          image: p.image || 'https://images.unsplash.com/photo-1586201375761-83865001e31c',
-          description: p.description || 'Đang cập nhật mô tả...',
-          weight_options: p.weight_options || '5kg',
-          weights: weightArray, 
-          features: {
-            aroma: deoVal >= 4 ? 'Thơm nhiều' : 'Thơm nhẹ',
-            texture: memVal >= 4 ? 'Mềm dẻo' : 'Nở xốp cơm'
-          },
-          dẻo: deoVal,
-          nở: noVal,
-          mềm: memVal
-        };
-      });
-
-      setProducts(formattedList);
-    } catch (error) {
-      console.error('Live products load error:', error);
-      toast.error('Không thể tải danh sách gạo thực tế');
-    } finally {
+  useEffect(() => {
+    (async () => {
+      const prods = await fetchProducts();
+      setProducts(prods);
       setLoading(false);
-    }
+    })();
   }, []);
 
-  useEffect(() => {
-    loadLiveProducts();
-  }, [loadLiveProducts]);
-
-  // BỌC CHỐNG SẬP CHO BỘ LỌC KIỂU DỮ LIỆU CŨ CỦA BOLT
   const filtered = useMemo(() => {
     try {
-      const dataArray = Array.isArray(products) ? products : [];
-      return applyFilters(dataArray, filters);
-    } catch (err) {
-      console.error('Apply filters failed:', err);
-      return Array.isArray(products) ? products : []; // Nếu bộ lọc sập, trả về mảng gốc không lọc chứ không làm sập cả trang web
+      return applyFilters(Array.isArray(products) ? products : [], filters);
+    } catch {
+      return Array.isArray(products) ? products : [];
     }
   }, [products, filters]);
 
@@ -138,22 +79,28 @@ function ProductsContent() {
 
           {loading ? (
             <div className="py-20 text-center text-sm text-muted-foreground">
-              🔄 Đang quét kho gạo thực tế từ hệ thống...
+              Đang tải sản phẩm từ Google Sheets...
             </div>
           ) : filtered.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-white p-12 text-center">
               <p className="text-base font-medium text-foreground">
-                Không tìm thấy sản phẩm phù hợp
+                {products.length === 0
+                  ? 'Chưa có sản phẩm nào trong Google Sheet.'
+                  : 'Không tìm thấy sản phẩm phù hợp'}
               </p>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                Thử thay đổi từ khoá hoặc giảm bớt bộ lọc đặc tính gạo.
+                {products.length === 0
+                  ? 'Vui lòng thêm sản phẩm vào Google Sheet hoặc đồng bộ lại.'
+                  : 'Thử thay đổi từ khoá hoặc giảm bớt bộ lọc đặc tính gạo.'}
               </p>
-              <button
-                onClick={() => setFilters(defaultFilters)}
-                className="mt-4 rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-              >
-                Xoá bộ lọc
-              </button>
+              {products.length > 0 && (
+                <button
+                  onClick={() => setFilters(defaultFilters)}
+                  className="mt-4 rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                >
+                  Xoá bộ lọc
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
