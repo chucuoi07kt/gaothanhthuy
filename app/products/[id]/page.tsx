@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { ArrowLeft, Check, MapPin, MessageCircle, Plus, ShoppingBag, Truck, Wheat } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -16,8 +16,15 @@ import { useCartStore } from '@/src/store/cartStore';
 import { quickZaloConsult } from '@/src/lib/zalo';
 import type { WeightOption } from '@/src/types';
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  const product = getProductBySlug(params.id);
+interface ProductPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function ProductDetailPage({ params }: ProductPageProps) {
+  // Sử dụng hook use() của React để unwrap params bất đồng bộ ở phía Client Component
+  const resolvedParams = use(params);
+  const product = getProductBySlug(resolvedParams.id);
+  
   if (!product) notFound();
 
   const [selectedWeight, setSelectedWeight] = useState<WeightOption>(
