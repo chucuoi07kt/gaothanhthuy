@@ -48,16 +48,17 @@ export default function AdminProductsPage() {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [syncing, setSyncing] = useState(false); // Trạng thái đồng bộ cache
+  const [syncing, setSyncing] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/products');
       const data = await res.json();
-      setProducts(data.products || []);
+      setProducts(Array.isArray(data.products) ? data.products : []);
     } catch {
       toast.error('Không thể tải dữ liệu sản phẩm');
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -65,17 +66,15 @@ export default function AdminProductsPage() {
 
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-  // Hàm xử lý kích hoạt đồng bộ (xóa bộ nhớ đệm cache tĩnh)
   const handleSyncCache = async () => {
     setSyncing(true);
     toast.loading('Đang làm mới dữ liệu từ Google Sheet...', { id: 'sync-cache' });
     try {
       const res = await fetch('/api/revalidate', { method: 'POST' });
       const data = await res.json();
-      
       if (data.success) {
         toast.success('Đã đồng bộ dữ liệu mới nhất!', { id: 'sync-cache' });
-        await fetchProducts(); // Tải lại danh sách sản phẩm mới về admin
+        await fetchProducts();
       } else {
         toast.error(data.message || 'Lỗi đồng bộ cache', { id: 'sync-cache' });
       }
@@ -89,7 +88,7 @@ export default function AdminProductsPage() {
   const filtered = useMemo(() => {
     return products.filter((p) => {
       if (filterCategory !== 'all' && p.category !== filterCategory) return false;
-      if (search.trim() && !p.name.toLowerCase().includes(search.toLowerCase().trim())) return false;
+      if (search.trim() && !(p.name || '').toLowerCase().includes(search.toLowerCase().trim())) return false;
       return true;
     });
   }, [products, search, filterCategory]);
@@ -107,9 +106,9 @@ export default function AdminProductsPage() {
   const openEdit = (p: SheetProduct) => {
     setEditing(true);
     setForm({
-      id: p.id, name: p.name, category: p.category, price: String(p.price),
-      weight_options: p.weight_options, image: p.image, description: p.description,
-      deo: String(p.dẻo), no: String(p.nở), mem: String(p.mềm),
+      id: p.id, name: p.name || '', category: p.category || CATEGORIES[0], price: String(p.price || 0),
+      weight_options: p.weight_options || '', image: p.image || '', description: p.description || '',
+      deo: String(p.dẻo || 0), no: String(p.nở || 0), mem: String(p.mềm || 0),
     });
     setModalOpen(true);
   };
@@ -196,26 +195,22 @@ export default function AdminProductsPage() {
   const formatPrice = (val: string) => val.replace(/[^\d]/g, '');
 
   return (
-    <div className="p-6 lg:p-8">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Quản lý sản phẩm</h1>
+          <h1 className="text-lg font-bold text-foreground sm:text-xl">Quản lý sản phẩm</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">{products.length} sản phẩm</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {/* Nút đồng bộ từ Google Sheet mới thêm */}
-          <Button 
-            variant="outline" 
-            onClick={handleSyncCache} 
-            disabled={syncing || loading}
-            className="gap-2 border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
-          >
+          <Button variant="outline" onClick={handleSyncCache} disabled={syncing || loading}
+            className="gap-2 border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 text-xs sm:text-sm">
             <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Đang đồng bộ...' : 'Đồng bộ Sheet'}
+            <span className="hidden sm:inline">{syncing ? 'Đang đồng bộ...' : 'Đồng bộ Sheet'}</span>
+            <span className="sm:hidden">{syncing ? 'Đang...' : 'Sync'}</span>
           </Button>
-
-          <Button onClick={openAdd} className="gap-2 bg-brand-600 text-white hover:bg-brand-700">
-            <Plus className="h-4 w-4" /> Thêm sản phẩm
+          <Button onClick={openAdd} className="gap-2 bg-brand-600 text-white hover:bg-brand-700 text-xs sm:text-sm">
+            <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Thêm sản phẩm</span>
+            <span className="sm:hidden">Thêm</span>
           </Button>
         </div>
       </div>
@@ -223,17 +218,11 @@ export default function AdminProductsPage() {
       <div className="mb-4 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            placeholder="Tìm theo tên sản phẩm..."
-            className="pl-10"
-          />
+          <Input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Tìm theo tên sản phẩm..." className="pl-10" />
         </div>
         <Select value={filterCategory} onValueChange={(v) => { setFilterCategory(v); setPage(1); }}>
-          <SelectTrigger className="w-full sm:w-56">
-            <SelectValue placeholder="Lọc theo danh mục" />
-          </SelectTrigger>
+          <SelectTrigger className="w-full sm:w-56"><SelectValue placeholder="Lọc theo danh mục" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tất cả danh mục</SelectItem>
             {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -241,89 +230,131 @@ export default function AdminProductsPage() {
         </Select>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border bg-white shadow-soft">
-        <table className="w-full text-sm">
-          <thead className="border-b border-border bg-brand-50/50 text-left text-xs font-semibold uppercase text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">Tên sản phẩm</th>
-              <th className="px-4 py-3">Danh mục</th>
-              <th className="px-4 py-3 text-right">Giá (đ/kg)</th>
-              <th className="px-4 py-3">Quy cách</th>
-              <th className="px-4 py-3 text-center">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {loading ? (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Đang tải...</td></tr>
-            ) : pageItems.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
-                <Package className="mx-auto mb-2 h-8 w-8 text-brand-300" />
-                Không có sản phẩm nào
-              </td></tr>
-            ) : (
-              pageItems.map((p) => (
-                <tr key={p.id} className="transition-colors hover:bg-brand-50/30">
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{p.id}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      {p.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.image} alt={p.name} className="h-9 w-9 rounded-lg object-cover" />
-                      ) : (
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-400">
-                          <Package className="h-4 w-4" />
-                        </div>
-                      )}
-                      <span className="font-medium text-foreground">{p.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.category}</td>
-                  <td className="px-4 py-3 text-right font-medium text-brand-700">
-                    {p.price.toLocaleString('vi-VN')}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{p.weight_options}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <button onClick={() => openEdit(p)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-600 hover:bg-brand-50">
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button onClick={() => handleDelete(p.id)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-destructive hover:bg-red-50">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      {/* Mobile: Card layout */}
+      <div className="grid grid-cols-1 gap-3 sm:hidden">
+        {loading ? (
+          <div className="rounded-xl border border-border bg-white p-8 text-center text-sm text-muted-foreground">Đang tải...</div>
+        ) : pageItems.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border bg-white p-8 text-center">
+            <Package className="mx-auto mb-2 h-8 w-8 text-brand-300" />
+            <p className="text-sm text-muted-foreground">Không có sản phẩm nào</p>
+          </div>
+        ) : (
+          pageItems.map((p) => (
+            <div key={p.id} className="rounded-xl border border-border bg-white p-4 shadow-soft">
+              <div className="flex items-start gap-3">
+                {p.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.image} alt={p.name} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                ) : (
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-400">
+                    <Package className="h-5 w-5" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate text-sm font-semibold text-foreground">{p.name}</h3>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{p.category}</p>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="text-sm font-bold text-brand-700">{(p.price || 0).toLocaleString('vi-VN')}đ/kg</span>
+                    <span className="text-xs text-muted-foreground">· {p.weight_options || 'Chưa set'}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                <span className="font-mono text-xs text-muted-foreground">ID: {p.id}</span>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => openEdit(p)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand-200 text-brand-600 active:bg-brand-50">
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button onClick={() => handleDelete(p.id)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-destructive active:bg-red-50">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop: Table layout */}
+      <div className="hidden overflow-hidden rounded-xl border border-border bg-white shadow-soft sm:block">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b border-border bg-brand-50/50 text-left text-xs font-semibold uppercase text-muted-foreground">
+              <tr>
+                <th className="px-4 py-3">ID</th>
+                <th className="px-4 py-3">Tên sản phẩm</th>
+                <th className="px-4 py-3">Danh mục</th>
+                <th className="px-4 py-3 text-right">Giá (đ/kg)</th>
+                <th className="px-4 py-3">Quy cách</th>
+                <th className="px-4 py-3 text-center">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {loading ? (
+                <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">Đang tải...</td></tr>
+              ) : pageItems.length === 0 ? (
+                <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <Package className="mx-auto mb-2 h-8 w-8 text-brand-300" />
+                  Không có sản phẩm nào
+                </td></tr>
+              ) : (
+                pageItems.map((p) => (
+                  <tr key={p.id} className="transition-colors hover:bg-brand-50/30">
+                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{p.id}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        {p.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={p.image} alt={p.name} className="h-9 w-9 rounded-lg object-cover" />
+                        ) : (
+                          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-400">
+                            <Package className="h-4 w-4" />
+                          </div>
+                        )}
+                        <span className="font-medium text-foreground">{p.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{p.category}</td>
+                    <td className="px-4 py-3 text-right font-medium text-brand-700">{(p.price || 0).toLocaleString('vi-VN')}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{p.weight_options}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button onClick={() => openEdit(p)} className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-600 hover:bg-brand-50">
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => handleDelete(p.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-destructive hover:bg-red-50">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-center gap-2">
-          <Button variant="outline" size="sm" disabled={currentPage <= 1}
-            onClick={() => setPage((p) => p - 1)}>Trước</Button>
+          <Button variant="outline" size="sm" disabled={currentPage <= 1} onClick={() => setPage((p) => p - 1)}>Trước</Button>
           <span className="text-sm text-muted-foreground">{currentPage} / {totalPages}</span>
-          <Button variant="outline" size="sm" disabled={currentPage >= totalPages}
-            onClick={() => setPage((p) => p + 1)}>Sau</Button>
+          <Button variant="outline" size="sm" disabled={currentPage >= totalPages} onClick={() => setPage((p) => p + 1)}>Sau</Button>
         </div>
       )}
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editing ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <Label>Tên sản phẩm *</Label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="VD: Gạo ST25 Lúa Tôm" />
+              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="VD: Gạo ST25 Lúa Tôm" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <Label>Danh mục</Label>
                 <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
@@ -335,49 +366,27 @@ export default function AdminProductsPage() {
               </div>
               <div>
                 <Label>Giá (đ/kg)</Label>
-                <Input value={form.price}
-                  onChange={(e) => setForm({ ...form, price: formatPrice(e.target.value) })}
-                  placeholder="280000" inputMode="numeric" />
+                <Input value={form.price} onChange={(e) => setForm({ ...form, price: formatPrice(e.target.value) })} placeholder="280000" inputMode="numeric" />
               </div>
             </div>
             <div>
               <Label>Quy cách đóng gói</Label>
-              <Input value={form.weight_options}
-                onChange={(e) => setForm({ ...form, weight_options: e.target.value })}
-                placeholder="5kg, 10kg, 25kg, 50kg" />
+              <Input value={form.weight_options} onChange={(e) => setForm({ ...form, weight_options: e.target.value })} placeholder="5kg, 10kg, 25kg, 50kg" />
             </div>
             <ImageUpload value={form.image} onChange={(url) => setForm({ ...form, image: url })} />
             <div>
               <Label>Mô tả</Label>
-              <textarea value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={3}
-                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-500"
-                placeholder="Mô tả sản phẩm..." />
+              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3}
+                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-500" placeholder="Mô tả sản phẩm..." />
             </div>
             <div className="grid grid-cols-3 gap-3">
-              <div>
-                <Label>Độ dẻo (1-5)</Label>
-                <Input type="number" min={0} max={5} value={form.deo}
-                  onChange={(e) => setForm({ ...form, deo: e.target.value })} />
-              </div>
-              <div>
-                <Label>Độ nở (1-5)</Label>
-                <Input type="number" min={0} max={5} value={form.no}
-                  onChange={(e) => setForm({ ...form, no: e.target.value })} />
-              </div>
-              <div>
-                <Label>Độ mềm (1-5)</Label>
-                <Input type="number" min={0} max={5} value={form.mem}
-                  onChange={(e) => setForm({ ...form, mem: e.target.value })} />
-              </div>
+              <div><Label>Độ dẻo (1-5)</Label><Input type="number" min={0} max={5} value={form.deo} onChange={(e) => setForm({ ...form, deo: e.target.value })} /></div>
+              <div><Label>Độ nở (1-5)</Label><Input type="number" min={0} max={5} value={form.no} onChange={(e) => setForm({ ...form, no: e.target.value })} /></div>
+              <div><Label>Độ mềm (1-5)</Label><Input type="number" min={0} max={5} value={form.mem} onChange={(e) => setForm({ ...form, mem: e.target.value })} /></div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setModalOpen(false)}>Huỷ</Button>
-              <Button onClick={handleSave} disabled={saving}
-                className="bg-brand-600 text-white hover:bg-brand-700">
-                {saving ? 'Đang lưu...' : 'Lưu'}
-              </Button>
+              <Button onClick={handleSave} disabled={saving} className="bg-brand-600 text-white hover:bg-brand-700">{saving ? 'Đang lưu...' : 'Lưu'}</Button>
             </div>
           </div>
         </DialogContent>
