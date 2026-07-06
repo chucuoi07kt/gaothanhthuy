@@ -6,7 +6,7 @@ import { Navbar } from '@/src/components/Navbar';
 import { Footer } from '@/src/components/Footer';
 import { QuoteCartModal } from '@/src/components/QuoteCartModal';
 import { FloatingCartButton } from '@/src/components/FloatingCartButton';
-import { BRAND } from '@/src/data/mockData';
+import { BRAND } from '@/src/lib/brand';
 
 const display = Plus_Jakarta_Sans({
   subsets: ['latin', 'vietnamese'],

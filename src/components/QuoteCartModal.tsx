@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useCartStore, formatQuoteMessage } from '@/src/store/cartStore';
 import { sendQuoteViaZalo, copyToClipboard } from '@/src/lib/zalo';
-import { BRAND } from '@/src/data/mockData';
+import { BRAND } from '@/src/lib/brand';
 import { ProductImage } from './ProductImage';
 
 export function QuoteCartModal() {

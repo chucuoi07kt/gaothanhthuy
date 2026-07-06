@@ -7,7 +7,7 @@ import { Menu, ShoppingBag, X, Phone, MapPin, Wheat, ShieldAlert } from 'lucide-
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/src/store/cartStore';
-import { BRAND } from '@/src/data/mockData';
+import { BRAND } from '@/src/lib/brand';
 import { quickZaloConsult } from '@/src/lib/zalo';
 
 const navLinks = [
@@ -40,7 +40,6 @@ export function Navbar() {
     setMobileOpen(false);
   }, [pathname]);
 
-  // Ẩn thanh điều hướng chính khi đang ở trong không gian trang quản trị CMS
   if (isAdmin) return null;
 
   return (
@@ -135,7 +134,6 @@ export function Navbar() {
             )}
           </button>
 
-          {/* NÚT ADMIN TRÊN DESKTOP */}
           <Link
             href="/admin/login"
             className="hidden sm:flex h-10 px-3.5 items-center gap-1.5 rounded-xl border border-border bg-white text-xs font-medium text-muted-foreground transition-all hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200 shadow-sm"
@@ -185,8 +183,7 @@ export function Navbar() {
             >
               Tư vấn nhanh qua Zalo
             </Button>
-            
-            {/* NÚT ADMIN TRÊN MOBILE */}
+
             <Link
               href="/admin/login"
               className="flex items-center justify-center gap-2 mt-1 py-2.5 px-3 rounded-lg text-xs font-medium text-muted-foreground bg-gray-50 border border-border active:bg-brand-50 active:text-brand-700"
