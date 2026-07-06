@@ -1,34 +1,66 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Calendar, Clock, MessageCircle, Newspaper } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { blogPosts, getBlogBySlug, BRAND } from '@/src/data/mockData';
+import { getBlogFromSheet } from '@/src/lib/sheets';
+import { normalizeBlogPost } from '@/src/lib/products';
 import { ZaloCta } from '@/src/components/ZaloCta';
+import { BRAND } from '@/src/lib/brand';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  return blogPosts.map((b) => ({ slug: b.slug }));
-}
-
 export async function generateMetadata({ params }: PageProps) {
   const resolvedParams = await params;
-  const post = getBlogBySlug(resolvedParams.slug);
-  if (!post) return {};
-  return {
-    title: post.title,
-    description: post.excerpt,
-  };
+  try {
+    const allPosts = await getBlogFromSheet();
+    const found = allPosts.find((p) => p.slug === resolvedParams.slug || p.id === resolvedParams.slug);
+    if (!found) return {};
+    const normalized = normalizeBlogPost(found);
+    return {
+      title: normalized.title,
+      description: normalized.excerpt,
+    };
+  } catch {
+    return {};
+  }
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
   const resolvedParams = await params;
-  const post = getBlogBySlug(resolvedParams.slug);
-  if (!post) notFound();
 
-  const related = blogPosts.filter((b) => b.id !== post.id).slice(0, 3);
+  let post = null;
+  let related: ReturnType<typeof normalizeBlogPost>[] = [];
+
+  try {
+    const allPosts = await getBlogFromSheet();
+    if (!Array.isArray(allPosts) || allPosts.length === 0) {
+      notFound();
+    }
+
+    const found = allPosts.find(
+      (p) => p.slug === resolvedParams.slug || p.id === resolvedParams.slug
+    );
+    if (!found) {
+      notFound();
+    }
+
+    post = normalizeBlogPost(found);
+
+    const relatedRaw = allPosts
+      .filter((p) => p.id !== found.id)
+      .slice(0, 3);
+    related = relatedRaw.map(normalizeBlogPost);
+  } catch {
+    notFound();
+  }
+
+  if (!post) {
+    notFound();
+  }
+
+  const contentParagraphs = (post.content || '').split('\n').filter((p) => p.trim());
 
   return (
     <>
@@ -52,7 +84,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           <h1 className="mt-3 text-2xl font-bold leading-tight text-foreground sm:text-3xl">
             {post.title}
           </h1>
-          <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5" />
               {post.publishedAt}
@@ -78,10 +110,12 @@ export default async function BlogPostPage({ params }: PageProps) {
 
           <div className="mt-6 space-y-4 text-base leading-relaxed text-foreground/80">
             <p className="text-lg font-medium text-foreground">{post.excerpt}</p>
-            {post.content.split('\n').map((para, idx) =>
-              para.trim() ? (
+            {contentParagraphs.length > 0 ? (
+              contentParagraphs.map((para, idx) => (
                 <p key={idx}>{para}</p>
-              ) : null
+              ))
+            ) : (
+              <p>Nội dung đang được cập nhật...</p>
             )}
           </div>
 
@@ -95,40 +129,42 @@ export default async function BlogPostPage({ params }: PageProps) {
         </div>
       </article>
 
-      <section className="section-pad pt-4">
-        <div className="container-page max-w-3xl">
-          <div className="mb-4 flex items-center gap-2">
-            <ArrowLeft className="h-5 w-5 text-brand-600" />
-            <h2 className="text-xl font-bold text-foreground">Bài viết khác</h2>
+      {related.length > 0 && (
+        <section className="section-pad pt-4">
+          <div className="container-page max-w-3xl">
+            <div className="mb-4 flex items-center gap-2">
+              <ArrowLeft className="h-5 w-5 text-brand-600" />
+              <h2 className="text-xl font-bold text-foreground">Bài viết khác</h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {related.map((b) => (
+                <Link
+                  key={b.id}
+                  href={`/blog/${b.slug}`}
+                  className="group flex flex-col overflow-hidden rounded-xl border border-border bg-white shadow-soft transition-all hover:-translate-y-1 hover:shadow-card"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={b.image}
+                      alt={b.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-3">
+                    <h3 className="line-clamp-2 text-sm font-semibold text-foreground group-hover:text-brand-700">
+                      {b.title}
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {b.publishedAt} · {b.readingMinutes} phút
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {related.map((b) => (
-              <Link
-                key={b.id}
-                href={`/blog/${b.slug}`}
-                className="group flex flex-col overflow-hidden rounded-xl border border-border bg-white shadow-soft transition-all hover:-translate-y-1 hover:shadow-card"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={b.image}
-                    alt={b.title}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="p-3">
-                  <h3 className="line-clamp-2 text-sm font-semibold text-foreground group-hover:text-brand-700">
-                    {b.title}
-                  </h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {b.publishedAt} · {b.readingMinutes} phút
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 }
