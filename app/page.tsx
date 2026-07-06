@@ -28,10 +28,17 @@ export default function HomePage() {
     })();
   }, []);
 
-  const bestSellers = useMemo(
-    () => allProducts.filter((p) => p.bestSeller).slice(0, 8),
-    [allProducts]
-  );
+  const bestSellers = useMemo(() => {
+    if (!Array.isArray(allProducts)) return [];
+
+    const filteredBests = allProducts.filter((p) => {
+      if (!p) return false;
+      const val = String(p.bestSeller || '').toLowerCase().trim();
+      return val === 'true' || val === 'yes' || val === '1' || p.bestSeller === true;
+    });
+
+    return filteredBests.length > 0 ? filteredBests.slice(0, 8) : allProducts.slice(0, 8);
+  }, [allProducts]);
 
   const filteredBestSellers = useMemo(() => {
     try {

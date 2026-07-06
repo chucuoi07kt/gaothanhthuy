@@ -9,6 +9,7 @@ export interface SheetProduct {
   dẻo: number;
   nở: number;
   mềm: number;
+  thơm?: number;
 }
 
 export interface SheetBlogPost {
@@ -81,6 +82,7 @@ export async function getProductsFromSheet(): Promise<SheetProduct[]> {
     dẻo: parseInt(row['deo'] || row['dẻo'] || '0', 10) || 0,
     nở: parseInt(row['no'] || row['nở'] || '0', 10) || 0,
     mềm: parseInt(row['mem'] || row['mềm'] || '0', 10) || 0,
+    thơm: parseInt(row['thom'] || row['thơm'] || '0', 10) || 0,
   }));
 }
 
