@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Wheat, Phone, MapPin, Clock, Mail, MessageCircle } from 'lucide-react';
+import { Phone, MapPin, Clock, Mail, MessageCircle } from 'lucide-react';
 import { BRAND } from '@/src/lib/brand';
 import { categories } from '@/src/lib/categories';
 import { quickZaloConsult } from '@/src/lib/zalo';
@@ -12,9 +12,14 @@ export function Footer() {
       <div className="container-page py-12">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
-                <Wheat className="h-5 w-5 text-gold-400" />
+            {/* KHU VỰC LOGO + CHỮ Ở FOOTER: Logo vừa bằng khối chữ tương tự như trên Navbar */}
+            <div className="flex items-center gap-3 shrink-0 py-1">
+              <div className="flex h-14 items-center justify-center">
+                <img 
+                  src="/logo.png" 
+                  alt="Logo Gạo Thanh Thủy" 
+                  className="h-full w-auto object-contain max-h-14 block"
+                />
               </div>
               <div className="leading-tight">
                 <span className="block text-base font-bold text-white">
@@ -25,6 +30,7 @@ export function Footer() {
                 </span>
               </div>
             </div>
+            
             <p className="mt-4 text-sm leading-relaxed text-brand-100">
               Phân phối gạo sỉ & lẻ uy tín tại Đà Nẵng. Giao hỏa tốc nội thành
               1-2 tiếng, phục vụ hàng trăm quán cơm, nhà hàng, tổ chức từ thiện.
