@@ -1,15 +1,19 @@
 'use client';
 
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useMemo, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ProductCard } from '@/src/components/ProductCard';
 import { QuickSearch, defaultFilters, type FilterState } from '@/src/components/QuickSearch';
-import { products, categories } from '@/src/data/mockData';
+import { categories } from '@/src/data/mockData'; // Giữ lại categories mẫu cho bộ lọc
 import { applyFilters } from '@/src/lib/filters';
+import { toast } from 'sonner';
 
 function ProductsContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') ?? 'all';
+
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [filters, setFilters] = useState<FilterState>({
     ...defaultFilters,
@@ -18,7 +22,42 @@ function ProductsContent() {
       : 'all',
   });
 
-  const filtered = useMemo(() => applyFilters(products, filters), [filters]);
+  // Hàm gọi API lấy sản phẩm gạo thật từ Google Sheets
+  const loadLiveProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/products', { cache: 'no-store' });
+      const data = await res.json();
+      
+      const liveList = data.products || data.sp || [];
+      
+      // Chuẩn hóa cấu trúc đặc tính gạo từ Sheet sang biến component Card hiểu
+      const formattedList = liveList.map((p: any) => ({
+        ...p,
+        // Đảm bảo có các trường tiếng Việt lẫn tiếng Anh phòng hờ cấu trúc của Card cũ
+        weights: p.weight_options ? p.weight_options.split(',').map((w: string) => w.trim()) : ['5kg'],
+        features: {
+          aroma: parseInt(p.deo || p.dẻo) >= 4 ? 'Thơm nhiều' : 'Thơm nhẹ',
+          texture: parseInt(p.mem || p.mềm) >= 4 ? 'Mềm dẻo' : 'Nở xốp cơm'
+        },
+        dẻo: parseInt(p.deo || p.dẻo) || 0,
+        nở: parseInt(p.no || p.nở) || 0,
+        mềm: parseInt(p.mem || p.mềm) || 0
+      }));
+
+      setProducts(formattedList);
+    } catch {
+      toast.error('Không thể tải danh sách gạo thực tế');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadLiveProducts();
+  }, [loadLiveProducts]);
+
+  const filtered = useMemo(() => applyFilters(products, filters), [products, filters]);
 
   const activeCategory = categories.find((c) => c.slug === filters.category);
 
@@ -58,7 +97,11 @@ function ProductsContent() {
             </span>
           </div>
 
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">
+              🔄 Đang quét kho gạo thực tế từ hệ thống...
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-white p-12 text-center">
               <p className="text-base font-medium text-foreground">
                 Không tìm thấy sản phẩm phù hợp
