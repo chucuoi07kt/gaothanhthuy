@@ -5,12 +5,17 @@ import { Button } from '@/components/ui/button';
 import { blogPosts, getBlogBySlug, BRAND } from '@/src/data/mockData';
 import { ZaloCta } from '@/src/components/ZaloCta';
 
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
+
 export function generateStaticParams() {
   return blogPosts.map((b) => ({ slug: b.slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const post = getBlogBySlug(params.slug);
+export async function generateMetadata({ params }: PageProps) {
+  const resolvedParams = await params;
+  const post = getBlogBySlug(resolvedParams.slug);
   if (!post) return {};
   return {
     title: post.title,
@@ -18,8 +23,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = getBlogBySlug(params.slug);
+export default async function BlogPostPage({ params }: PageProps) {
+  const resolvedParams = await params;
+  const post = getBlogBySlug(resolvedParams.slug);
   if (!post) notFound();
 
   const related = blogPosts.filter((b) => b.id !== post.id).slice(0, 3);
