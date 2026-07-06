@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProductsFromSheet, writeToSheet, generateProductId, type SheetProduct } from '@/src/lib/sheets';
-
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
