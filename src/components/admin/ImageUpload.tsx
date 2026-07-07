@@ -13,13 +13,22 @@ interface ImageUploadProps {
   multiple?: boolean;
 }
 
+// 🔥 FIX TRIỆT ĐỂ KHÂU BÓC TÁCH: Thêm bộ lọc dọn rác khoảng trắng và xóa sạch chuỗi rỗng
 function parseImages(value: string): string[] {
   if (!value) return [];
   const seen = new Set<string>();
   const result: string[] = [];
-  for (const s of value.split(',')) {
+  
+  // Xử lý loại bỏ hoàn toàn dấu ngoặc vuông và dấu nháy nếu chuỗi bị lưu sai dạng mảng JSON thô
+  let cleanValue = value.trim();
+  if (cleanValue.startsWith('[') && cleanValue.endsWith(']')) {
+    cleanValue = cleanValue.replace(/[\[\]"']/g, '');
+  }
+
+  for (const s of cleanValue.split(',')) {
     const trimmed = s.trim();
-    if (trimmed && !seen.has(trimmed)) {
+    // Bộ lọc filter(Boolean) tự chế: Chỉ đẩy vào mảng hiển thị nếu chuỗi có nội dung thực sự
+    if (trimmed && trimmed !== '""' && trimmed !== "''" && !seen.has(trimmed)) {
       seen.add(trimmed);
       result.push(trimmed);
     }
@@ -28,7 +37,8 @@ function parseImages(value: string): string[] {
 }
 
 function joinImages(images: string[]): string {
-  return images.join(',');
+  // Gộp lại mảng sạch bóng phần tử rỗng
+  return images.filter(Boolean).join(',');
 }
 
 export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple = false }: ImageUploadProps) {
@@ -36,6 +46,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Mảng ảnh xem trước (Preview) được lọc sạch bách chuỗi rỗng
   const images = multiple ? parseImages(value) : [];
   const singleImage = !multiple ? (value || '').trim() : '';
 
@@ -57,8 +68,13 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
         const current = parseImages(value);
         const merged: string[] = [];
         const seen = new Set<string>();
+        // Đồng bộ dọn sạch mảng ảnh mới khi upload lên
         for (const url of [...current, ...uploadedUrls]) {
-          if (url && !seen.has(url)) { seen.add(url); merged.push(url); }
+          const trimmedUrl = (url || '').trim();
+          if (trimmedUrl && !seen.has(trimmedUrl)) { 
+            seen.add(trimmedUrl); 
+            merged.push(trimmedUrl); 
+          }
         }
         onChange(joinImages(merged));
       } else {
@@ -87,13 +103,14 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
         {images.length > 0 && (
           <div className="mb-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
             {images.map((img, idx) => (
+              // Kết hợp url hình và index làm key duy nhất để React render chuẩn đét
               <div key={`${img}-${idx}`} className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-brand-50">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img} alt={`Ảnh ${idx + 1}`} className="h-full w-full object-cover" />
                 <button
                   type="button"
                   onClick={() => removeImage(idx)}
-                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-destructive shadow-soft transition-colors hover:bg-white"
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-destructive shadow-soft transition-colors hover:bg-white z-10"
                   aria-label="Xoá ảnh"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -105,6 +122,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
 
         <div
           onDrop={(e) => { e.preventDefault(); setDragging(false); const files = e.dataTransfer.files; if (files.length > 0) handleFiles(files); }}
+          onDropRaw={(e: any) => e.preventDefault()}
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={(e) => { e.preventDefault(); setDragging(false); }}
           onClick={() => inputRef.current?.click()}
