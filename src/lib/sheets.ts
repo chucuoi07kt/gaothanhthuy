@@ -11,7 +11,6 @@ export interface SheetProduct {
   mem: number;
   thom: number;
   origin: string;
-  
 }
 
 export interface SheetBlogPost {
@@ -113,10 +112,15 @@ export async function getProductsFromSheet(): Promise<SheetProduct[]> {
       weight_options: row.weight_options || '',
       image: row.image || '',
       description: cleanDescription,
-      dẻo: parseInt(row['deo'] || row['dẻo'] || '0', 10) || 0,
-      nở: parseInt(row['no'] || row['nở'] || '0', 10) || 0,
-      mềm: parseInt(row['mem'] || row['mềm'] || '0', 10) || 0,
-      thơm: parseInt(row['thom'] || row['thơm'] || '0', 10) || 0,
+      
+      // ✅ ĐỔI SANG DẠNG KHÔNG DẤU KHỚP 100% VỚI INTERFACE SHEETPRODUCT (Chống lỗi build)
+      deo: parseInt(row['deo'] || row['dẻo'] || '0', 10) || 0,
+      no: parseInt(row['no'] || row['nở'] || '0', 10) || 0,
+      mem: parseInt(row['mem'] || row['mềm'] || '0', 10) || 0,
+      thom: parseInt(row['thom'] || row['thơm'] || '0', 10) || 0,
+      
+      // ✅ BỔ SUNG TRƯỜNG XUẤT XỨ ĐỂ HIỂN THỊ BADGE NGOÀI CARD VÀ CHI TIẾT
+      origin: row.origin || '',
     };
   });
 }
