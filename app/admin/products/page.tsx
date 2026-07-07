@@ -472,17 +472,18 @@ export default function AdminProductsPage() {
               </div>
             </div>
 
-            {/* Ô nhập Xuất xứ */}
+            {/* 🔍 Anh sửa chính xác lại khối này ở dòng 480 nhé: */}
 <div className="space-y-2">
   <Label htmlFor="origin" className="text-sm font-medium">Xuất xứ gạo</Label>
   <Input
     id="origin"
-    value={formData.origin || ''}
-    onChange={(e) => setFormData({ ...formData, origin: e.target.value })}
+    value={form.origin || ''} // ✅ Đổi formData thành form
+    onChange={(e) => setForm({ ...form, origin: e.target.value })} // ✅ Đổi setFormData thành setForm
     placeholder="Ví dụ: Miền Tây, Sóc Trăng, Điện Biên, Hải Hậu..."
     className="w-full"
   />
 </div>
+
 
             <div>
               <Label>Quy cách đóng gói</Label>
