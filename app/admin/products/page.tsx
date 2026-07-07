@@ -33,11 +33,12 @@ interface FormData {
   no: string;
   mem: string;
   thom: string;
+  origin: string;
 }
 
 const emptyForm: FormData = {
   id: '', name: '', category: CATEGORIES[0], price: '', weight_options: '5kg, 10kg, 25kg, 50kg',
-  image: '', description: '', deo: '0', no: '0', mem: '0', thom: '0',
+  image: '', description: '', deo: '0', no: '0', mem: '0', thom: '0',origin: '',
 };
 
 export default function AdminProductsPage() {
@@ -469,6 +470,19 @@ export default function AdminProductsPage() {
                   placeholder="28000" inputMode="numeric" />
               </div>
             </div>
+
+            {/* Ô nhập Xuất xứ */}
+<div className="space-y-2">
+  <Label htmlFor="origin" className="text-sm font-medium">Xuất xứ gạo</Label>
+  <Input
+    id="origin"
+    value={formData.origin || ''}
+    onChange={(e) => setFormData({ ...formData, origin: e.target.value })}
+    placeholder="Ví dụ: Miền Tây, Sóc Trăng, Điện Biên, Hải Hậu..."
+    className="w-full"
+  />
+</div>
+
             <div>
               <Label>Quy cách đóng gói</Label>
               <Input value={form.weight_options}
