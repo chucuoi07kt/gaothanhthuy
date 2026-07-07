@@ -6,10 +6,12 @@ export interface SheetProduct {
   weight_options: string;
   image: string;
   description: string;
-  dẻo: number;
-  nở: number;
-  mềm: number;
-  thơm?: number;
+  deo: number;
+  no: number;
+  mem: number;
+  thom: number;
+  origin: string;
+  
 }
 
 export interface SheetBlogPost {
