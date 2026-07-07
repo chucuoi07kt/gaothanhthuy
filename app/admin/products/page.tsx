@@ -107,7 +107,6 @@ export default function AdminProductsPage() {
 
   const openEdit = (p: SheetProduct) => {
     setEditing(true);
-    // Ép kiểu sang any để lấy linh hoạt thuộc tính có dấu/không dấu từ API không lỗi TypeScript
     const rawProduct = p as any;
     setForm({
       id: p.id,
@@ -156,7 +155,7 @@ export default function AdminProductsPage() {
     };
 
     if (editing) {
-      setProducts((prev) => prev.map((p) => p.id === form.id ? {
+      setProducts((prev) => prev.map((p) => p.id === form.id ? ({
         ...p,
         name: payload.name,
         category: payload.category,
@@ -168,10 +167,10 @@ export default function AdminProductsPage() {
         no: numNo, nở: numNo,
         mem: numMem, mềm: numMem,
         thom: numThom, thơm: numThom,
-      } : p));
+      } as any) : p));
     } else {
       const newId = String(Math.max(0, ...products.map((p) => parseInt(p.id) || 0)) + 1);
-      const newProduct: SheetProduct = {
+      const newProduct: any = {
         id: newId,
         name: payload.name,
         category: payload.category,
