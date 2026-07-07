@@ -42,13 +42,12 @@ function parseCSVLine(line: string): string[] {
   return result;
 }
 
-// 🔥 HÀM PARSE CSV ĐÃ ĐƯỢC THAY THẾ THUẬT TOÁN ĐỌC DÒNG THÔNG MINH
 function parseCSV(csv: string): Record<string, string>[] {
   const lines: string[] = [];
   let currentLine = '';
   let inQuotes = false;
 
-  // Quét từng ký tự một để chia dòng, nếu gặp dấu xuống dòng nằm trong dấu ngoặc kép "" thì giữ nguyên
+  // Quét từng ký tự để chia dòng, giữ nguyên dấu xuống dòng bên trong dấu ngoặc kép "" của ô mô tả
   for (let i = 0; i < csv.length; i++) {
     const char = csv[i];
     if (char === '"') {
@@ -59,7 +58,6 @@ function parseCSV(csv: string): Record<string, string>[] {
         lines.push(currentLine);
       }
       currentLine = '';
-      // Bỏ qua ký tự bổ trợ nếu là định dạng dòng của Windows (\r\n)
       if (char === '\r' && csv[i + 1] === '\n') {
         i++;
       }
@@ -99,19 +97,26 @@ function parsePrice(val: string | number): number {
 
 export async function getProductsFromSheet(): Promise<SheetProduct[]> {
   const rows = await fetchSheetData('sp');
-  return rows.map((row) => ({
-    id: row.id || '',
-    name: row.name || '',
-    category: row.category || '',
-    price: parsePrice(row.price),
-    weight_options: row.weight_options || '',
-    image: row.image || '',
-    description: row.description || '',
-    dẻo: parseInt(row['deo'] || row['dẻo'] || '0', 10) || 0,
-    nở: parseInt(row['no'] || row['nở'] || '0', 10) || 0,
-    mềm: parseInt(row['mem'] || row['mềm'] || '0', 10) || 0,
-    thơm: parseInt(row['thom'] || row['thơm'] || '0', 10) || 0,
-  }));
+  return rows.map((row) => {
+    // Chuẩn hóa chuỗi xuống dòng: Thay thế các ký tự đại diện [BR] hoặc biến thể nếu có về dạng tinh sọc chuẩn \n
+    let cleanDescription = (row.description || '')
+      .replace(/\[BR\]/g, '\n')
+      .replace(/\\n/g, '\n');
+
+    return {
+      id: row.id || '',
+      name: row.name || '',
+      category: row.category || '',
+      price: parsePrice(row.price),
+      weight_options: row.weight_options || '',
+      image: row.image || '',
+      description: cleanDescription,
+      dẻo: parseInt(row['deo'] || row['dẻo'] || '0', 10) || 0,
+      nở: parseInt(row['no'] || row['nở'] || '0', 10) || 0,
+      mềm: parseInt(row['mem'] || row['mềm'] || '0', 10) || 0,
+      thơm: parseInt(row['thom'] || row['thơm'] || '0', 10) || 0,
+    };
+  });
 }
 
 export async function getBlogFromSheet(): Promise<SheetBlogPost[]> {
@@ -134,6 +139,13 @@ export async function writeToSheet(
 ): Promise<{ success: boolean; error?: string }> {
   if (!APPS_SCRIPT_URL) return { success: false, error: 'GOOGLE_APPS_SCRIPT_URL not configured' };
   try {
+    // Nếu ghi dữ liệu sản phẩm, chuyển đổi các dấu ngắt dòng trong ô mô tả thành ký tự an toàn trước khi đẩy xuống Google Sheet
+    if (tab === 'sp' && data && typeof data.description === 'string') {
+      data.description = data.description
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n');
+    }
+
     const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
