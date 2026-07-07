@@ -107,10 +107,19 @@ export default function AdminProductsPage() {
 
   const openEdit = (p: SheetProduct) => {
     setEditing(true);
+    // Hỗ trợ đọc an toàn cả trường có dấu lẫn không dấu từ API Google Sheets đổ về
     setForm({
-      id: p.id, name: p.name || '', category: p.category || CATEGORIES[0], price: String(p.price || 0),
-      weight_options: p.weight_options || '', image: p.image || '', description: p.description || '',
-      deo: String(p.dẻo || 0), no: String(p.nở || 0), mem: String(p.mềm || 0), thom: String(p.thơm || 0),
+      id: p.id,
+      name: p.name || '',
+      category: p.category || CATEGORIES[0],
+      price: String(p.price || 0),
+      weight_options: p.weight_options || '',
+      image: p.image || '',
+      description: p.description || '',
+      deo: String(p.deo ?? p.dẻo ?? 0),
+      no: String(p.no ?? p.nở ?? 0),
+      mem: String(p.mem ?? p.mềm ?? 0),
+      thom: String(p.thom ?? p.thơm ?? 0),
     });
     setModalOpen(true);
   };
@@ -120,35 +129,63 @@ export default function AdminProductsPage() {
     setSaving(true);
     toast.loading('Đang đồng bộ dữ liệu...', { id: 'sync' });
 
+    // Làm sạch và chuyển đổi giá tiền sang kiểu số nguyên chuẩn
+    const cleanPrice = parseInt(String(form.price).replace(/[^\d]/g, '')) || 0;
+    const numDeo = parseInt(form.deo) || 0;
+    const numNo = parseInt(form.no) || 0;
+    const numMem = parseInt(form.mem) || 0;
+    const numThom = parseInt(form.thom) || 0;
+
+    // Chuẩn hóa Payload gửi lên API (Hỗ trợ cả thuộc tính không dấu và có dấu để tương thích tuyệt đối)
     const payload = {
       action: editing ? 'update' : 'insert',
       id: form.id || undefined,
-      name: form.name,
+      name: form.name.trim(),
       category: form.category,
-      price: form.price,
-      weight_options: form.weight_options,
+      price: cleanPrice,
+      weight_options: form.weight_options.trim(),
       image: form.image,
-      description: form.description,
-      deo: parseInt(form.deo) || 0,
-      no: parseInt(form.no) || 0,
-      mem: parseInt(form.mem) || 0,
-      thom: parseInt(form.thom) || 0,
+      description: form.description.trim(),
+      deo: numDeo,
+      no: numNo,
+      mem: numMem,
+      thom: numThom,
+      // Gửi kèm phòng hờ cấu hình Apps Script cũ cần tiếng Việt có dấu
+      dẻo: numDeo,
+      nở: numNo,
+      mềm: numMem,
+      thơm: numThom
     };
 
+    // Cập nhật State UI cục bộ ngay lập tức để tạo cảm giác mượt mà không độ trễ
     if (editing) {
       setProducts((prev) => prev.map((p) => p.id === form.id ? {
-        ...p, name: form.name, category: form.category,
-        price: parseInt(form.price.replace(/[^\d]/g, '')) || 0,
-        weight_options: form.weight_options, image: form.image, description: form.description,
-        dẻo: parseInt(form.deo) || 0, nở: parseInt(form.no) || 0, mềm: parseInt(form.mem) || 0, thơm: parseInt(form.thom) || 0,
+        ...p,
+        name: payload.name,
+        category: payload.category,
+        price: payload.price,
+        weight_options: payload.weight_options,
+        image: payload.image,
+        description: payload.description,
+        deo: numDeo, dẻo: numDeo,
+        no: numNo, nở: numNo,
+        mem: numMem, mềm: numMem,
+        thom: numThom, thơm: numThom,
       } : p));
     } else {
       const newId = String(Math.max(0, ...products.map((p) => parseInt(p.id) || 0)) + 1);
       const newProduct: SheetProduct = {
-        id: newId, name: form.name, category: form.category,
-        price: parseInt(form.price.replace(/[^\d]/g, '')) || 0,
-        weight_options: form.weight_options, image: form.image, description: form.description,
-        dẻo: parseInt(form.deo) || 0, nở: parseInt(form.no) || 0, mềm: parseInt(form.mem) || 0, thơm: parseInt(form.thom) || 0,
+        id: newId,
+        name: payload.name,
+        category: payload.category,
+        price: payload.price,
+        weight_options: payload.weight_options,
+        image: payload.image,
+        description: payload.description,
+        deo: numDeo, dẻo: numDeo,
+        no: numNo, nở: numNo,
+        mem: numMem, mềm: numMem,
+        thom: numThom, thơm: numThom,
       };
       setProducts((prev) => [newProduct, ...prev]);
     }
@@ -165,12 +202,12 @@ export default function AdminProductsPage() {
         toast.success('Đồng bộ Google Sheets thành công!', { id: 'sync' });
       } else {
         toast.error(`Lỗi: ${data.error || 'Không thể đồng bộ'}`, { id: 'sync' });
-        fetchProducts();
+        fetchProducts(); // Tải lại dữ liệu chuẩn từ server nếu lỗi
       }
     } catch {
       toast.error('Lỗi kết nối server', { id: 'sync' });
       fetchProducts();
-    } finally {
+    } finaly {
       setSaving(false);
     }
   };
@@ -187,10 +224,14 @@ export default function AdminProductsPage() {
         body: JSON.stringify({ action: 'delete', id }),
       });
       const data = await res.json();
-      if (data.success) toast.success('Đã xoá sản phẩm', { id: 'del' });
-      else { toast.error('Lỗi xoá', { id: 'del' }); setProducts(prev); }
+      if (data.success) {
+        toast.success('Đã xoá sản phẩm thành công!', { id: 'del' });
+      } else { 
+        toast.error('Lỗi xoá dữ liệu', { id: 'del' }); 
+        setProducts(prev); 
+      }
     } catch {
-      toast.error('Lỗi kết nối', { id: 'del' });
+      toast.error('Lỗi kết nối máy chủ', { id: 'del' });
       setProducts(prev);
     }
   };
@@ -396,7 +437,7 @@ export default function AdminProductsPage() {
                 <Label>Giá (đ/kg)</Label>
                 <Input value={form.price}
                   onChange={(e) => setForm({ ...form, price: formatPrice(e.target.value) })}
-                  placeholder="280000" inputMode="numeric" />
+                  placeholder="28000" inputMode="numeric" />
               </div>
             </div>
             <div>
