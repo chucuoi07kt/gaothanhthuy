@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Check, MapPin, Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn, getFirstImage } from '@/lib/utils'; // Đã import getFirstImage ở đây
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProductImage } from './ProductImage';
@@ -31,7 +31,7 @@ export function ProductCard({ product }: { product: Product }) {
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card">
       <Link href={`/products/${product.slug}`} className="relative block aspect-[4/3] overflow-hidden">
         <ProductImage
-          src={product.image}
+          src={getFirstImage(product.image)} // Đã bọc hàm getFirstImage để xử lý chuỗi nhiều ảnh Cloudinary
           alt={product.name}
           rounded="rounded-none"
           className="h-full w-full transition-transform duration-500 group-hover:scale-105"
