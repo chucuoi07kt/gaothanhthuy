@@ -42,11 +42,39 @@ function parseCSVLine(line: string): string[] {
   return result;
 }
 
+// 🔥 HÀM PARSE CSV ĐÃ ĐƯỢC THAY THẾ THUẬT TOÁN ĐỌC DÒNG THÔNG MINH
 function parseCSV(csv: string): Record<string, string>[] {
-  const lines = csv.split('\n').filter((l) => l.trim());
+  const lines: string[] = [];
+  let currentLine = '';
+  let inQuotes = false;
+
+  // Quét từng ký tự một để chia dòng, nếu gặp dấu xuống dòng nằm trong dấu ngoặc kép "" thì giữ nguyên
+  for (let i = 0; i < csv.length; i++) {
+    const char = csv[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      currentLine += char;
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (currentLine.trim()) {
+        lines.push(currentLine);
+      }
+      currentLine = '';
+      // Bỏ qua ký tự bổ trợ nếu là định dạng dòng của Windows (\r\n)
+      if (char === '\r' && csv[i + 1] === '\n') {
+        i++;
+      }
+    } else {
+      currentLine += char;
+    }
+  }
+  if (currentLine.trim()) {
+    lines.push(currentLine);
+  }
+
   if (lines.length < 2) return [];
   const headers = parseCSVLine(lines[0]);
   const rows: Record<string, string>[] = [];
+  
   for (let i = 1; i < lines.length; i++) {
     const values = parseCSVLine(lines[i]);
     const row: Record<string, string> = {};
