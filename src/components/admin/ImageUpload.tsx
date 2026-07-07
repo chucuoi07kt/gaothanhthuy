@@ -13,16 +13,16 @@ interface ImageUploadProps {
   multiple?: boolean;
 }
 
-// Hàm dọn rác triệt để: Loại bỏ mọi chuỗi trống, khoảng trắng
+// BỘ LỌC THÔNG MINH: Tách theo dấu phẩy có chữ "http" phía sau để tránh gãy link Cloudinary
 function parseImages(value: string): string[] {
-  if (!value) return [];
+  if (!value || typeof value !== 'string') return [];
   
-  let cleanValue = value.replace(/[\[\]"']/g, '');
+  let cleanValue = value.replace(/[\[\]"']/g, '').trim();
   
   return cleanValue
-    .split(',')
+    .split(/,\s*(?=http)/) // CHÌA KHÓA: Chỉ tách dấu phẩy đứng trước một link mới
     .map(s => s.trim())
-    .filter(s => s.length > 5);
+    .filter(s => s.startsWith('http')); // Chỉ giữ lại các url hợp lệ
 }
 
 export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple = false }: ImageUploadProps) {
@@ -30,8 +30,10 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const images = multiple ? parseImages(value) : [];
-  const singleImage = !multiple ? (value || '').trim() : '';
+  // Áp dụng bộ parse hình ảnh thông minh cho cả chế độ single và multiple để đồng bộ dữ liệu
+  const parsedImageList = parseImages(value);
+  const images = multiple ? parsedImageList : [];
+  const singleImage = !multiple ? (parsedImageList[0] || '').trim() : '';
 
   const handleFiles = useCallback(async (files: FileList) => {
     const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
@@ -47,9 +49,9 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
 
       if (multiple) {
         const currentImages = parseImages(value);
-        // LỌC TRÙNG BẰNG CÁCH THỦ CÔNG (Không dùng Set để tránh lỗi Build của Vercel)
+        // Lọc trùng thủ công phòng chống lỗi build Vercel
         const combined = [...currentImages, ...uploadedUrls];
-        const merged = combined.filter((item, index) => combined.indexOf(item) === index && item.length > 5);
+        const merged = combined.filter((item, index) => combined.indexOf(item) === index && item.startsWith('http'));
         onChange(merged.join(','));
       } else {
         onChange(uploadedUrls[0] || '');
@@ -126,8 +128,18 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
           </button>
         </div>
       ) : (
-        <div onClick={() => inputRef.current?.click()} className="flex h-40 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border">
-          <Upload className="h-6 w-6 text-muted-foreground" />
+        <div 
+          onClick={() => inputRef.current?.click()} 
+          className="flex h-40 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border hover:border-brand-400 transition-all"
+        >
+          {uploading ? (
+            <p className="text-xs text-muted-foreground animate-pulse">Đang tải lên...</p>
+          ) : (
+            <>
+              <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+              <p className="text-xs text-muted-foreground">Chọn ảnh đại diện sản phẩm</p>
+            </>
+          )}
           <input ref={inputRef} type="file" accept="image/*" className="hidden" 
                  onChange={(e) => e.target.files && handleFiles(e.target.files)} />
         </div>
