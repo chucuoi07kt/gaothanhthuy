@@ -136,6 +136,7 @@ export default function AdminProductsPage() {
       no: String(rawProduct['nở'] ?? rawProduct.nở ?? rawProduct.no ?? 0),
       mem: String(rawProduct['mềm'] ?? rawProduct.mềm ?? rawProduct.mem ?? 0),
       thom: String(rawProduct['thơm'] ?? rawProduct.thơm ?? rawProduct.thom ?? 0),
+      origin: p.origin || '', 
     });
     setModalOpen(true);
   };
