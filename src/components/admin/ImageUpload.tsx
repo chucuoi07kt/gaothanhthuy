@@ -13,32 +13,27 @@ interface ImageUploadProps {
   multiple?: boolean;
 }
 
-// FIX TRIỆT ĐỂ KHÂU BÓC TÁCH: Thêm bộ lọc dọn rác khoảng trắng và xóa sạch chuỗi rỗng
+// Hàm dọn rác cực mạnh: Loại bỏ mọi chuỗi trống, khoảng trắng, 
+// và các thành phần không phải là URL ảnh hợp lệ trước khi đưa vào giao diện
 function parseImages(value: string): string[] {
   if (!value) return [];
-  const seen = new Set<string>();
-  const result: string[] = [];
   
-  // Xử lý loại bỏ hoàn toàn dấu ngoặc vuông và dấu nháy nếu chuỗi bị lưu sai dạng mảng JSON thô
-  let cleanValue = value.trim();
+  // Xử lý chuỗi JSON rác nếu lỡ có lưu dạng ["a","b"]
+  let cleanValue = value;
   if (cleanValue.startsWith('[') && cleanValue.endsWith(']')) {
-    cleanValue = cleanValue.replace(/[\[\]"']/g, '');
-  }
-
-  for (const s of cleanValue.split(',')) {
-    const trimmed = s.trim();
-    // Bộ lọc filter(Boolean) tự chế: Chỉ đẩy vào mảng hiển thị nếu chuỗi có nội dung thực sự
-    if (trimmed && trimmed !== '""' && trimmed !== "''" && !seen.has(trimmed)) {
-      seen.add(trimmed);
-      result.push(trimmed);
+    try {
+      const arr = JSON.parse(cleanValue);
+      cleanValue = Array.isArray(arr) ? arr.join(',') : String(arr);
+    } catch {
+      cleanValue = cleanValue.replace(/[\[\]"']/g, '');
     }
   }
-  return result;
-}
 
-function joinImages(images: string[]): string {
-  // Gộp lại mảng sạch bóng phần tử rỗng
-  return images.filter(Boolean).join(',');
+  // Tách bằng phẩy, dọn dẹp từng link, và chỉ lấy link có độ dài > 5 ký tự
+  return cleanValue
+    .split(',')
+    .map(s => s.trim())
+    .filter(s => s.length > 5); 
 }
 
 export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple = false }: ImageUploadProps) {
@@ -46,16 +41,13 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Mảng ảnh xem trước (Preview) được lọc sạch bách chuỗi rỗng
   const images = multiple ? parseImages(value) : [];
   const singleImage = !multiple ? (value || '').trim() : '';
 
   const handleFiles = useCallback(async (files: FileList) => {
     const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
-    if (fileArray.length === 0) {
-      toast.error('Vui lòng chọn file hình ảnh');
-      return;
-    }
+    if (fileArray.length === 0) return;
+
     setUploading(true);
     try {
       const uploadedUrls: string[] = [];
@@ -65,24 +57,16 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
       }
 
       if (multiple) {
-        const current = parseImages(value);
-        const merged: string[] = [];
-        const seen = new Set<string>();
-        // Đồng bộ dọn sạch mảng ảnh mới khi upload lên
-        for (const url of [...current, ...uploadedUrls]) {
-          const trimmedUrl = (url || '').trim();
-          if (trimmedUrl && !seen.has(trimmedUrl)) { 
-            seen.add(trimmedUrl); 
-            merged.push(trimmedUrl); 
-          }
-        }
-        onChange(joinImages(merged));
+        const currentImages = parseImages(value);
+        // Hợp nhất mảng cũ và mảng mới, lọc trùng và lọc rác
+        const merged = [...new Set([...currentImages, ...uploadedUrls])].filter(Boolean);
+        onChange(merged.join(','));
       } else {
         onChange(uploadedUrls[0] || '');
       }
-      toast.success(`Đã tải ${uploadedUrls.length} ảnh lên Cloudinary!`);
+      toast.success(`Đã tải lên ${uploadedUrls.length} ảnh`);
     } catch (err) {
-      toast.error(`Lỗi tải ảnh: ${String(err)}`);
+      toast.error('Lỗi tải ảnh');
     } finally {
       setUploading(false);
     }
@@ -91,27 +75,24 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
   const removeImage = useCallback((index: number) => {
     const current = parseImages(value);
     current.splice(index, 1);
-    onChange(joinImages(current));
+    onChange(current.join(','));
   }, [onChange, value]);
 
-  // --- Multi-image mode ---
   if (multiple) {
     return (
-      <div>
-        <label className="mb-1.5 block text-sm font-medium text-foreground">{label}</label>
-
+      <div className="space-y-2">
+        <Label>{label}</Label>
+        
+        {/* Khối hiển thị ảnh đã tải lên - Được render sạch từ mảng đã lọc */}
         {images.length > 0 && (
-          <div className="mb-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {images.map((img, idx) => (
-              // Kết hợp url hình và index làm key duy nhất để React render chuẩn đét
-              <div key={`${img}-${idx}`} className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-brand-50">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img} alt={`Ảnh ${idx + 1}`} className="h-full w-full object-cover" />
+              <div key={`${img}-${idx}`} className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-gray-100">
+                <img src={img} alt={`Ảnh ${idx}`} className="h-full w-full object-cover" />
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
-                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-destructive shadow-soft transition-colors hover:bg-white z-10"
-                  aria-label="Xoá ảnh"
+                  onClick={(e) => { e.preventDefault(); removeImage(idx); }}
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-red-600 shadow-sm hover:bg-white"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -120,91 +101,47 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
           </div>
         )}
 
+        {/* Khối upload mới */}
         <div
-          onDrop={(e) => { e.preventDefault(); setDragging(false); const files = e.dataTransfer.files; if (files.length > 0) handleFiles(files); }}
-          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-          onDragLeave={(e) => { e.preventDefault(); setDragging(false); }}
           onClick={() => inputRef.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files); }}
           className={cn(
-            'flex h-28 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed transition-colors',
-            dragging ? 'border-brand-500 bg-brand-50' : 'border-border bg-brand-50/30 hover:border-brand-400 hover:bg-brand-50/50'
+            "flex h-28 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all",
+            dragging ? "border-brand-500 bg-brand-50" : "border-border hover:border-brand-400"
           )}
         >
           {uploading ? (
-            <>
-              <div className="h-7 w-7 animate-spin rounded-full border-2 border-brand-200 border-t-brand-600" />
-              <p className="text-xs text-muted-foreground">Đang tải lên...</p>
-            </>
+            <p className="text-xs text-muted-foreground animate-pulse">Đang tải lên...</p>
           ) : (
             <>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-brand-600">
-                <Plus className="h-5 w-5" />
-              </div>
-              <p className="text-sm font-medium text-foreground">Thêm ảnh (chọn nhiều)</p>
-              <p className="text-xs text-muted-foreground">Kéo thả hoặc click · WebP tự động</p>
+              <Plus className="h-6 w-6 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground mt-1">Chọn hoặc kéo thả ảnh</p>
             </>
           )}
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={(e) => { const files = e.target.files; if (files && files.length > 0) handleFiles(files); e.currentTarget.value = ''; }}
-          />
+          <input ref={inputRef} type="file" multiple accept="image/*" className="hidden" 
+                 onChange={(e) => e.target.files && handleFiles(e.target.files)} />
         </div>
-
-        {images.length > 0 && (
-          <p className="mt-1.5 text-xs text-muted-foreground">{images.length} ảnh đã tải lên</p>
-        )}
       </div>
     );
   }
 
-  // --- Single-image mode ---
   return (
-    <div>
-      <label className="mb-1.5 block text-sm font-medium text-foreground">{label}</label>
+    <div className="space-y-2">
+      <Label>{label}</Label>
       {singleImage ? (
-        <div className="relative group">
-          <div className="relative h-40 overflow-hidden rounded-xl border border-border bg-brand-50">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={singleImage} alt="Preview" className="h-full w-full object-cover" />
-          </div>
-          <button type="button" onClick={() => onChange('')}
-            className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-destructive shadow-soft hover:bg-white">
+        <div className="relative h-40 rounded-xl overflow-hidden border border-border">
+          <img src={singleImage} className="h-full w-full object-cover" alt="Preview" />
+          <button type="button" onClick={() => onChange('')} className="absolute top-2 right-2 p-1 bg-white rounded-full text-red-600 shadow-md">
             <X className="h-4 w-4" />
           </button>
-          <input type="text" value={singleImage} onChange={(e) => onChange(e.target.value)}
-            className="mt-1.5 h-9 w-full rounded-lg border border-border bg-white px-3 text-xs outline-none focus:border-brand-500" />
         </div>
       ) : (
-        <div
-          onDrop={(e) => { e.preventDefault(); setDragging(false); if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files); }}
-          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-          onDragLeave={(e) => { e.preventDefault(); setDragging(false); }}
-          onClick={() => inputRef.current?.click()}
-          className={cn(
-            'flex h-40 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-colors',
-            dragging ? 'border-brand-500 bg-brand-50' : 'border-border bg-brand-50/30 hover:border-brand-400 hover:bg-brand-50/50'
-          )}
-        >
-          {uploading ? (
-            <>
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-200 border-t-brand-600" />
-              <p className="text-sm text-muted-foreground">Đang tải lên Cloudinary...</p>
-            </>
-          ) : (
-            <>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-600">
-                <Upload className="h-6 w-6" />
-              </div>
-              <p className="text-sm font-medium text-foreground">Kéo thả ảnh vào đây</p>
-              <p className="text-xs text-muted-foreground">hoặc click để chọn (WebP tự động)</p>
-            </>
-          )}
-          <input ref={inputRef} type="file" accept="image/*" className="hidden"
-            onChange={(e) => { const f = e.target.files; if (f && f.length > 0) handleFiles(f); e.currentTarget.value = ''; }} />
+        <div onClick={() => inputRef.current?.click()} className="flex h-40 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border">
+          <Upload className="h-6 w-6 text-muted-foreground" />
+          <input ref={inputRef} type="file" accept="image/*" className="hidden" 
+                 onChange={(e) => e.target.files && handleFiles(e.target.files)} />
         </div>
       )}
     </div>
