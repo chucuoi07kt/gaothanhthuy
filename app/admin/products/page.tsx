@@ -207,7 +207,7 @@ export default function AdminProductsPage() {
     } catch {
       toast.error('Lỗi kết nối server', { id: 'sync' });
       fetchProducts();
-    } finaly {
+    } finally {
       setSaving(false);
     }
   };
