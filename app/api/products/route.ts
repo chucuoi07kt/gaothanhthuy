@@ -31,7 +31,16 @@ export async function POST(req: NextRequest) {
     }
 
     const id = body.id || generateProductId(existing);
-    const product: SheetProduct = {
+
+    // Xử lý làm sạch và bóc tách an toàn 4 thuộc tính đặc tính từ trang Admin gửi lên
+    const cleanDeo = parseInt(String(body.deo ?? body.dẻo ?? 0), 10) || 0;
+    const cleanNo = parseInt(String(body.no ?? body.nở ?? 0), 10) || 0;
+    const cleanMem = parseInt(String(body.mem ?? body.mềm ?? 0), 10) || 0;
+    const cleanThom = parseInt(String(body.thom ?? body.thơm ?? 0), 10) || 0;
+
+    // Đóng gói sản phẩm tương thích tuyệt đối với định nghĩa SheetProduct (có dấu)
+    // Đồng thời chèn các bản không dấu dự phòng để không sót cột nào trên Google Sheets
+    const product: any = {
       id,
       name: body.name || '',
       category: body.category || '',
@@ -39,9 +48,18 @@ export async function POST(req: NextRequest) {
       weight_options: body.weight_options || '',
       image: body.image || '',
       description: body.description || '',
-      dẻo: body.deo || 0,
-      nở: body.no || 0,
-      mềm: body.mem || 0,
+      
+      // Bản tiếng Việt có dấu (Khớp định nghĩa gốc)
+      dẻo: cleanDeo,
+      nở: cleanNo,
+      mềm: cleanMem,
+      thơm: cleanThom,
+
+      // Bản không dấu phòng hờ
+      deo: cleanDeo,
+      no: cleanNo,
+      mem: cleanMem,
+      thom: cleanThom
     };
 
     const action = body.action === 'update' ? 'update' : 'insert';
