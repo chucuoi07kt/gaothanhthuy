@@ -13,7 +13,7 @@ interface ImageUploadProps {
   multiple?: boolean;
 }
 
-// 🔥 FIX TRIỆT ĐỂ KHÂU BÓC TÁCH: Thêm bộ lọc dọn rác khoảng trắng và xóa sạch chuỗi rỗng
+// FIX TRIỆT ĐỂ KHÂU BÓC TÁCH: Thêm bộ lọc dọn rác khoảng trắng và xóa sạch chuỗi rỗng
 function parseImages(value: string): string[] {
   if (!value) return [];
   const seen = new Set<string>();
@@ -109,7 +109,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
                 <img src={img} alt={`Ảnh ${idx + 1}`} className="h-full w-full object-cover" />
                 <button
                   type="button"
-                  onClick={() => removeImage(idx)}
+                  onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
                   className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-destructive shadow-soft transition-colors hover:bg-white z-10"
                   aria-label="Xoá ảnh"
                 >
@@ -122,7 +122,6 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
 
         <div
           onDrop={(e) => { e.preventDefault(); setDragging(false); const files = e.dataTransfer.files; if (files.length > 0) handleFiles(files); }}
-          onDropRaw={(e: any) => e.preventDefault()}
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={(e) => { e.preventDefault(); setDragging(false); }}
           onClick={() => inputRef.current?.click()}
