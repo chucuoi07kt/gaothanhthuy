@@ -108,18 +108,33 @@ export default function AdminProductsPage() {
   const openEdit = (p: SheetProduct) => {
     setEditing(true);
     const rawProduct = p as any;
+    
+    // Khôi phục văn bản mô tả (đổi các thẻ BR về dấu ngắt dòng thực tế)
+    const displayDescription = (p.description || '').replace(/\[BR\]/g, '\n');
+
+    // Chuẩn hóa chuỗi ảnh: Khử hoàn toàn các ký tự dư thừa do lưu thô lỗi dạng mảng chuỗi JSON
+    let cleanImageString = p.image || '';
+    if (cleanImageString.startsWith('[') && cleanImageString.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(cleanImageString);
+        cleanImageString = Array.isArray(parsed) ? parsed.join(',') : String(parsed);
+      } catch {
+        cleanImageString = cleanImageString.replace(/[\[\]"']/g, '');
+      }
+    }
+
     setForm({
       id: p.id,
       name: p.name || '',
       category: p.category || CATEGORIES[0],
       price: String(p.price || 0),
       weight_options: p.weight_options || '',
-      image: p.image || '',
-      description: p.description || '',
-      deo: String(rawProduct.deo ?? rawProduct.dẻo ?? 0),
-      no: String(rawProduct.no ?? rawProduct.nở ?? 0),
-      mem: String(rawProduct.mem ?? rawProduct.mềm ?? 0),
-      thom: String(rawProduct.thom ?? rawProduct.thơm ?? 0),
+      image: cleanImageString,
+      description: displayDescription,
+      deo: String(rawProduct['dẻo'] ?? rawProduct.dẻo ?? rawProduct.deo ?? 0),
+      no: String(rawProduct['nở'] ?? rawProduct.nở ?? rawProduct.no ?? 0),
+      mem: String(rawProduct['mềm'] ?? rawProduct.mềm ?? rawProduct.mem ?? 0),
+      thom: String(rawProduct['thơm'] ?? rawProduct.thơm ?? rawProduct.thom ?? 0),
     });
     setModalOpen(true);
   };
@@ -135,7 +150,6 @@ export default function AdminProductsPage() {
     const numMem = parseInt(form.mem) || 0;
     const numThom = parseInt(form.thom) || 0;
 
-    // Chuẩn hóa payload: Gửi trực tiếp cả hai trường có dấu và không dấu lên API Next.js Route
     const payload = {
       action: editing ? 'update' : 'insert',
       id: form.id || undefined,
@@ -143,16 +157,11 @@ export default function AdminProductsPage() {
       category: form.category,
       price: cleanPrice,
       weight_options: form.weight_options.trim(),
-      image: form.image,
+      image: form.image.trim(),
       description: form.description.trim(),
-      deo: numDeo,
-      no: numNo,
-      mem: numMem,
-      thom: numThom,
-      dẻo: numDeo,
-      nở: numNo,
-      mềm: numMem,
-      thơm: numThom,
+      deo: numDeo, no: numNo, mem: numMem, thom: numThom,
+      'dẻo': numDeo, 'nở': numNo, 'mềm': numMem, 'thơm': numThom,
+      dẻo: numDeo, nở: numNo, mềm: numMem, thơm: numThom,
     };
 
     if (editing) {
@@ -164,10 +173,10 @@ export default function AdminProductsPage() {
         weight_options: payload.weight_options,
         image: payload.image,
         description: payload.description,
-        deo: numDeo, dẻo: numDeo,
-        no: numNo, nở: numNo,
-        mem: numMem, mềm: numMem,
-        thom: numThom, thơm: numThom,
+        deo: numDeo, dẻo: numDeo, 'dẻo': numDeo,
+        no: numNo, nở: numNo, 'nở': numNo,
+        mem: numMem, mềm: numMem, 'mềm': numMem,
+        thom: numThom, thơm: numThom, 'thơm': numThom,
       } as any) : p));
     } else {
       const newId = String(Math.max(0, ...products.map((p) => parseInt(p.id) || 0)) + 1);
@@ -179,17 +188,16 @@ export default function AdminProductsPage() {
         weight_options: payload.weight_options,
         image: payload.image,
         description: payload.description,
-        deo: numDeo, dẻo: numDeo,
-        no: numNo, nở: numNo,
-        mem: numMem, mềm: numMem,
-        thom: numThom, thơm: numThom,
+        deo: numDeo, dẻo: numDeo, 'dẻo': numDeo,
+        no: numNo, nở: numNo, 'nở': numNo,
+        mem: numMem, mềm: numMem, 'mềm': numMem,
+        thom: numThom, thơm: numThom, 'thơm': numThom,
       };
       setProducts((prev) => [newProduct, ...prev]);
     }
     setModalOpen(false);
 
     try {
-      // Đẩy gói tin sang API của route.ts trung gian
       const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -290,43 +298,50 @@ export default function AdminProductsPage() {
             <p className="text-sm text-muted-foreground">Không có sản phẩm nào</p>
           </div>
         ) : (
-          pageItems.map((p) => (
-            <div key={p.id} className="rounded-xl border border-border bg-white p-4 shadow-soft">
-              <div className="flex items-start gap-3">
-                {p.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={getFirstImage(p.image)} alt={p.name} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
-                ) : (
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-400">
-                    <Package className="h-5 w-5" />
+          pageItems.map((p) => {
+            const rawP = p as any;
+            return (
+              <div key={p.id} className="rounded-xl border border-border bg-white p-4 shadow-soft">
+                <div className="flex items-start gap-3">
+                  {p.image ? (
+                    <img src={getFirstImage(p.image)} alt={p.name} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                  ) : (
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-400">
+                      <Package className="h-5 w-5" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate text-sm font-semibold text-foreground">{p.name}</h3>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{p.category}</p>
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <span className="text-sm font-bold text-brand-700">
+                        {(p.price || 0).toLocaleString('vi-VN')}đ/kg
+                      </span>
+                      <span className="text-xs text-muted-foreground">· {p.weight_options || 'Chưa set'}</span>
+                    </div>
+                    <div className="mt-1 flex gap-2 text-[10px] text-muted-foreground">
+                      <span>Dẻo: {rawP.dẻo ?? rawP.deo ?? 0}</span>
+                      <span>Nở: {rawP.nở ?? rawP.no ?? 0}</span>
+                      <span>Thơm: {rawP.thơm ?? rawP.thom ?? 0}</span>
+                    </div>
                   </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-semibold text-foreground">{p.name}</h3>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{p.category}</p>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <span className="text-sm font-bold text-brand-700">
-                      {(p.price || 0).toLocaleString('vi-VN')}đ/kg
-                    </span>
-                    <span className="text-xs text-muted-foreground">· {p.weight_options || 'Chưa set'}</span>
+                </div>
+                <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                  <span className="font-mono text-xs text-muted-foreground">ID: {p.id}</span>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => openEdit(p)}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand-200 text-brand-600 active:bg-brand-50">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => handleDelete(p.id)}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-destructive active:bg-red-50">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </div>
-              <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                <span className="font-mono text-xs text-muted-foreground">ID: {p.id}</span>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => openEdit(p)}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand-200 text-brand-600 active:bg-brand-50">
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => handleDelete(p.id)}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-destructive active:bg-red-50">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -340,7 +355,7 @@ export default function AdminProductsPage() {
                 <th className="px-4 py-3">Tên sản phẩm</th>
                 <th className="px-4 py-3">Danh mục</th>
                 <th className="px-4 py-3 text-right">Giá (đ/kg)</th>
-                <th className="px-4 py-3">Quy cách</th>
+                <th className="px-4 py-3">Đặc tính (D-N-M-T)</th>
                 <th className="px-4 py-3 text-center">Thao tác</th>
               </tr>
             </thead>
@@ -353,41 +368,45 @@ export default function AdminProductsPage() {
                   Không có sản phẩm nào
                 </td></tr>
               ) : (
-                pageItems.map((p) => (
-                  <tr key={p.id} className="transition-colors hover:bg-brand-50/30">
-                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{p.id}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        {p.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={getFirstImage(p.image)} alt={p.name} className="h-9 w-9 rounded-lg object-cover" />
-                        ) : (
-                          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-400">
-                            <Package className="h-4 w-4" />
-                          </div>
-                        )}
-                        <span className="font-medium text-foreground">{p.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">{p.category}</td>
-                    <td className="px-4 py-3 text-right font-medium text-brand-700">
-                      {(p.price || 0).toLocaleString('vi-VN')}
-                    </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{p.weight_options}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <button onClick={() => openEdit(p)}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-600 hover:bg-brand-50">
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => handleDelete(p.id)}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-destructive hover:bg-red-50">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                pageItems.map((p) => {
+                  const rawP = p as any;
+                  return (
+                    <tr key={p.id} className="transition-colors hover:bg-brand-50/30">
+                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{p.id}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          {p.image ? (
+                            <img src={getFirstImage(p.image)} alt={p.name} className="h-9 w-9 rounded-lg object-cover" />
+                          ) : (
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-400">
+                              <Package className="h-4 w-4" />
+                            </div>
+                          )}
+                          <span className="font-medium text-foreground">{p.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">{p.category}</td>
+                      <td className="px-4 py-3 text-right font-medium text-brand-700">
+                        {(p.price || 0).toLocaleString('vi-VN')}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground font-mono">
+                        {rawP.dẻo ?? rawP.deo ?? 0} - {rawP.nở ?? rawP.no ?? 0} - {rawP.mềm ?? rawP.mem ?? 0} - {rawP.thơm ?? rawP.thom ?? 0}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button onClick={() => openEdit(p)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-brand-600 hover:bg-brand-50">
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button onClick={() => handleDelete(p.id)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-destructive hover:bg-red-50">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -443,11 +462,18 @@ export default function AdminProductsPage() {
             <ImageUpload value={form.image} onChange={(url) => setForm({ ...form, image: url })} multiple />
             <div>
               <Label>Mô tả</Label>
-              <textarea value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={3}
-                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-500"
-                placeholder="Mô tả sản phẩm..." />
+              <textarea 
+                value={form.description}
+                onChange={(e) => {
+                  const rawText = e.target.value;
+                  // Tự động khử toàn bộ các ký tự rác ẩn hệ thống
+                  const cleanText = rawText.replace(/[\u200B-\u200D\uFEFF]/g, '');
+                  setForm({ ...form, description: cleanText });
+                }}
+                rows={6}
+                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 whitespace-pre-wrap"
+                placeholder="Mô tả sản phẩm..." 
+              />
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div>
