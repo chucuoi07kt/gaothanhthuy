@@ -93,6 +93,10 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const tags = product.tags || [];
   const usage = product.usage || [];
   const gallery = product.gallery || [];
+  
+  // Ép kiểu sang any để bóc dữ liệu đa năng chống lỗi gãy thuộc tính TypeScript
+  const rawProduct = product as any;
+  const mainDescription = rawProduct.description || rawProduct.longDescription || rawProduct.shortDescription || '';
 
   const handleAdd = () => {
     addItem(product, selectedWeight as Product['weights'][number], quantity);
@@ -155,9 +159,9 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
             </div>
             <h1 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">{product.name}</h1>
             
-            {/* SỬA CÁCH 2: Khối mô tả ngắn phía trên được tinh gọn tối đa 3 dòng kèm ba chấm cho thoáng giao diện */}
+            {/* SỬA THEO CÁCH 2: Cắt gọn khối mô tả thô phía trên trong vòng 3 dòng có dấu ba chấm thông minh */}
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-3">
-              {product.description || product.shortDescription}
+              {mainDescription}
             </p>
 
             <div className="mt-5 rounded-2xl border border-border bg-brand-50/40 p-4">
@@ -230,9 +234,9 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
           
           <div className="rounded-2xl border border-border bg-white p-6 shadow-soft">
             <h2 className="text-lg font-semibold text-foreground">Mô tả sản phẩm</h2>
-            {/* ĐÃ BỔ SUNG: whitelist-pre-line giúp giữ nguyên định dạng Markdown dán từ Shopee tinh tế, chuẩn chỉ */}
+            {/* RENDER CHUẨN MARKDOWN/TEXT ĐUÔI XUỐNG DÒNG LÙI ICON ĐẸP MẮT */}
             <div className="mt-3 text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-              {product.description || product.longDescription}
+              {mainDescription}
             </div>
             {usage.length > 0 && (
               <>
