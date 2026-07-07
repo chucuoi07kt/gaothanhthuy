@@ -54,11 +54,46 @@ export default function HomePage() {
 
       <section className="relative -mt-8 pb-4">
         <div className="container-page">
-          <QuickSearch
-            filters={filters}
-            onChange={setFilters}
-            categories={categories}
-          />
+          {/* KHỐI 3 CAM KẾT VÀNG THAY THẾ THANH LỌC SẢN PHẨM CŨ */}
+<div className="my-6 px-4">
+  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 grid grid-cols-3 gap-2">
+    
+    {/* Cột 1: Giao hàng nhanh */}
+    <div className="flex flex-col items-center text-center px-1">
+      <div className="w-12 h-14 flex items-center justify-center text-brand-600 bg-green-50 rounded-xl mb-2">
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+      </div>
+      <h3 className="text-[11px] font-bold text-gray-800 leading-tight">GIAO NHANH TẬN NƠI</h3>
+      <p className="text-[9px] text-gray-500 mt-0.5 leading-snug">Giao nhanh tại vựa Liên Chiểu & Đà Nẵng</p>
+    </div>
+
+    {/* Cột 2: Chất lượng tận gốc */}
+    <div className="flex flex-col items-center text-center px-1 border-x border-gray-100">
+      <div className="w-12 h-14 flex items-center justify-center text-brand-600 bg-green-50 rounded-xl mb-2">
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+        </svg>
+      </div>
+      <h3 className="text-[11px] font-bold text-gray-800 leading-tight">CHẤT LƯỢNG TẬN GỐC</h3>
+      <p className="text-[9px] text-gray-500 mt-0.5 leading-snug">Gạo sạch nguyên bản, không pha trộn</p>
+    </div>
+
+    {/* Cột 3: Giá tốt nhất */}
+    <div className="flex flex-col items-center text-center px-1">
+      <div className="w-12 h-14 flex items-center justify-center text-brand-600 bg-green-50 rounded-xl mb-2">
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <h3 className="text-[11px] font-bold text-gray-800 leading-tight">GIÁ TẬN VỰA CỰC TỐT</h3>
+      <p className="text-[9px] text-gray-500 mt-0.5 leading-snug">Giá sỉ tận gốc cho đại lý, quán cơm, từ thiện</p>
+    </div>
+
+  </div>
+</div>
+
         </div>
       </section>
 
