@@ -15,7 +15,16 @@ interface ImageUploadProps {
 
 function parseImages(value: string): string[] {
   if (!value) return [];
-  return value.split(',').map((s) => s.trim()).filter(Boolean);
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const s of value.split(',')) {
+    const trimmed = s.trim();
+    if (trimmed && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      result.push(trimmed);
+    }
+  }
+  return result;
 }
 
 function joinImages(images: string[]): string {
@@ -28,44 +37,34 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
   const inputRef = useRef<HTMLInputElement>(null);
 
   const images = multiple ? parseImages(value) : [];
-  const singleImage = !multiple ? value : '';
-
-  const handleFile = useCallback(async (file: File) => {
-    if (!file.type.startsWith('image/')) { toast.error('Vui lòng chọn file hình ảnh'); return; }
-    setUploading(true);
-    try {
-      const url = await uploadToCloudinary(file);
-      if (multiple) {
-        const current = parseImages(value);
-        onChange(joinImages([...current, url]));
-      } else {
-        onChange(url);
-      }
-      toast.success('Tải ảnh lên Cloudinary thành công!');
-    } catch (err) {
-      toast.error(`Lỗi tải ảnh: ${String(err)}`);
-    } finally {
-      setUploading(false);
-    }
-  }, [onChange, value, multiple]);
+  const singleImage = !multiple ? (value || '').trim() : '';
 
   const handleFiles = useCallback(async (files: FileList) => {
     const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
-    if (fileArray.length === 0) { toast.error('Vui lòng chọn file hình ảnh'); return; }
+    if (fileArray.length === 0) {
+      toast.error('Vui lòng chọn file hình ảnh');
+      return;
+    }
     setUploading(true);
     try {
-      const urls: string[] = [];
+      const uploadedUrls: string[] = [];
       for (const file of fileArray) {
         const url = await uploadToCloudinary(file);
-        urls.push(url);
+        if (url) uploadedUrls.push(url);
       }
+
       if (multiple) {
         const current = parseImages(value);
-        onChange(joinImages([...current, ...urls]));
+        const merged: string[] = [];
+        const seen = new Set<string>();
+        for (const url of [...current, ...uploadedUrls]) {
+          if (url && !seen.has(url)) { seen.add(url); merged.push(url); }
+        }
+        onChange(joinImages(merged));
       } else {
-        onChange(urls[0] || '');
+        onChange(uploadedUrls[0] || '');
       }
-      toast.success(`Đã tải ${urls.length} ảnh lên Cloudinary!`);
+      toast.success(`Đã tải ${uploadedUrls.length} ảnh lên Cloudinary!`);
     } catch (err) {
       toast.error(`Lỗi tải ảnh: ${String(err)}`);
     } finally {
@@ -73,11 +72,11 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
     }
   }, [onChange, value, multiple]);
 
-  const removeImage = (index: number) => {
+  const removeImage = useCallback((index: number) => {
     const current = parseImages(value);
     current.splice(index, 1);
     onChange(joinImages(current));
-  };
+  }, [onChange, value]);
 
   // --- Multi-image mode ---
   if (multiple) {
@@ -88,7 +87,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
         {images.length > 0 && (
           <div className="mb-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
             {images.map((img, idx) => (
-              <div key={idx} className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-brand-50">
+              <div key={`${img}-${idx}`} className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-brand-50">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img} alt={`Ảnh ${idx + 1}`} className="h-full w-full object-cover" />
                 <button
@@ -134,7 +133,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
             accept="image/*"
             multiple
             className="hidden"
-            onChange={(e) => { const files = e.target.files; if (files && files.length > 0) handleFiles(files); }}
+            onChange={(e) => { const files = e.target.files; if (files && files.length > 0) handleFiles(files); e.currentTarget.value = ''; }}
           />
         </div>
 
@@ -145,7 +144,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
     );
   }
 
-  // --- Single-image mode (original behavior) ---
+  // --- Single-image mode ---
   return (
     <div>
       <label className="mb-1.5 block text-sm font-medium text-foreground">{label}</label>
@@ -164,7 +163,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
         </div>
       ) : (
         <div
-          onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
+          onDrop={(e) => { e.preventDefault(); setDragging(false); if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files); }}
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={(e) => { e.preventDefault(); setDragging(false); }}
           onClick={() => inputRef.current?.click()}
@@ -188,7 +187,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
             </>
           )}
           <input ref={inputRef} type="file" accept="image/*" className="hidden"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+            onChange={(e) => { const f = e.target.files; if (f && f.length > 0) handleFiles(f); e.currentTarget.value = ''; }} />
         </div>
       )}
     </div>
