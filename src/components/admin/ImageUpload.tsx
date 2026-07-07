@@ -13,13 +13,10 @@ interface ImageUploadProps {
   multiple?: boolean;
 }
 
-// Hàm dọn rác cực mạnh: Loại bỏ mọi chuỗi trống, khoảng trắng, 
-// và các thành phần không phải là URL ảnh hợp lệ trước khi đưa vào giao diện
 function parseImages(value: string): string[] {
   if (!value) return [];
   
-  // Xử lý chuỗi JSON rác nếu lỡ có lưu dạng ["a","b"]
-  let cleanValue = value;
+  let cleanValue = value.trim();
   if (cleanValue.startsWith('[') && cleanValue.endsWith(']')) {
     try {
       const arr = JSON.parse(cleanValue);
@@ -29,11 +26,10 @@ function parseImages(value: string): string[] {
     }
   }
 
-  // Tách bằng phẩy, dọn dẹp từng link, và chỉ lấy link có độ dài > 5 ký tự
   return cleanValue
     .split(',')
     .map(s => s.trim())
-    .filter(s => s.length > 5); 
+    .filter(s => s.length > 5);
 }
 
 export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple = false }: ImageUploadProps) {
@@ -58,8 +54,9 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
 
       if (multiple) {
         const currentImages = parseImages(value);
-        // Hợp nhất mảng cũ và mảng mới, lọc trùng và lọc rác
-        const merged = [...new Set([...currentImages, ...uploadedUrls])].filter(Boolean);
+        // LỌC TRÙNG BẰNG CÁCH THỦ CÔNG (Không dùng Set để tránh lỗi Type Error của TypeScript)
+        const combined = [...currentImages, ...uploadedUrls];
+        const merged = combined.filter((item, index) => combined.indexOf(item) === index && item.length > 5);
         onChange(merged.join(','));
       } else {
         onChange(uploadedUrls[0] || '');
@@ -81,18 +78,16 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
   if (multiple) {
     return (
       <div className="space-y-2">
-        <Label>{label}</Label>
-        
-        {/* Khối hiển thị ảnh đã tải lên - Được render sạch từ mảng đã lọc */}
+        <label className="text-sm font-medium text-foreground">{label}</label>
         {images.length > 0 && (
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {images.map((img, idx) => (
-              <div key={`${img}-${idx}`} className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-gray-100">
+              <div key={idx} className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-gray-100">
                 <img src={img} alt={`Ảnh ${idx}`} className="h-full w-full object-cover" />
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); removeImage(idx); }}
-                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-red-600 shadow-sm hover:bg-white"
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 text-red-600 shadow-sm hover:bg-white z-10"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -101,7 +96,6 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
           </div>
         )}
 
-        {/* Khối upload mới */}
         <div
           onClick={() => inputRef.current?.click()}
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -129,7 +123,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
 
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
+      <label className="text-sm font-medium text-foreground">{label}</label>
       {singleImage ? (
         <div className="relative h-40 rounded-xl overflow-hidden border border-border">
           <img src={singleImage} className="h-full w-full object-cover" alt="Preview" />
