@@ -6,10 +6,10 @@ export interface SheetProduct {
   weight_options: string;
   image: string;
   description: string;
-  dẻo: number;
-  nở: number;
-  mềm: number;
-  thơm?: number;
+  deo: number;
+  no: number;
+  mem: number;
+  thom: number;
 }
 
 export interface SheetBlogPost {
@@ -47,32 +47,25 @@ function parseCSV(csv: string): Record<string, string>[] {
   let currentLine = '';
   let inQuotes = false;
 
-  // Quét từng ký tự để chia dòng, giữ nguyên dấu xuống dòng bên trong dấu ngoặc kép "" của ô mô tả
   for (let i = 0; i < csv.length; i++) {
     const char = csv[i];
     if (char === '"') {
       inQuotes = !inQuotes;
       currentLine += char;
     } else if ((char === '\n' || char === '\r') && !inQuotes) {
-      if (currentLine.trim()) {
-        lines.push(currentLine);
-      }
+      if (currentLine.trim()) lines.push(currentLine);
       currentLine = '';
-      if (char === '\r' && csv[i + 1] === '\n') {
-        i++;
-      }
+      if (char === '\r' && csv[i + 1] === '\n') i++;
     } else {
       currentLine += char;
     }
   }
-  if (currentLine.trim()) {
-    lines.push(currentLine);
-  }
+  if (currentLine.trim()) lines.push(currentLine);
 
   if (lines.length < 2) return [];
   const headers = parseCSVLine(lines[0]);
   const rows: Record<string, string>[] = [];
-  
+
   for (let i = 1; i < lines.length; i++) {
     const values = parseCSVLine(lines[i]);
     const row: Record<string, string> = {};
@@ -95,11 +88,18 @@ function parsePrice(val: string | number): number {
   return parseInt(String(val).replace(/[^\d]/g, ''), 10) || 0;
 }
 
+function parseMetric(row: Record<string, string>, keys: string[]): number {
+  for (const key of keys) {
+    const val = parseInt(row[key] || '0', 10);
+    if (!isNaN(val) && val > 0) return val;
+  }
+  return 0;
+}
+
 export async function getProductsFromSheet(): Promise<SheetProduct[]> {
   const rows = await fetchSheetData('sp');
   return rows.map((row) => {
-    // Chuẩn hóa chuỗi xuống dòng: Thay thế các ký tự đại diện [BR] hoặc biến thể nếu có về dạng tinh sọc chuẩn \n
-    let cleanDescription = (row.description || '')
+    const cleanDescription = (row.description || '')
       .replace(/\[BR\]/g, '\n')
       .replace(/\\n/g, '\n');
 
@@ -111,10 +111,10 @@ export async function getProductsFromSheet(): Promise<SheetProduct[]> {
       weight_options: row.weight_options || '',
       image: row.image || '',
       description: cleanDescription,
-      dẻo: parseInt(row['deo'] || row['dẻo'] || '0', 10) || 0,
-      nở: parseInt(row['no'] || row['nở'] || '0', 10) || 0,
-      mềm: parseInt(row['mem'] || row['mềm'] || '0', 10) || 0,
-      thơm: parseInt(row['thom'] || row['thơm'] || '0', 10) || 0,
+      deo: parseMetric(row, ['deo', 'dẻo']),
+      no: parseMetric(row, ['no', 'nở']),
+      mem: parseMetric(row, ['mem', 'mềm']),
+      thom: parseMetric(row, ['thom', 'thơm']),
     };
   });
 }
@@ -139,11 +139,8 @@ export async function writeToSheet(
 ): Promise<{ success: boolean; error?: string }> {
   if (!APPS_SCRIPT_URL) return { success: false, error: 'GOOGLE_APPS_SCRIPT_URL not configured' };
   try {
-    // Nếu ghi dữ liệu sản phẩm, chuyển đổi các dấu ngắt dòng trong ô mô tả thành ký tự an toàn trước khi đẩy xuống Google Sheet
     if (tab === 'sp' && data && typeof data.description === 'string') {
-      data.description = data.description
-        .replace(/\r\n/g, '\n')
-        .replace(/\r/g, '\n');
+      data.description = data.description.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     }
 
     const res = await fetch(APPS_SCRIPT_URL, {
