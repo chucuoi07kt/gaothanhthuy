@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, use, useEffect } from 'react';
-import { ArrowLeft, Check, MapPin, MessageCircle, Plus, ShoppingBag, Truck, Wheat } from 'lucide-react';
+import { ArrowLeft, Check, MapPin, MessageCircle, Plus, ShoppingBag, Truck, Wheat, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,9 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const [selectedWeight, setSelectedWeight] = useState<string>('5kg');
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  
+  // State quản lý vị trí ảnh đang được xem trong Slide
+  const [activeImageIdx, setActiveImageIndex] = useState<number>(0);
 
   const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
@@ -57,6 +60,8 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
         setRelated(relatedProducts);
         const weights = found.weights && found.weights.length > 0 ? found.weights : ['5kg'];
         setSelectedWeight(weights[0]);
+        // Reset slide về ảnh đầu tiên khi đổi sản phẩm
+        setActiveImageIndex(0);
       } catch {
         setNotFound(true);
       } finally {
@@ -92,10 +97,17 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const weights = product.weights && product.weights.length > 0 ? product.weights : ['5kg'];
   const tags = product.tags || [];
   const usage = product.usage || [];
-  const gallery = product.gallery || [];
   
-  // Ép kiểu sang any để bóc dữ liệu đa năng chống lỗi gãy thuộc tính TypeScript
+  // Gom ảnh đại diện chính và mảng bộ sưu tập gallery vào làm một danh sách Slide thống nhất
   const rawProduct = product as any;
+  const slideImages: string[] = [];
+  if (product.image) slideImages.push(product.image);
+  if (product.gallery && product.gallery.length > 0) {
+    product.gallery.forEach((img) => {
+      if (img && img !== product.image) slideImages.push(img);
+    });
+  }
+
   const mainDescription = rawProduct.description || rawProduct.longDescription || rawProduct.shortDescription || '';
 
   const handleAdd = () => {
@@ -110,6 +122,15 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const handleZalo = () => {
     const msg = `Kính gửi Gạo Thanh Thuỷ, tôi muốn tư vấn báo giá sỉ cho: ${product.name} - quy cách ${selectedWeight} - số lượng ${quantity}. Xin cảm ơn!`;
     quickZaloConsult(msg);
+  };
+
+  // Các hàm điều hướng Slide ảnh tiến / lùi
+  const nextSlide = () => {
+    setActiveImageIndex((prev) => (prev + 1) % slideImages.length);
+  };
+
+  const prevSlide = () => {
+    setActiveImageIndex((prev) => (prev - 1 + slideImages.length) % slideImages.length);
   };
 
   return (
@@ -132,24 +153,67 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
 
       <section className="section-pad pt-8">
         <div className="container-page grid gap-8 lg:grid-cols-2">
+          {/* CỘT BÊN TRÁI: KHỐI SLIDE HÌNH ẢNH SẢN PHẨM NÂNG CẤP CHUYÊN NGHIỆP */}
           <div className="space-y-3">
-            <div className="relative aspect-square overflow-hidden rounded-2xl border border-border bg-white shadow-soft">
-              <ProductImage src={product.image} alt={product.name} rounded="rounded-none" className="h-full w-full" />
+            <div className="group relative aspect-square overflow-hidden rounded-2xl border border-border bg-white shadow-soft">
+              {/* Ảnh to hiển thị theo chỉ số index đang kích hoạt */}
+              <ProductImage 
+                src={slideImages[activeImageIdx] || product.image} 
+                alt={product.name} 
+                rounded="rounded-none" 
+                className="h-full w-full object-cover transition-all duration-300" 
+              />
+              
               {product.bestSeller && (
-                <Badge className="absolute left-4 top-4 bg-gold-500 text-white">Bán chạy</Badge>
+                <Badge className="absolute left-4 top-4 bg-gold-500 text-white z-10">Bán chạy</Badge>
+              )}
+
+              {/* Chỉ hiện nút bấm chuyển hình nếu sản phẩm có từ 2 ảnh trở lên */}
+              {slideImages.length > 1 && (
+                <>
+                  <button 
+                    onClick={prevSlide}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-md text-foreground backdrop-blur-sm transition-all hover:bg-white active:scale-95 opacity-0 group-hover:opacity-100 z-10"
+                  >
+                    <ChevronLeft className="h-6 w-6 text-gray-700" />
+                  </button>
+                  <button 
+                    onClick={nextSlide}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-md text-foreground backdrop-blur-sm transition-all hover:bg-white active:scale-95 opacity-0 group-hover:opacity-100 z-10"
+                  >
+                    <ChevronRight className="h-6 w-6 text-gray-700" />
+                  </button>
+                  
+                  {/* Số đếm vị trí ảnh góc dưới bên phải giống Shopee */}
+                  <div className="absolute right-4 bottom-4 bg-black/60 px-2.5 py-1 rounded-full text-[11px] font-medium text-white tracking-wider z-10">
+                    {activeImageIdx + 1} / {slideImages.length}
+                  </div>
+                </>
               )}
             </div>
-            {gallery.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {gallery.slice(0, 4).map((g, idx) => (
-                  <div key={idx} className="relative aspect-square overflow-hidden rounded-lg border border-border bg-white">
-                    <ProductImage src={g} alt={`${product.name} ${idx + 1}`} rounded="rounded-none" className="h-full w-full" />
-                  </div>
+
+            {/* Hàng ảnh nhỏ điều hướng (Bấm vào đâu ăn viền đổi hình tới đó) */}
+            {slideImages.length > 1 && (
+              <div className="grid grid-cols-5 gap-2.5">
+                {slideImages.map((imgUrl, idx) => (
+                  <button 
+                    key={idx} 
+                    onClick={() => setActiveImageIndex(idx)}
+                    className={cn(
+                      "relative aspect-square overflow-hidden rounded-xl border bg-white transition-all cursor-pointer",
+                      activeImageIdx === idx 
+                        ? "border-brand-600 ring-2 ring-brand-600/20 opacity-100 scale-[1.02]" 
+                        : "border-border opacity-70 hover:opacity-100"
+                    )}
+                  >
+                    <ProductImage src={imgUrl} alt={`${product.name} hình phụ ${idx + 1}`} rounded="rounded-none" className="h-full w-full object-cover" />
+                  </button>
                 ))}
               </div>
             )}
           </div>
 
+          {/* CỘT BÊN PHẢI: KHỐI THÔNG TIN CHỌN MUA */}
           <div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="border-brand-200 text-brand-700">{product.categoryLabel}</Badge>
@@ -159,7 +223,6 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
             </div>
             <h1 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">{product.name}</h1>
             
-            {/* SỬA THEO CÁCH 2: Cắt gọn khối mô tả thô phía trên trong vòng 3 dòng có dấu ba chấm thông minh */}
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-3">
               {mainDescription}
             </p>
@@ -234,7 +297,6 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
           
           <div className="rounded-2xl border border-border bg-white p-6 shadow-soft">
             <h2 className="text-lg font-semibold text-foreground">Mô tả sản phẩm</h2>
-            {/* RENDER CHUẨN MARKDOWN/TEXT ĐUÔI XUỐNG DÒNG LÙI ICON ĐẸP MẮT */}
             <div className="mt-3 text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
               {mainDescription}
             </div>
