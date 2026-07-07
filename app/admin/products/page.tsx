@@ -107,7 +107,8 @@ export default function AdminProductsPage() {
 
   const openEdit = (p: SheetProduct) => {
     setEditing(true);
-    // Hỗ trợ đọc an toàn cả trường có dấu lẫn không dấu từ API Google Sheets đổ về
+    // Ép kiểu sang any để lấy linh hoạt thuộc tính có dấu/không dấu từ API không lỗi TypeScript
+    const rawProduct = p as any;
     setForm({
       id: p.id,
       name: p.name || '',
@@ -116,10 +117,10 @@ export default function AdminProductsPage() {
       weight_options: p.weight_options || '',
       image: p.image || '',
       description: p.description || '',
-      deo: String(p.deo ?? p.dẻo ?? 0),
-      no: String(p.no ?? p.nở ?? 0),
-      mem: String(p.mem ?? p.mềm ?? 0),
-      thom: String(p.thom ?? p.thơm ?? 0),
+      deo: String(rawProduct.deo ?? rawProduct.dẻo ?? 0),
+      no: String(rawProduct.no ?? rawProduct.nở ?? 0),
+      mem: String(rawProduct.mem ?? rawProduct.mềm ?? 0),
+      thom: String(rawProduct.thom ?? rawProduct.thơm ?? 0),
     });
     setModalOpen(true);
   };
@@ -129,14 +130,12 @@ export default function AdminProductsPage() {
     setSaving(true);
     toast.loading('Đang đồng bộ dữ liệu...', { id: 'sync' });
 
-    // Làm sạch và chuyển đổi giá tiền sang kiểu số nguyên chuẩn
     const cleanPrice = parseInt(String(form.price).replace(/[^\d]/g, '')) || 0;
     const numDeo = parseInt(form.deo) || 0;
     const numNo = parseInt(form.no) || 0;
     const numMem = parseInt(form.mem) || 0;
     const numThom = parseInt(form.thom) || 0;
 
-    // Chuẩn hóa Payload gửi lên API (Hỗ trợ cả thuộc tính không dấu và có dấu để tương thích tuyệt đối)
     const payload = {
       action: editing ? 'update' : 'insert',
       id: form.id || undefined,
@@ -150,14 +149,12 @@ export default function AdminProductsPage() {
       no: numNo,
       mem: numMem,
       thom: numThom,
-      // Gửi kèm phòng hờ cấu hình Apps Script cũ cần tiếng Việt có dấu
       dẻo: numDeo,
       nở: numNo,
       mềm: numMem,
-      thơm: numThom
+      thơm: numThom,
     };
 
-    // Cập nhật State UI cục bộ ngay lập tức để tạo cảm giác mượt mà không độ trễ
     if (editing) {
       setProducts((prev) => prev.map((p) => p.id === form.id ? {
         ...p,
@@ -202,7 +199,7 @@ export default function AdminProductsPage() {
         toast.success('Đồng bộ Google Sheets thành công!', { id: 'sync' });
       } else {
         toast.error(`Lỗi: ${data.error || 'Không thể đồng bộ'}`, { id: 'sync' });
-        fetchProducts(); // Tải lại dữ liệu chuẩn từ server nếu lỗi
+        fetchProducts();
       }
     } catch {
       toast.error('Lỗi kết nối server', { id: 'sync' });
@@ -224,14 +221,10 @@ export default function AdminProductsPage() {
         body: JSON.stringify({ action: 'delete', id }),
       });
       const data = await res.json();
-      if (data.success) {
-        toast.success('Đã xoá sản phẩm thành công!', { id: 'del' });
-      } else { 
-        toast.error('Lỗi xoá dữ liệu', { id: 'del' }); 
-        setProducts(prev); 
-      }
+      if (data.success) toast.success('Đã xoá sản phẩm', { id: 'del' });
+      else { toast.error('Lỗi xoá', { id: 'del' }); setProducts(prev); }
     } catch {
-      toast.error('Lỗi kết nối máy chủ', { id: 'del' });
+      toast.error('Lỗi kết nối', { id: 'del' });
       setProducts(prev);
     }
   };
