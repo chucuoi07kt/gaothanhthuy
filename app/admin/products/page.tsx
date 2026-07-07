@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ImageUpload } from '@/src/components/admin/ImageUpload';
+import { getFirstImage } from '@/lib/utils';
 import type { SheetProduct } from '@/src/lib/sheets';
 
 const CATEGORIES = [
@@ -259,7 +260,7 @@ export default function AdminProductsPage() {
               <div className="flex items-start gap-3">
                 {p.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.image.split(',')[0] || ''} alt={p.name} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                  <img src={getFirstImage(p.image)} alt={p.name} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
                 ) : (
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-400">
                     <Package className="h-5 w-5" />
@@ -324,7 +325,7 @@ export default function AdminProductsPage() {
                       <div className="flex items-center gap-2">
                         {p.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={p.image.split(',')[0] || ''} alt={p.name} className="h-9 w-9 rounded-lg object-cover" />
+                          <img src={getFirstImage(p.image)} alt={p.name} className="h-9 w-9 rounded-lg object-cover" />
                         ) : (
                           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-400">
                             <Package className="h-4 w-4" />

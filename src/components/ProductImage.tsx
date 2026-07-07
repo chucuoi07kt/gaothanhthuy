@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, getFirstImage } from '@/lib/utils';
 import { BRAND } from '@/src/lib/brand';
 
 interface ProductImageProps {
@@ -13,8 +13,9 @@ interface ProductImageProps {
 
 export function ProductImage({ src, alt, className, rounded = 'rounded-xl' }: ProductImageProps) {
   const [error, setError] = useState(false);
+  const safeSrc = getFirstImage(src);
 
-  if (error) {
+  if (error || !safeSrc) {
     return (
       <div
         className={cn(
@@ -38,7 +39,7 @@ export function ProductImage({ src, alt, className, rounded = 'rounded-xl' }: Pr
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src={safeSrc}
       alt={alt}
       loading="lazy"
       onError={() => setError(true)}

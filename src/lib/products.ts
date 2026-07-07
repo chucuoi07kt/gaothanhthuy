@@ -1,5 +1,6 @@
 import type { Product, ProductMetrics, WeightOption, BlogPost } from '@/src/types';
 import { convertCategoryToSlug, getCategoryLabel } from './categories';
+import { parseImageList } from '@/lib/utils';
 
 const FALLBACK_IMAGE = 'https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=900';
 
@@ -86,7 +87,12 @@ export function normalizeProduct(raw: SheetProductRaw): Product {
 
   const tags = safeSplit(raw.tags, []);
   const usage = safeSplit(raw.usage, []);
-  const gallery = safeSplit(raw.gallery, []);
+
+  const allImages = parseImageList(raw.image);
+  const primaryImage = allImages[0] || FALLBACK_IMAGE;
+  const galleryFromImage = allImages.length > 1 ? allImages : [];
+  const galleryRaw = safeSplit(raw.gallery, []);
+  const gallery = galleryRaw.length > 0 ? galleryRaw : galleryFromImage;
 
   const bestSeller =
     raw.bestSeller === true ||
@@ -107,7 +113,7 @@ export function normalizeProduct(raw: SheetProductRaw): Product {
     origin: safeString(raw.origin, 'Việt Nam'),
     pricePerKg: safeNumber(raw.price),
     weights,
-    image: safeString(raw.image, FALLBACK_IMAGE),
+    image: primaryImage,
     gallery: gallery.length > 0 ? gallery : undefined,
     metrics,
     bestSeller,
