@@ -154,7 +154,11 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               </span>
             </div>
             <h1 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">{product.name}</h1>
-            <p className="mt-2 text-base text-muted-foreground">{product.shortDescription}</p>
+            
+            {/* SỬA CÁCH 2: Khối mô tả ngắn phía trên được tinh gọn tối đa 3 dòng kèm ba chấm cho thoáng giao diện */}
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-3">
+              {product.description || product.shortDescription}
+            </p>
 
             <div className="mt-5 rounded-2xl border border-border bg-brand-50/40 p-4">
               <div className="flex items-end justify-between">
@@ -223,9 +227,13 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               </div>
             )}
           </div>
+          
           <div className="rounded-2xl border border-border bg-white p-6 shadow-soft">
             <h2 className="text-lg font-semibold text-foreground">Mô tả sản phẩm</h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{product.longDescription}</p>
+            {/* ĐÃ BỔ SUNG: whitelist-pre-line giúp giữ nguyên định dạng Markdown dán từ Shopee tinh tế, chuẩn chỉ */}
+            <div className="mt-3 text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+              {product.description || product.longDescription}
+            </div>
             {usage.length > 0 && (
               <>
                 <h3 className="mt-5 text-sm font-semibold text-foreground">Ứng dụng phù hợp</h3>
