@@ -82,7 +82,8 @@ export default function AdminBlogPage() {
 
   const openEdit = (p: SheetBlogPost) => {
     setEditing(true);
-    setForm({ id: p.id, title: p.title || '', slug: p.slug || '', thumbnail: p.thumbnail || '', summary: p.summary || '', content: p.content || '', created_at: p.created_at || '' });
+    const cleanThumb = (p.thumbnail || '').replace(/[\[\]"']/g, '').trim();
+    setForm({ id: p.id, title: p.title || '', slug: p.slug || '', thumbnail: cleanThumb, summary: p.summary || '', content: p.content || '', created_at: p.created_at || '' });
     editor?.commands.setContent(p.content || '');
     setModalOpen(true);
   };

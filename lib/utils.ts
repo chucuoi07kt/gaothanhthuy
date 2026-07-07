@@ -1,7 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-// Đảm bảo có từ khóa export function cn để không bị báo lỗi thiếu member
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -11,22 +10,20 @@ const PLACEHOLDER_IMAGE = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload
 
 export function getFirstImage(imageStr: string | null | undefined): string {
   if (!imageStr || typeof imageStr !== 'string') return PLACEHOLDER_IMAGE;
-  
-  // Giải pháp: Tách chuỗi theo dấu phẩy có chữ "http" liền sau để không làm gãy link Cloudinary f_webp,q_auto
-  const urls = imageStr
-    .split(/,\s*(?=http)/)
-    .map((url) => url.trim())
-    .filter(Boolean);
-    
+  const cleaned = imageStr.replace(/[\[\]"']/g, '').trim();
+  const urls = cleaned
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s.length >= 5);
   return urls[0] || PLACEHOLDER_IMAGE;
 }
 
 export function parseImageList(imageStr: string | null | undefined): string[] {
   if (!imageStr || typeof imageStr !== 'string') return [];
-  
-  // Tương tự cho hàm lấy danh sách ảnh
-  return imageStr
-    .split(/,\s*(?=http)/)
-    .map((url) => url.trim())
-    .filter(Boolean);
+  const cleaned = imageStr.replace(/[\[\]"']/g, '').trim();
+  return cleaned
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s.length >= 5)
+    .filter((item, index, arr) => arr.indexOf(item) === index);
 }
