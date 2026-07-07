@@ -135,6 +135,7 @@ export default function AdminProductsPage() {
     const numMem = parseInt(form.mem) || 0;
     const numThom = parseInt(form.thom) || 0;
 
+    // Chuẩn hóa payload: Gửi trực tiếp cả hai trường có dấu và không dấu lên API Next.js Route
     const payload = {
       action: editing ? 'update' : 'insert',
       id: form.id || undefined,
@@ -188,6 +189,7 @@ export default function AdminProductsPage() {
     setModalOpen(false);
 
     try {
+      // Đẩy gói tin sang API của route.ts trung gian
       const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
