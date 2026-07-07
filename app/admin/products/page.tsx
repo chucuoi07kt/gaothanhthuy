@@ -112,7 +112,7 @@ export default function AdminProductsPage() {
     // Khôi phục văn bản mô tả (đổi các thẻ BR về dấu ngắt dòng thực tế)
     const displayDescription = (p.description || '').replace(/\[BR\]/g, '\n');
 
-    // Chuẩn hóa chuỗi ảnh: Khử hoàn toàn các ký tự dư thừa do lưu thô lỗi dạng mảng chuỗi JSON
+    // Chuẩn hóa chuỗi ảnh khi sửa
     let cleanImageString = p.image || '';
     if (cleanImageString.startsWith('[') && cleanImageString.endsWith(']')) {
       try {
@@ -150,6 +150,9 @@ export default function AdminProductsPage() {
     const numMem = parseInt(form.mem) || 0;
     const numThom = parseInt(form.thom) || 0;
 
+    const safeDescription = form.description.trim();
+
+    // Rút gọn payload loại bỏ hoàn toàn việc lặp key trùng tên gây gãy build
     const payload = {
       action: editing ? 'update' : 'insert',
       id: form.id || undefined,
@@ -158,10 +161,15 @@ export default function AdminProductsPage() {
       price: cleanPrice,
       weight_options: form.weight_options.trim(),
       image: form.image.trim(),
-      description: form.description.trim(),
-      deo: numDeo, no: numNo, mem: numMem, thom: numThom,
-      'dẻo': numDeo, 'nở': numNo, 'mềm': numMem, 'thơm': numThom,
-      dẻo: numDeo, nở: numNo, mềm: numMem, thơm: numThom,
+      description: safeDescription,
+      deo: numDeo,
+      no: numNo,
+      mem: numMem,
+      thom: numThom,
+      dẻo: numDeo,
+      nở: numNo,
+      mềm: numMem,
+      thơm: numThom,
     };
 
     if (editing) {
@@ -173,10 +181,14 @@ export default function AdminProductsPage() {
         weight_options: payload.weight_options,
         image: payload.image,
         description: payload.description,
-        deo: numDeo, dẻo: numDeo, 'dẻo': numDeo,
-        no: numNo, nở: numNo, 'nở': numNo,
-        mem: numMem, mềm: numMem, 'mềm': numMem,
-        thom: numThom, thơm: numThom, 'thơm': numThom,
+        deo: numDeo,
+        dẻo: numDeo,
+        no: numNo,
+        nở: numNo,
+        mem: numMem,
+        mềm: numMem,
+        thom: numThom,
+        thơm: numThom,
       } as any) : p));
     } else {
       const newId = String(Math.max(0, ...products.map((p) => parseInt(p.id) || 0)) + 1);
@@ -188,10 +200,14 @@ export default function AdminProductsPage() {
         weight_options: payload.weight_options,
         image: payload.image,
         description: payload.description,
-        deo: numDeo, dẻo: numDeo, 'dẻo': numDeo,
-        no: numNo, nở: numNo, 'nở': numNo,
-        mem: numMem, mềm: numMem, 'mềm': numMem,
-        thom: numThom, thơm: numThom, 'thơm': numThom,
+        deo: numDeo,
+        dẻo: numDeo,
+        no: numNo,
+        nở: numNo,
+        mem: numMem,
+        mềm: numMem,
+        thom: numThom,
+        thơm: numThom,
       };
       setProducts((prev) => [newProduct, ...prev]);
     }
@@ -466,7 +482,6 @@ export default function AdminProductsPage() {
                 value={form.description}
                 onChange={(e) => {
                   const rawText = e.target.value;
-                  // Tự động khử toàn bộ các ký tự rác ẩn hệ thống
                   const cleanText = rawText.replace(/[\u200B-\u200D\uFEFF]/g, '');
                   setForm({ ...form, description: cleanText });
                 }}
