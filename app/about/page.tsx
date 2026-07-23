@@ -7,7 +7,7 @@ import { categories } from '@/src/lib/categories';
 export const metadata = {
   title: 'Về chúng tôi',
   description:
-    'Gạo Thanh Thuỷ - 30 năm uy tín phân phối gạo sỉ & lẻ tại Đà Nẵng. Kho chính tại 126 Nguyễn Lương Bằng, Hòa Khánh Bắc, Liên Chiểu.',
+    'Gạo Ngọc Anh - 30 năm uy tín phân phối gạo sỉ & lẻ tại Đà Nẵng. Kho chính tại 126 Nguyễn Lương Bằng, Hòa Khánh Bắc, Liên Chiểu.',
 };
 
 const milestones = [
@@ -44,12 +44,12 @@ export default function AboutPage() {
               {BRAND.yearsExperience} năm phân phối gạo tại Đà Nẵng
             </span>
             <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-              Gạo Thanh Thuỷ - <span className="text-gold-300">30 năm gạo sạch Đà Nẵng</span>
+              Gạo Ngọc Anh - <span className="text-gold-300">30 năm gạo sạch Đà Nẵng</span>
             </h1>
             <p className="mt-4 text-base leading-relaxed text-brand-50 sm:text-lg">
               Từ năm 1996, chúng tôi đã trở thành đối tác tin cậy của hàng trăm gia
               đình, quán cơm, nhà hàng và tổ chức từ thiện tại Đà Nẵng và miền Trung.
-              Với công suất 15 tấn mỗi ngày, Gạo Thanh Thuỷ cam kết gạo chính hãng,
+              Với công suất 15 tấn mỗi ngày, Gạo Ngọc Anh cam kết gạo chính hãng,
               giá sỉ tốt nhất và giao hỏa tốc nội thành 1-2 tiếng.
             </p>
           </div>
@@ -155,7 +155,7 @@ export default function AboutPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=900"
-                alt="Kho gạo Thanh Thuỷ Đà Nẵng"
+                alt="Kho gạo Ngọc Anh Đà Nẵng"
                 className="h-full w-full object-cover"
               />
             </div>
