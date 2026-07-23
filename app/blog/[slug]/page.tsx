@@ -6,6 +6,7 @@ import { getBlogFromSheet } from '@/src/lib/sheets';
 import { normalizeBlogPost } from '@/src/lib/products';
 import { ZaloCta } from '@/src/components/ZaloCta';
 import { ReadingProgress, BackToTop } from '@/src/components/BlogReadingUX';
+import { BlogArticle } from '@/src/components/BlogArticle';
 import { BRAND } from '@/src/lib/brand';
 
 interface PageProps {
@@ -60,8 +61,6 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!post) {
     notFound();
   }
-
-  const contentParagraphs = (post.content || '').split('\n').filter((p) => p.trim());
 
   return (
     <>
@@ -137,20 +136,12 @@ export default async function BlogPostPage({ params }: PageProps) {
 
       {/* Article body */}
       <article className="section-pad pt-8">
-        <div className="container-page max-w-3xl">
-          <div className="space-y-4 text-base leading-relaxed text-foreground/80">
-            <p className="text-lg font-medium text-foreground">{post.excerpt}</p>
-            {contentParagraphs.length > 0 ? (
-              contentParagraphs.map((para, idx) => (
-                <p key={idx}>{para}</p>
-              ))
-            ) : (
-              <p>Nội dung đang được cập nhật...</p>
-            )}
-          </div>
+        <div className="container-page max-w-5xl">
+          <p className="mb-6 text-lg font-medium text-foreground">{post.excerpt}</p>
+          <BlogArticle html={post.content} />
 
           {/* CTA box */}
-          <div className="mt-8 rounded-2xl brand-gradient p-6 text-white sm:p-8">
+          <div className="mt-10 max-w-3xl rounded-2xl brand-gradient p-6 text-white sm:p-8">
             <h2 className="text-lg font-bold sm:text-xl">Cần tư vấn thêm?</h2>
             <p className="mt-1 text-sm text-brand-50">
               Liên hệ {BRAND.name} - {BRAND.hotline} để được tư vấn chọn gạo phù hợp.
@@ -221,4 +212,3 @@ export default async function BlogPostPage({ params }: PageProps) {
       <BackToTop />
     </>
   );
-}
