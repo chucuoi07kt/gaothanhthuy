@@ -7,7 +7,10 @@ import { normalizeBlogPost } from '@/src/lib/products';
 import { ZaloCta } from '@/src/components/ZaloCta';
 import { ReadingProgress, BackToTop } from '@/src/components/BlogReadingUX';
 import { BlogArticle } from '@/src/components/BlogArticle';
+import { ShareButtons } from '@/src/components/ShareButtons';
+import { PostNavigation } from '@/src/components/PostNavigation';
 import { BRAND } from '@/src/lib/brand';
+import type { BlogPost } from '@/src/types';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -32,8 +35,10 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function BlogPostPage({ params }: PageProps) {
   const resolvedParams = await params;
 
-  let post = null;
-  let related: ReturnType<typeof normalizeBlogPost>[] = [];
+  let post: BlogPost | null = null;
+  let related: BlogPost[] = [];
+  let prevPost: BlogPost | null = null;
+  let nextPost: BlogPost | null = null;
 
   try {
     const allPosts = await getBlogFromSheet();
@@ -54,6 +59,14 @@ export default async function BlogPostPage({ params }: PageProps) {
       .filter((p) => p.id !== found.id)
       .slice(0, 3);
     related = relatedRaw.map(normalizeBlogPost);
+
+    const currentIndex = allPosts.findIndex((p) => p.id === found.id);
+    if (currentIndex > 0) {
+      prevPost = normalizeBlogPost(allPosts[currentIndex - 1]);
+    }
+    if (currentIndex >= 0 && currentIndex < allPosts.length - 1) {
+      nextPost = normalizeBlogPost(allPosts[currentIndex + 1]);
+    }
   } catch {
     notFound();
   }
@@ -140,6 +153,11 @@ export default async function BlogPostPage({ params }: PageProps) {
           <p className="mb-6 text-lg font-medium text-foreground">{post.excerpt}</p>
           <BlogArticle html={post.content} />
 
+          {/* Share buttons */}
+          <div className="mt-8 flex items-center justify-between rounded-2xl border border-border bg-brand-50/30 px-5 py-4">
+            <ShareButtons title={post.title} slug={post.slug} />
+          </div>
+
           {/* CTA box */}
           <div className="mt-10 max-w-3xl rounded-2xl brand-gradient p-6 text-white sm:p-8">
             <h2 className="text-lg font-bold sm:text-xl">Cần tư vấn thêm?</h2>
@@ -161,15 +179,24 @@ export default async function BlogPostPage({ params }: PageProps) {
         </div>
       </article>
 
+      {/* Previous / Next navigation */}
+      {(prevPost || nextPost) && (
+        <section className="pb-8">
+          <div className="container-page max-w-4xl">
+            <PostNavigation prev={prevPost} next={nextPost} />
+          </div>
+        </section>
+      )}
+
       {/* Related posts */}
       {related.length > 0 && (
         <section className="section-pad pt-4">
-          <div className="container-page max-w-4xl">
-            <div className="mb-5 flex items-center gap-2">
-              <ArrowRight className="h-5 w-5 rotate-180 text-brand-600" />
-              <h2 className="text-xl font-bold text-foreground sm:text-2xl">Bài viết khác</h2>
+          <div className="container-page max-w-5xl">
+            <div className="mb-6 flex items-center gap-2">
+              <div className="h-6 w-1 rounded-full bg-brand-600" />
+              <h2 className="text-xl font-bold text-foreground sm:text-2xl">Bài viết liên quan</h2>
             </div>
-            <div className="grid gap-5 sm:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((b) => (
                 <Link
                   key={b.id}
@@ -187,11 +214,12 @@ export default async function BlogPostPage({ params }: PageProps) {
                       {b.category}
                     </span>
                   </div>
-                  <div className="flex flex-1 flex-col p-4">
+                  <div className="flex flex-1 flex-col p-5">
                     <h3 className="line-clamp-2 text-sm font-semibold text-foreground transition-colors group-hover:text-brand-700">
                       {b.title}
                     </h3>
-                    <div className="mt-3 flex items-center gap-3 border-t border-border/60 pt-2.5 text-xs text-muted-foreground">
+                    <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{b.excerpt}</p>
+                    <div className="mt-4 flex items-center gap-3 border-t border-border/60 pt-3 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {b.publishedAt}
@@ -204,6 +232,14 @@ export default async function BlogPostPage({ params }: PageProps) {
                   </div>
                 </Link>
               ))}
+            </div>
+            <div className="mt-8 text-center">
+              <Link href="/blog">
+                <Button variant="outline" className="gap-2 border-brand-200 text-brand-700 hover:bg-brand-50">
+                  Xem tất cả bài viết
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
