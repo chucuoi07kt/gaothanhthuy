@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -11,12 +11,21 @@ import {
   List, ListOrdered, Quote,
   Undo2, Redo2,
   Search, Eye, Clock, Type,
+  Save, RotateCcw, Send, Image as ImageIcon, X, Tag as TagIcon, FolderTree, CalendarDays,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ImageUpload } from '@/src/components/admin/ImageUpload';
 import type { SheetBlogPost } from '@/src/lib/sheets';
@@ -24,6 +33,18 @@ import { BRAND } from '@/src/lib/brand';
 
 const PER_PAGE = 10;
 const WORDS_PER_MINUTE = 200;
+const AUTOSAVE_INTERVAL = 30000;
+const DRAFT_KEY = 'blog_editor_draft';
+const DRAFT_META_KEY = 'blog_editor_draft_meta';
+
+const BLOG_CATEGORIES = [
+  'Cẩm nang gạo',
+  'Kiến thức gạo',
+  'Mẹo nấu ăn',
+  'Sức khỏe',
+  'Tin tức',
+  'Khuyến mãi',
+];
 
 interface FormData {
   id: string;
@@ -35,12 +56,21 @@ interface FormData {
   created_at: string;
   meta_title: string;
   meta_description: string;
+  category: string;
+  tags: string;
+  publish_date: string;
 }
 
 const emptyForm: FormData = {
   id: '', title: '', slug: '', thumbnail: '', summary: '', content: '', created_at: '',
-  meta_title: '', meta_description: '',
+  meta_title: '', meta_description: '', category: 'Cẩm nang gạo', tags: '', publish_date: '',
 };
+
+interface DraftSnapshot {
+  form: FormData;
+  content: string;
+  savedAt: string;
+}
 
 function ToolbarDivider() {
   return <div className="mx-0.5 h-5 w-px bg-border dark:bg-zinc-600" />;
@@ -98,6 +128,22 @@ function readingTime(wordCount: number): number {
   return Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
 }
 
+function formatDateForInput(dateStr: string): string {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mi = String(d.getMinutes()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+  } catch {
+    return '';
+  }
+}
+
 function SeoPreview({
   slug,
   metaTitle,
@@ -147,6 +193,14 @@ export default function AdminBlogPage() {
   const [isDark, setIsDark] = useState(false);
   const [slugEdited, setSlugEdited] = useState(false);
   const [contentTick, setContentTick] = useState(0);
+  const [tagInput, setTagInput] = useState('');
+  const [tagList, setTagList] = useState<string[]>([]);
+  const [draftSavedAt, setDraftSavedAt] = useState<string | null>(null);
+  const [hasDraft, setHasDraft] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState('');
+  const [previewTitle, setPreviewTitle] = useState('');
+  const autoSaveTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const editor = useEditor({
     extensions: [StarterKit, Placeholder.configure({ placeholder: 'Viết nội dung bài viết...' })],
@@ -197,6 +251,14 @@ export default function AdminBlogPage() {
   const currentPage = Math.min(page, totalPages);
   const pageItems = posts.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
 
+  // Check for existing draft on mount
+  useEffect(() => {
+    try {
+      const meta = localStorage.getItem(DRAFT_META_KEY);
+      if (meta) setHasDraft(true);
+    } catch { /* ignore */ }
+  }, []);
+
   const slugify = (s: string) =>
     s.toLowerCase().trim()
       .replace(/đ/g, 'd')
@@ -213,17 +275,87 @@ export default function AdminBlogPage() {
 
   const readMins = readingTime(wordCount);
 
+  // Auto Save to localStorage
+  const saveDraft = useCallback(() => {
+    if (!modalOpen) return;
+    const content = editor?.getHTML() || '';
+    if (!form.title.trim() && !content.trim()) return;
+    const snapshot: DraftSnapshot = {
+      form,
+      content,
+      savedAt: new Date().toISOString(),
+    };
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(snapshot));
+      localStorage.setItem(DRAFT_META_KEY, snapshot.savedAt);
+      setDraftSavedAt(snapshot.savedAt);
+      setHasDraft(true);
+    } catch { /* ignore */ }
+  }, [modalOpen, form, editor]);
+
+  // Auto save timer
+  useEffect(() => {
+    if (!modalOpen) return;
+    autoSaveTimer.current = setInterval(saveDraft, AUTOSAVE_INTERVAL);
+    return () => {
+      if (autoSaveTimer.current) clearInterval(autoSaveTimer.current);
+    };
+  }, [modalOpen, saveDraft]);
+
+  const restoreDraft = () => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) { toast.error('Không tìm thấy bản nháp'); return; }
+      const snapshot: DraftSnapshot = JSON.parse(raw);
+      setForm(snapshot.form);
+      setTagList(snapshot.form.tags ? snapshot.form.tags.split(',').map((t) => t.trim()).filter(Boolean) : []);
+      setSlugEdited(true);
+      editor?.commands.setContent(snapshot.content);
+      setModalOpen(true);
+      toast.success(`Đã khôi phục bản nháp (lúc ${new Date(snapshot.savedAt).toLocaleString('vi-VN')})`);
+    } catch {
+      toast.error('Không thể khôi phục bản nháp');
+    }
+  };
+
+  const clearDraft = () => {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem(DRAFT_META_KEY);
+      setDraftSavedAt(null);
+      setHasDraft(false);
+    } catch { /* ignore */ }
+  };
+
+  const handleAddTag = () => {
+    const trimmed = tagInput.trim();
+    if (trimmed && !tagList.includes(trimmed)) {
+      const newList = [...tagList, trimmed];
+      setTagList(newList);
+      setForm((prev) => ({ ...prev, tags: newList.join(', ') }));
+    }
+    setTagInput('');
+  };
+
+  const handleRemoveTag = (tag: string) => {
+    const newList = tagList.filter((t) => t !== tag);
+    setTagList(newList);
+    setForm((prev) => ({ ...prev, tags: newList.join(', ') }));
+  };
+
   const openAdd = () => {
     setEditing(false);
     setForm(emptyForm);
+    setTagList([]);
     setSlugEdited(false);
+    setDraftSavedAt(null);
     editor?.commands.setContent('');
     setModalOpen(true);
   };
 
   const openEdit = (p: SheetBlogPost) => {
     setEditing(true);
-    setForm({
+    const formData: FormData = {
       id: p.id,
       title: p.title || '',
       slug: p.slug || '',
@@ -233,8 +365,14 @@ export default function AdminBlogPage() {
       created_at: p.created_at || '',
       meta_title: p.meta_title || '',
       meta_description: p.meta_description || '',
-    });
+      category: 'Cẩm nang gạo',
+      tags: '',
+      publish_date: p.created_at ? formatDateForInput(p.created_at) : '',
+    };
+    setForm(formData);
+    setTagList([]);
     setSlugEdited(true);
+    setDraftSavedAt(null);
     editor?.commands.setContent(p.content || '');
     setModalOpen(true);
   };
@@ -252,12 +390,27 @@ export default function AdminBlogPage() {
     setForm((prev) => ({ ...prev, slug: slugify(value) }));
   };
 
-  const handleSave = async () => {
+  const handlePreview = () => {
+    const content = editor?.getHTML() || '';
+    setPreviewHtml(content);
+    setPreviewTitle(form.title || 'Xem trước bài viết');
+    setPreviewOpen(true);
+  };
+
+  const handleSaveDraft = () => {
+    saveDraft();
+    toast.success('Đã lưu bản nháp');
+  };
+
+  const handlePublish = async () => {
     if (!form.title.trim()) { toast.error('Vui lòng nhập tiêu đề'); return; }
     const content = editor?.getHTML() || '';
     const slug = form.slug || slugify(form.title);
+    const publishDate = form.publish_date
+      ? new Date(form.publish_date).toISOString()
+      : (form.created_at || new Date().toISOString());
     setSaving(true);
-    toast.loading('Đang đồng bộ dữ liệu...', { id: 'sync' });
+    toast.loading('Đang xuất bản...', { id: 'sync' });
     const payload = {
       action: editing ? 'update' : 'insert',
       id: form.id || undefined,
@@ -266,28 +419,29 @@ export default function AdminBlogPage() {
       thumbnail: form.thumbnail,
       summary: form.summary,
       content,
-      created_at: form.created_at || new Date().toISOString(),
+      created_at: publishDate,
       meta_title: form.meta_title,
       meta_description: form.meta_description,
     };
     if (editing) {
       setPosts((prev) => prev.map((p) => p.id === form.id ? {
         ...p, title: form.title, slug, thumbnail: form.thumbnail, summary: form.summary, content,
-        meta_title: form.meta_title, meta_description: form.meta_description,
+        meta_title: form.meta_title, meta_description: form.meta_description, created_at: publishDate,
       } : p));
     } else {
       const newId = String(Math.max(0, ...posts.map((p) => parseInt(p.id) || 0)) + 1);
       setPosts((prev) => [{
         id: newId, title: form.title, slug, thumbnail: form.thumbnail, summary: form.summary, content,
-        created_at: payload.created_at, meta_title: form.meta_title, meta_description: form.meta_description,
+        created_at: publishDate, meta_title: form.meta_title, meta_description: form.meta_description,
       }, ...prev]);
     }
     setModalOpen(false);
+    clearDraft();
     try {
       const res = await fetch('/api/blog', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await res.json();
-      if (data.success) toast.success('Đồng bộ Google Sheets thành công!', { id: 'sync' });
-      else { toast.error(`Lỗi: ${data.error || 'Không thể đồng bộ'}`, { id: 'sync' }); fetchPosts(); }
+      if (data.success) toast.success('Xuất bản thành công!', { id: 'sync' });
+      else { toast.error(`Lỗi: ${data.error || 'Không thể xuất bản'}`, { id: 'sync' }); fetchPosts(); }
     } catch { toast.error('Lỗi kết nối server', { id: 'sync' }); fetchPosts(); }
     finally { setSaving(false); }
   };
@@ -315,6 +469,13 @@ export default function AdminBlogPage() {
           <p className="mt-0.5 text-sm text-muted-foreground">{posts.length} bài viết</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {hasDraft && (
+            <Button variant="outline" onClick={restoreDraft} className="gap-2 border-amber-300 text-amber-700 hover:bg-amber-50 text-xs sm:text-sm">
+              <RotateCcw className="h-4 w-4" />
+              <span className="hidden sm:inline">Khôi phục nháp</span>
+              <span className="sm:hidden">Nháp</span>
+            </Button>
+          )}
           <Button variant="outline" onClick={handleSyncCache} disabled={syncing || loading} className="gap-2 border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800 text-xs sm:text-sm">
             <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">{syncing ? 'Đang đồng bộ...' : 'Đồng bộ Sheet'}</span>
@@ -444,7 +605,89 @@ export default function AdminBlogPage() {
               </div>
             </div>
 
-            <ImageUpload value={form.thumbnail} onChange={(url) => setForm({ ...form, thumbnail: url })} label="Thumbnail" />
+            {/* Featured Image */}
+            <div className="space-y-1.5">
+              <Label className="flex items-center gap-1.5">
+                <ImageIcon className="h-3.5 w-3.5" />
+                Ảnh đại diện (Featured Image)
+              </Label>
+              <ImageUpload value={form.thumbnail} onChange={(url) => setForm({ ...form, thumbnail: url })} label="Featured Image" />
+            </div>
+
+            {/* Category & Publish Date */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <Label className="flex items-center gap-1.5">
+                  <FolderTree className="h-3.5 w-3.5" />
+                  Danh mục (Category)
+                </Label>
+                <Select
+                  value={form.category}
+                  onValueChange={(val) => setForm({ ...form, category: val })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn danh mục" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BLOG_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="flex items-center gap-1.5">
+                  <CalendarDays className="h-3.5 w-3.5" />
+                  Ngày xuất bản (Publish Date)
+                </Label>
+                <Input
+                  type="datetime-local"
+                  value={form.publish_date}
+                  onChange={(e) => setForm({ ...form, publish_date: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div>
+              <Label className="flex items-center gap-1.5">
+                <TagIcon className="h-3.5 w-3.5" />
+                Thẻ (Tags)
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                  placeholder="Nhập thẻ rồi Enter..."
+                  className="flex-1"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={handleAddTag} className="shrink-0">Thêm</Button>
+              </div>
+              {tagList.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {tagList.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="gap-1">
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="ml-0.5 rounded-full p-0.5 hover:bg-muted-foreground/20"
+                        aria-label={`Xoá thẻ ${tag}`}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div>
               <Label>Tóm tắt</Label>
@@ -522,6 +765,12 @@ export default function AdminBlogPage() {
                 <Clock className="h-3.5 w-3.5" />
                 <span className="font-medium text-foreground">{readMins}</span> phút đọc
               </span>
+              {draftSavedAt && (
+                <span className="flex items-center gap-1.5 text-xs text-amber-600">
+                  <Save className="h-3.5 w-3.5" />
+                  Nháp: {new Date(draftSavedAt).toLocaleTimeString('vi-VN')}
+                </span>
+              )}
             </div>
 
             {/* SEO Section */}
@@ -570,10 +819,55 @@ export default function AdminBlogPage() {
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setModalOpen(false)}>Huỷ</Button>
-              <Button onClick={handleSave} disabled={saving} className="bg-brand-600 text-white hover:bg-brand-700">{saving ? 'Đang lưu...' : 'Lưu'}</Button>
+            {/* Publish Actions */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" onClick={handleSaveDraft} className="gap-1.5">
+                  <Save className="h-4 w-4" />
+                  Lưu nháp
+                </Button>
+                <Button variant="outline" size="sm" onClick={handlePreview} className="gap-1.5">
+                  <Eye className="h-4 w-4" />
+                  Xem trước
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setModalOpen(false)}>Huỷ</Button>
+                <Button onClick={handlePublish} disabled={saving} className="gap-1.5 bg-brand-600 text-white hover:bg-brand-700">
+                  <Send className="h-4 w-4" />
+                  {saving ? 'Đang xuất bản...' : 'Xuất bản'}
+                </Button>
+              </div>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Preview Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
+          <DialogHeader><DialogTitle>Xem trước: {previewTitle}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            {form.thumbnail && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={form.thumbnail} alt={previewTitle} className="aspect-[16/9] w-full rounded-xl object-cover" />
+            )}
+            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+              {form.category && <span className="rounded-full bg-brand-50 px-2.5 py-1 font-medium text-brand-700">{form.category}</span>}
+              {form.publish_date && <span>{new Date(form.publish_date).toLocaleDateString('vi-VN')}</span>}
+              <span>{readMins} phút đọc</span>
+            </div>
+            {tagList.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {tagList.map((tag) => (
+                  <Badge key={tag} variant="secondary">{tag}</Badge>
+                ))}
+              </div>
+            )}
+            <div
+              className="prose prose-sm max-w-none dark:prose-invert"
+              dangerouslySetInnerHTML={{ __html: previewHtml }}
+            />
           </div>
         </DialogContent>
       </Dialog>
