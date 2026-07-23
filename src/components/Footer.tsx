@@ -17,13 +17,13 @@ export function Footer() {
               <div className="flex h-14 items-center justify-center">
                 <img 
                   src="/logo.png" 
-                  alt="Logo Gạo Thanh Thủy" 
+                  alt="Logo Gạo Ngọc Anh" 
                   className="h-full w-auto object-contain max-h-14 block"
                 />
               </div>
               <div className="leading-tight">
                 <span className="block text-base font-bold text-white">
-                  Gạo Thanh Thuỷ
+                  Gạo Ngọc Anh
                 </span>
                 <span className="text-[11px] text-brand-200">
                   {BRAND.yearsExperience} năm uy tín · Đà Nẵng
@@ -106,7 +106,7 @@ export function Footer() {
             © {new Date().getFullYear()} {BRAND.name} - {BRAND.domain}. Mọi quyền
             được bảo lưu.
           </p>
-          <p>Thiết kế bởi Gạo Thanh Thuỷ · Made in Đà Nẵng</p>
+          <p>Thiết kế bởi Gạo Ngọc Anh · Made in Đà Nẵng</p>
         </div>
       </div>
     </footer>

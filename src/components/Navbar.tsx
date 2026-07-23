@@ -80,13 +80,13 @@ export function Navbar() {
           <div className="flex h-full items-center justify-center">
             <img 
               src="/logo.png" 
-              alt="Logo Gạo Thanh Thủy" 
+              alt="Logo Gạo Ngọc Anh" 
               className="h-full w-auto object-contain max-h-14 transition-transform duration-200 group-hover:scale-102"
             />
           </div>
           <div className="leading-tight">
             <span className="block text-base font-bold text-brand-800 transition-colors group-hover:text-brand-600">
-              Gạo Thanh Thuỷ
+              Gạo Ngọc Anh
             </span>
             <span className="hidden text-[11px] text-muted-foreground sm:block">
               {BRAND.yearsExperience} năm uy tín · Đà Nẵng
