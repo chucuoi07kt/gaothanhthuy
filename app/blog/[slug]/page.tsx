@@ -1,31 +1,83 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { ArrowLeft, ArrowRight, Calendar, Clock, Newspaper, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getBlogFromSheet } from '@/src/lib/sheets';
 import { normalizeBlogPost } from '@/src/lib/products';
-import { ZaloCta } from '@/src/components/ZaloCta';
+import { BRAND } from '@/src/lib/brand';
 import { ReadingProgress, BackToTop } from '@/src/components/BlogReadingUX';
 import { BlogArticle } from '@/src/components/BlogArticle';
 import { ShareButtons } from '@/src/components/ShareButtons';
 import { PostNavigation } from '@/src/components/PostNavigation';
-import { BRAND } from '@/src/lib/brand';
+import { BlogCta } from '@/src/components/BlogCta';
+import { InternalLinks } from '@/src/components/InternalLinks';
+import {
+  buildArticleSchema,
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+} from '@/src/lib/seo';
 import type { BlogPost } from '@/src/types';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps) {
+const SITE_URL = `https://${BRAND.domain}`;
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const resolvedParams = await params;
   try {
     const allPosts = await getBlogFromSheet();
     const found = allPosts.find((p) => p.slug === resolvedParams.slug || p.id === resolvedParams.slug);
     if (!found) return {};
     const normalized = normalizeBlogPost(found);
+    const url = `${SITE_URL}/blog/${normalized.slug}`;
+
     return {
       title: normalized.title,
       description: normalized.excerpt,
+      keywords: [
+        normalized.category,
+        'gạo Đà Nẵng',
+        'gạo sỉ Đà Nẵng',
+        BRAND.name,
+        'giao gạo hỏa tốc Đà Nẵng',
+        'báo giá gạo sỉ',
+      ],
+      authors: [{ name: normalized.author }],
+      creator: normalized.author,
+      alternates: {
+        canonical: url,
+      },
+      openGraph: {
+        type: 'article',
+        locale: 'vi_VN',
+        url,
+        siteName: BRAND.name,
+        title: normalized.title,
+        description: normalized.excerpt,
+        images: [
+          {
+            url: normalized.image,
+            width: 1200,
+            height: 630,
+            alt: normalized.title,
+          },
+        ],
+        publishedTime: normalized.publishedAt,
+        authors: [normalized.author],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: normalized.title,
+        description: normalized.excerpt,
+        images: [normalized.image],
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
     };
   } catch {
     return {};
@@ -39,6 +91,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   let related: BlogPost[] = [];
   let prevPost: BlogPost | null = null;
   let nextPost: BlogPost | null = null;
+  let publishedISO = '';
 
   try {
     const allPosts = await getBlogFromSheet();
@@ -54,6 +107,12 @@ export default async function BlogPostPage({ params }: PageProps) {
     }
 
     post = normalizeBlogPost(found);
+    publishedISO = found.created_at || new Date().toISOString();
+    if (!isNaN(new Date(publishedISO).getTime())) {
+      publishedISO = new Date(publishedISO).toISOString();
+    } else {
+      publishedISO = new Date().toISOString();
+    }
 
     const relatedRaw = allPosts
       .filter((p) => p.id !== found.id)
@@ -75,9 +134,27 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
+  const articleSchema = buildArticleSchema(post, publishedISO);
+  const breadcrumbSchema = buildBreadcrumbSchema(post);
+  const faqSchema = buildFaqSchema(post);
+
   return (
     <>
       <ReadingProgress />
+
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
 
       {/* Hero section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-900 text-white">
@@ -158,13 +235,14 @@ export default async function BlogPostPage({ params }: PageProps) {
             <ShareButtons title={post.title} slug={post.slug} />
           </div>
 
-          {/* CTA box */}
-          <div className="mt-10 max-w-3xl rounded-2xl brand-gradient p-6 text-white sm:p-8">
-            <h2 className="text-lg font-bold sm:text-xl">Cần tư vấn thêm?</h2>
-            <p className="mt-1 text-sm text-brand-50">
-              Liên hệ {BRAND.name} - {BRAND.hotline} để được tư vấn chọn gạo phù hợp.
-            </p>
-            <ZaloCta />
+          {/* CTA cuối bài: Banner + Products + Cart + Contact */}
+          <div className="mt-10 max-w-4xl">
+            <BlogCta />
+          </div>
+
+          {/* Internal links */}
+          <div className="max-w-3xl">
+            <InternalLinks />
           </div>
 
           {/* Back to blog link */}
