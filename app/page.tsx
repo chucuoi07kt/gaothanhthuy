@@ -102,7 +102,7 @@ export default function HomePage() {
               </span>
               <h2 className="mt-1 text-2xl font-bold text-foreground sm:text-3xl">
                 Tin tức & hướng dẫn chọn gạo
-              </hh2>
+              </h2>
             </div>
             <Link
               href="/blog"
