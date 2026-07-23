@@ -4,7 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Plus, Pencil, Trash2, FileText, RefreshCw, Bold, Italic, List, ListOrdered } from 'lucide-react';
+import {
+  Plus, Pencil, Trash2, FileText, RefreshCw,
+  Bold, Italic, Strikethrough, Code, Code2,
+  Heading1, Heading2, Heading3,
+  List, ListOrdered, Quote,
+  Undo2, Redo2,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -30,6 +36,43 @@ const emptyForm: FormData = {
   id: '', title: '', slug: '', thumbnail: '', summary: '', content: '', created_at: '',
 };
 
+function ToolbarDivider() {
+  return <div className="mx-0.5 h-5 w-px bg-border dark:bg-zinc-600" />;
+}
+
+function ToolbarButton({
+  onClick,
+  isActive,
+  disabled,
+  title,
+  children,
+}: {
+  onClick: () => void;
+  isActive?: boolean;
+  disabled?: boolean;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      aria-label={title}
+      className={cn(
+        'flex h-8 w-8 items-center justify-center rounded-md transition-colors',
+        isActive
+          ? 'bg-brand-600 text-white shadow-sm'
+          : 'text-muted-foreground hover:bg-brand-100 hover:text-brand-700 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-100',
+        disabled && 'cursor-not-allowed opacity-40',
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
 export default function AdminBlogPage() {
   const [posts, setPosts] = useState<SheetBlogPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,14 +82,27 @@ export default function AdminBlogPage() {
   const [form, setForm] = useState<FormData>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [isDark, setIsDark] = useState(false);
 
   const editor = useEditor({
     extensions: [StarterKit, Placeholder.configure({ placeholder: 'Viết nội dung bài viết...' })],
     content: '',
-    editorProps: { attributes: { class: 'prose prose-sm max-w-none min-h-[120px] sm:min-h-[150px] rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-500' } },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm max-w-none min-h-[150px] sm:min-h-[200px] px-4 py-3 text-sm outline-none dark:prose-invert',
+      },
+    },
   });
 
   useEffect(() => () => { editor?.destroy(); }, [editor]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDark(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
@@ -239,14 +295,56 @@ export default function AdminBlogPage() {
             <div>
               <Label>Nội dung</Label>
               {editor && (
-                <div className="mb-1.5 flex flex-wrap gap-1">
-                  <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={cn('flex h-9 w-9 items-center justify-center rounded-lg border', editor.isActive('bold') ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-border text-muted-foreground hover:bg-brand-50')}><Bold className="h-4 w-4" /></button>
-                  <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={cn('flex h-9 w-9 items-center justify-center rounded-lg border', editor.isActive('italic') ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-border text-muted-foreground hover:bg-brand-50')}><Italic className="h-4 w-4" /></button>
-                  <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={cn('flex h-9 w-9 items-center justify-center rounded-lg border', editor.isActive('bulletList') ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-border text-muted-foreground hover:bg-brand-50')}><List className="h-4 w-4" /></button>
-                  <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={cn('flex h-9 w-9 items-center justify-center rounded-lg border', editor.isActive('orderedList') ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-border text-muted-foreground hover:bg-brand-50')}><ListOrdered className="h-4 w-4" /></button>
+                <div className={cn('mt-1.5', isDark && 'dark')}>
+                  <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1 rounded-t-xl border border-b-0 border-border bg-brand-50/90 px-2 py-1.5 backdrop-blur-sm dark:border-zinc-700 dark:bg-zinc-800/90">
+                    <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor.isActive('heading', { level: 1 })} title="Tiêu đề 1">
+                      <Heading1 className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor.isActive('heading', { level: 2 })} title="Tiêu đề 2">
+                      <Heading2 className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} isActive={editor.isActive('heading', { level: 3 })} title="Tiêu đề 3">
+                      <Heading3 className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarDivider />
+                    <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} isActive={editor.isActive('bold')} title="Đậm">
+                      <Bold className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} isActive={editor.isActive('italic')} title="Nghiêng">
+                      <Italic className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} isActive={editor.isActive('strike')} title="Gạch ngang">
+                      <Strikethrough className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} isActive={editor.isActive('code')} title="Mã inline">
+                      <Code className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarDivider />
+                    <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} isActive={editor.isActive('bulletList')} title="Danh sách">
+                      <List className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} isActive={editor.isActive('orderedList')} title="Danh sách số">
+                      <ListOrdered className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} isActive={editor.isActive('blockquote')} title="Trích dẫn">
+                      <Quote className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} isActive={editor.isActive('codeBlock')} title="Khối mã">
+                      <Code2 className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarDivider />
+                    <ToolbarButton onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Hoàn tác">
+                      <Undo2 className="h-4 w-4" />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Làm lại">
+                      <Redo2 className="h-4 w-4" />
+                    </ToolbarButton>
+                  </div>
+                  <div className="rounded-b-xl border border-border bg-white focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-zinc-700 dark:bg-zinc-900">
+                    <EditorContent editor={editor} />
+                  </div>
                 </div>
               )}
-              <EditorContent editor={editor} />
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => setModalOpen(false)}>Huỷ</Button>
