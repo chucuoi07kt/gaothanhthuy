@@ -48,7 +48,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg brand-gradient">
             <Wheat className="h-4 w-4 text-white" />
           </div>
-          <span className="text-sm font-bold text-brand-800">Gạo Thanh Thuỷ CMS</span>
+          <span className="text-sm font-bold text-brand-800">Gạo Ngọc Anh CMS</span>
         </div>
         <button
           onClick={() => setMobileNavOpen(true)}
@@ -73,7 +73,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
                   <Wheat className="h-5 w-5 text-white" />
                 </div>
                 <div className="leading-tight">
-                  <span className="block text-sm font-bold text-brand-800">Gạo Thanh Thuỷ</span>
+                  <span className="block text-sm font-bold text-brand-800">Gạo Ngọc Anh</span>
                   <span className="text-[11px] text-muted-foreground">CMS Dashboard</span>
                 </div>
               </div>
@@ -133,7 +133,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               <Wheat className="h-5 w-5 text-white" />
             </div>
             <div className="leading-tight">
-              <span className="block text-sm font-bold text-brand-800">Gạo Thanh Thuỷ</span>
+              <span className="block text-sm font-bold text-brand-800">Gạo Ngọc Anh</span>
               <span className="text-[11px] text-muted-foreground">CMS Dashboard</span>
             </div>
           </div>
