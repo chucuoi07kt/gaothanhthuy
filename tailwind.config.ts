@@ -135,6 +135,10 @@ const config: Config = {
         'shimmer': {
           '100%': { transform: 'translateX(100%)' },
         },
+        'slide-in-bottom': {
+          from: { transform: 'translateY(100%)' },
+          to: { transform: 'translateY(0)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -145,6 +149,7 @@ const config: Config = {
         'bounce-soft': 'bounce-soft 1.5s ease-in-out infinite',
         'pulse-ring': 'pulse-ring 1.8s cubic-bezier(0.4,0,0.6,1) infinite',
         'shimmer': 'shimmer 1.8s infinite',
+        'slide-in-bottom': 'slide-in-bottom 0.3s ease-out forwards',
       },
       boxShadow: {
         soft: '0 2px 12px -2px rgba(0,0,0,0.06), 0 4px 24px -4px rgba(0,0,0,0.04)',
@@ -153,6 +158,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
 };
 export default config;
