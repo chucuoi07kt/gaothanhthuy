@@ -4,12 +4,10 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, Newspaper } from 'lucide-react';
 import { HeroBanner } from '@/src/components/HeroBanner';
+import { PromoSlider } from '@/src/components/PromoSlider';
 import { ProductCard } from '@/src/components/ProductCard';
-import { QuickSearch, defaultFilters, type FilterState } from '@/src/components/QuickSearch';
 import { CategoryShowcase, BrandStory } from '@/src/components/Sections';
 import { WarehouseGallery } from '@/src/components/WarehouseGallery';
-import { categories } from '@/src/lib/categories';
-import { applyFilters } from '@/src/lib/filters';
 import { fetchProducts, fetchBlogPosts } from '@/src/lib/products';
 import type { Product, BlogPost } from '@/src/types';
 
@@ -17,7 +15,6 @@ export default function HomePage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<FilterState>(defaultFilters);
 
   useEffect(() => {
     (async () => {
@@ -40,25 +37,13 @@ export default function HomePage() {
     return filteredBests.length > 0 ? filteredBests.slice(0, 8) : allProducts.slice(0, 8);
   }, [allProducts]);
 
-  const filteredBestSellers = useMemo(() => {
-    try {
-      return applyFilters(bestSellers, filters);
-    } catch {
-      return bestSellers;
-    }
-  }, [bestSellers, filters]);
-
   return (
     <>
       <HeroBanner />
 
       <section className="relative -mt-8 pb-4">
         <div className="container-page">
-          <QuickSearch
-            filters={filters}
-            onChange={setFilters}
-            categories={categories}
-          />
+          <PromoSlider />
         </div>
       </section>
 
@@ -88,17 +73,15 @@ export default function HomePage() {
             <div className="py-20 text-center text-sm text-muted-foreground">
               Đang tải sản phẩm từ Google Sheets...
             </div>
-          ) : filteredBestSellers.length === 0 ? (
+          ) : bestSellers.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-white p-10 text-center">
               <p className="text-sm text-muted-foreground">
-                {allProducts.length === 0
-                  ? 'Chưa có sản phẩm nào trong Google Sheet.'
-                  : 'Không tìm thấy sản phẩm phù hợp với bộ lọc.'}
+                Chưa có sản phẩm nào trong Google Sheet.
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-              {filteredBestSellers.map((p) => (
+              {bestSellers.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
             </div>
@@ -119,7 +102,7 @@ export default function HomePage() {
               </span>
               <h2 className="mt-1 text-2xl font-bold text-foreground sm:text-3xl">
                 Tin tức & hướng dẫn chọn gạo
-              </h2>
+              </hh2>
             </div>
             <Link
               href="/blog"
