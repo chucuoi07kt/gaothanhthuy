@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Calendar, Clock, Newspaper } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, Clock, Newspaper, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getBlogFromSheet } from '@/src/lib/sheets';
 import { normalizeBlogPost } from '@/src/lib/products';
 import { ZaloCta } from '@/src/components/ZaloCta';
+import { ReadingProgress, BackToTop } from '@/src/components/BlogReadingUX';
 import { BRAND } from '@/src/lib/brand';
 
 interface PageProps {
@@ -64,42 +65,66 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <>
-      <section className="border-b border-border bg-gradient-to-br from-brand-50 to-white py-6">
-        <div className="container-page">
-          <nav className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Link href="/" className="hover:text-brand-700">Trang chủ</Link>
-            <span>/</span>
-            <Link href="/blog" className="hover:text-brand-700">Tin tức</Link>
-            <span>/</span>
-            <span className="line-clamp-1 text-brand-700">{post.title}</span>
-          </nav>
-        </div>
-      </section>
+      <ReadingProgress />
 
-      <article className="section-pad pt-8">
-        <div className="container-page max-w-3xl">
-          <span className="inline-block rounded-full bg-brand-600 px-3 py-1 text-xs font-medium text-white">
+      {/* Hero section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-900 text-white">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-gold-400 blur-3xl" />
+          <div className="absolute right-0 top-40 h-80 w-80 rounded-full bg-brand-400 blur-3xl" />
+        </div>
+
+        <div className="container-page relative max-w-3xl py-8 sm:py-12 lg:py-16">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-1.5 text-xs text-brand-100">
+            <Link href="/" className="transition-colors hover:text-white">Trang chủ</Link>
+            <span>/</span>
+            <Link href="/blog" className="transition-colors hover:text-white">Tin tức</Link>
+            <span>/</span>
+            <span className="line-clamp-1 font-medium text-white">{post.title}</span>
+          </nav>
+
+          {/* Category badge */}
+          <span className="mt-5 inline-flex items-center rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-medium backdrop-blur-sm">
             {post.category}
           </span>
-          <h1 className="mt-3 text-2xl font-bold leading-tight text-foreground sm:text-3xl">
+
+          {/* Title */}
+          <h1 className="mt-4 text-2xl font-bold leading-tight text-balance drop-shadow-sm sm:text-3xl lg:text-4xl">
             {post.title}
           </h1>
-          <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+
+          {/* Excerpt */}
+          <p className="mt-4 text-base leading-relaxed text-brand-50 sm:text-lg">
+            {post.excerpt}
+          </p>
+
+          {/* Meta row */}
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-brand-100">
             <span className="flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5" />
+              <Calendar className="h-3.5 w-3.5 text-gold-300" />
               {post.publishedAt}
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5" />
+              <Clock className="h-3.5 w-3.5 text-gold-300" />
               {post.readingMinutes} phút đọc
             </span>
             <span className="flex items-center gap-1.5">
-              <Newspaper className="h-3.5 w-3.5" />
+              <RefreshCw className="h-3.5 w-3.5 text-gold-300" />
+              Cập nhật {post.publishedAt}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Newspaper className="h-3.5 w-3.5 text-gold-300" />
               {post.author}
             </span>
           </div>
+        </div>
+      </section>
 
-          <div className="mt-6 overflow-hidden rounded-2xl border border-border shadow-soft">
+      {/* Cover image */}
+      <section className="relative -mt-6 sm:-mt-8">
+        <div className="container-page max-w-4xl">
+          <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-card">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={post.image}
@@ -107,8 +132,13 @@ export default async function BlogPostPage({ params }: PageProps) {
               className="aspect-[16/9] w-full object-cover"
             />
           </div>
+        </div>
+      </section>
 
-          <div className="mt-6 space-y-4 text-base leading-relaxed text-foreground/80">
+      {/* Article body */}
+      <article className="section-pad pt-8">
+        <div className="container-page max-w-3xl">
+          <div className="space-y-4 text-base leading-relaxed text-foreground/80">
             <p className="text-lg font-medium text-foreground">{post.excerpt}</p>
             {contentParagraphs.length > 0 ? (
               contentParagraphs.map((para, idx) => (
@@ -119,29 +149,41 @@ export default async function BlogPostPage({ params }: PageProps) {
             )}
           </div>
 
-          <div className="mt-8 rounded-2xl brand-gradient p-6 text-white">
-            <h2 className="text-lg font-bold">Cần tư vấn thêm?</h2>
+          {/* CTA box */}
+          <div className="mt-8 rounded-2xl brand-gradient p-6 text-white sm:p-8">
+            <h2 className="text-lg font-bold sm:text-xl">Cần tư vấn thêm?</h2>
             <p className="mt-1 text-sm text-brand-50">
               Liên hệ {BRAND.name} - {BRAND.hotline} để được tư vấn chọn gạo phù hợp.
             </p>
             <ZaloCta />
           </div>
+
+          {/* Back to blog link */}
+          <div className="mt-6">
+            <Link href="/blog">
+              <Button variant="outline" className="gap-2 border-brand-200 text-brand-700 hover:bg-brand-50">
+                <ArrowLeft className="h-4 w-4" />
+                Quay lại danh sách bài viết
+              </Button>
+            </Link>
+          </div>
         </div>
       </article>
 
+      {/* Related posts */}
       {related.length > 0 && (
         <section className="section-pad pt-4">
-          <div className="container-page max-w-3xl">
-            <div className="mb-4 flex items-center gap-2">
-              <ArrowLeft className="h-5 w-5 text-brand-600" />
-              <h2 className="text-xl font-bold text-foreground">Bài viết khác</h2>
+          <div className="container-page max-w-4xl">
+            <div className="mb-5 flex items-center gap-2">
+              <ArrowRight className="h-5 w-5 rotate-180 text-brand-600" />
+              <h2 className="text-xl font-bold text-foreground sm:text-2xl">Bài viết khác</h2>
             </div>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-3">
               {related.map((b) => (
                 <Link
                   key={b.id}
                   href={`/blog/${b.slug}`}
-                  className="group flex flex-col overflow-hidden rounded-xl border border-border bg-white shadow-soft transition-all hover:-translate-y-1 hover:shadow-card"
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -150,14 +192,24 @@ export default async function BlogPostPage({ params }: PageProps) {
                       alt={b.title}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                    <span className="absolute left-3 top-3 rounded-full bg-brand-600/95 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                      {b.category}
+                    </span>
                   </div>
-                  <div className="p-3">
-                    <h3 className="line-clamp-2 text-sm font-semibold text-foreground group-hover:text-brand-700">
+                  <div className="flex flex-1 flex-col p-4">
+                    <h3 className="line-clamp-2 text-sm font-semibold text-foreground transition-colors group-hover:text-brand-700">
                       {b.title}
                     </h3>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {b.publishedAt} · {b.readingMinutes} phút
-                    </p>
+                    <div className="mt-3 flex items-center gap-3 border-t border-border/60 pt-2.5 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {b.publishedAt}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {b.readingMinutes} phút
+                      </span>
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -165,6 +217,8 @@ export default async function BlogPostPage({ params }: PageProps) {
           </div>
         </section>
       )}
+
+      <BackToTop />
     </>
   );
 }
