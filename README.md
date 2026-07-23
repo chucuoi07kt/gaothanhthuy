@@ -1,6 +1,6 @@
-# Gạo Thanh Thuỷ - Digital Catalogue & CMS Admin
+# Gạo Ngọc Anh - Digital Catalogue & CMS Admin
 
-Website catalogue số, hệ thống nhận báo giá sỉ qua Zalo, và CMS Admin Dashboard cho **Gạo Thanh Thuỷ** (gaothanhthuy.vn) - 30 năm uy tín phân phối gạo tại Đà Nẵng.
+Website catalogue số, hệ thống nhận báo giá sỉ qua Zalo, và CMS Admin Dashboard cho **Gạo Ngọc Anh** (gaothanhthuy.vn) - 30 năm uy tín phân phối gạo tại Đà Nẵng.
 
 ## Tech Stack
 
@@ -82,7 +82,7 @@ To enable write operations (insert/update/delete) from the CMS to Google Sheets:
 
 ```javascript
 /**
- * Google Apps Script Webhook for Gạo Thanh Thuỷ CMS
+ * Google Apps Script Webhook for Gạo Ngọc Anh CMS
  * Handles POST requests from Next.js API routes
  */
 
@@ -156,7 +156,7 @@ function doPost(e) {
 }
 
 function doGet() {
-  return jsonOutput({ success: true, message: 'Gạo Thanh Thuỷ CMS Webhook is running' });
+  return jsonOutput({ success: true, message: 'Gạo Ngọc Anh CMS Webhook is running' });
 }
 
 function jsonOutput(obj) {
