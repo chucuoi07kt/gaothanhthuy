@@ -75,7 +75,7 @@ export const useCartStore = create<CartState>()(
 
 export function formatQuoteMessage(items: CartItem[]): string {
   const header =
-    'Chào Gạo Thanh Thủy, tôi muốn nhận báo giá sỉ cho các sản phẩm sau:';
+    'Chào Gạo Ngọc Anh, tôi muốn nhận báo giá sỉ cho các sản phẩm sau:';
   const lines = items.map((i) => `- ${i.name} - ${i.weight} x ${i.quantity}`);
   return [header, ...lines].join('\n');
 }
