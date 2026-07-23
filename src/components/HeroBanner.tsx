@@ -78,7 +78,7 @@ export function HeroBanner() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=900"
-              alt="Gạo Thanh Thuỷ - gạo sạch Đà Nẵng"
+              alt="Gạo Ngọc Anh - gạo sạch Đà Nẵng"
               className="h-full w-full object-cover"
             />
           </div>

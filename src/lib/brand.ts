@@ -1,6 +1,6 @@
 export const BRAND = {
-  name: 'Gạo Thanh Thuỷ',
-  shortName: 'Thanh Thuỷ',
+  name: 'Gạo Ngọc Anh',
+  shortName: 'Ngọc Anh',
   domain: 'gaothanhthuy.vn',
   yearsExperience: 30,
   dailyTons: 15,

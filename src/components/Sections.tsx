@@ -65,13 +65,13 @@ export function BrandStory() {
       <div className="container-page grid items-center gap-10 lg:grid-cols-2">
         <div>
           <span className="text-sm font-semibold uppercase tracking-wide text-brand-600">
-            Về Gạo Thanh Thuỷ
+            Về Gạo Ngọc Anh
           </span>
           <h2 className="mt-2 text-2xl font-bold text-foreground sm:text-3xl">
             Gần 30 năm uy tín phân phối gạo tại Đà Nẵng
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Từ năm 1996, Gạo Thanh Thuỷ đã trở thành đối tác tin cậy của hàng
+            Từ năm 1996, Gạo Ngọc Anh đã trở thành đối tác tin cậy của hàng
             trăm gia đình, quán cơm, nhà hàng và tổ chức từ thiện tại Đà Nẵng và
             miền Trung. Với công suất phân phối 15 tấn mỗi ngày, chúng tôi cam
             kết gạo chính hãng, giá sỉ tốt nhất và giao hỏa tốc nội thành trong

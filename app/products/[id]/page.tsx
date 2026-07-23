@@ -120,7 +120,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   };
 
   const handleZalo = () => {
-    const msg = `Kính gửi Gạo Thanh Thuỷ, tôi muốn tư vấn báo giá sỉ cho: ${product.name} - quy cách ${selectedWeight} - số lượng ${quantity}. Xin cảm ơn!`;
+    const msg = `Kính gửi Gạo Ngọc Anh, tôi muốn tư vấn báo giá sỉ cho: ${product.name} - quy cách ${selectedWeight} - số lượng ${quantity}. Xin cảm ơn!`;
     quickZaloConsult(msg);
   };
 

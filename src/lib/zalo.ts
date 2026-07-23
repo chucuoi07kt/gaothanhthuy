@@ -59,7 +59,7 @@ export async function sendQuoteViaZalo(
 
 export async function quickZaloConsult(message?: string): Promise<void> {
   const text =
-    message ?? 'Kính gửi Gạo Thanh Thuỷ, tôi muốn được tư vấn về sản phẩm gạo.';
+    message ?? 'Kính gửi Gạo Ngọc Anh, tôi muốn được tư vấn về sản phẩm gạo.';
   const copied = await copyToClipboard(text);
   if (copied) {
     toast.success('Đã sao chép nội dung! Đang chuyển đến Zalo...');

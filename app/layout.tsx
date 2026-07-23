@@ -27,11 +27,11 @@ export const metadata: Metadata = {
     template: `%s | ${BRAND.name}`,
   },
   description:
-    'Gạo Thanh Thuỷ - 30 năm uy tín phân phối gạo sỉ & lẻ tại Đà Nẵng. Giao hỏa tốc nội thành 1-2 giờ. Gạo ST25, Lài Miên, Hàm Châu, Khang Dân chính hãng, giá sỉ tốt nhất.',
+    'Gạo Ngọc Anh - 30 năm uy tín phân phối gạo sỉ & lẻ tại Đà Nẵng. Giao hỏa tốc nội thành 1-2 giờ. Gạo ST25, Lài Miên, Hàm Châu, Khang Dân chính hãng, giá sỉ tốt nhất.',
   keywords: [
     'gạo Đà Nẵng',
     'gạo sỉ Đà Nẵng',
-    'gạo Thanh Thuỷ',
+    'gạo Ngọc Anh',
     'gạo ST25',
     'gạo Lài Miên',
     'gạo quán cơm',
@@ -95,7 +95,7 @@ const jsonLd = {
   ],
   priceRange: '$$',
   description:
-    'Gạo Thanh Thuỷ - 30 năm uy tín phân phối gạo sỉ & lẻ tại Đà Nẵng. Giao hỏa tốc nội thành 1-2 giờ.',
+    'Gạo Ngọc Anh - 30 năm uy tín phân phối gạo sỉ & lẻ tại Đà Nẵng. Giao hỏa tốc nội thành 1-2 giờ.',
   knowsAbout: ['Gạo sỉ', 'Gạo ST25', 'Gạo Lài Miên', 'Gạo quán cơm', 'Gạo từ thiện'],
 };
 

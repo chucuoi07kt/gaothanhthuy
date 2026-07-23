@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
           <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
             <Wheat className="h-8 w-8 text-gold-300" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Gạo Thanh Thuỷ</h1>
+          <h1 className="text-2xl font-bold text-white">Gạo Ngọc Anh</h1>
           <p className="mt-1 text-sm text-brand-100">CMS Admin Dashboard</p>
         </div>
         <form onSubmit={handleSubmit} className="rounded-2xl bg-white p-6 shadow-xl">

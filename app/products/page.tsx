@@ -56,7 +56,7 @@ function ProductsContent() {
           <p className="mt-1.5 text-sm text-muted-foreground">
             {activeCategory
               ? activeCategory.description
-              : 'Tất cả dòng gạo phân phối sỉ & lẻ tại Gạo Thanh Thuỷ Đà Nẵng.'}
+              : 'Tất cả dòng gạo phân phối sỉ & lẻ tại Gạo Ngọc Anh Đà Nẵng.'}
           </p>
         </div>
       </section>

@@ -161,7 +161,7 @@ export function normalizeBlogPost(raw: SheetBlogRaw): BlogPost {
     excerpt: safeString(raw.summary, safeString(raw.excerpt, 'Đang cập nhật nội dung tóm tắt...')),
     content,
     category: safeString(raw.category, 'Cẩm nang gạo'),
-    author: safeString(raw.author, 'Gạo Thanh Thuỷ'),
+    author: safeString(raw.author, 'Gạo Ngọc Anh'),
     publishedAt,
     readingMinutes: Math.max(1, safeParseInt(raw.reading_minutes ?? raw.readingMinutes, 3)),
     image: safeString(raw.thumbnail, safeString(raw.image, FALLBACK_IMAGE)),
