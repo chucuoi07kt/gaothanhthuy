@@ -14,33 +14,35 @@ const trustBadges = [
 
 export function HeroBanner() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-brand-800">
+    <section className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-900">
       <div className="absolute inset-0 opacity-20">
         <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-gold-400 blur-3xl" />
         <div className="absolute right-0 top-40 h-80 w-80 rounded-full bg-brand-400 blur-3xl" />
       </div>
 
       <div className="container-page relative grid items-center gap-8 py-12 sm:py-16 lg:grid-cols-2 lg:py-20">
-        <div className="text-white">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-medium backdrop-blur-sm">
+        <div className="text-white animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium backdrop-blur-md">
             <Wheat className="h-3.5 w-3.5 text-gold-300" />
             Phân phối gạo sỉ uy tín tại Đà Nẵng từ 1996
           </div>
-          <h1 className="mt-4 text-3xl font-bold leading-tight text-balance sm:text-4xl lg:text-5xl">
-            Gạo sạch sỉ & lẻ -{' '}
-            <span className="text-gold-300">Giao hỏa tốc Đà Nẵng 1-2 giờ</span>
+
+          <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-balance drop-shadow-md sm:text-4xl lg:text-5xl">
+            Gạo sạch sỉ &amp; lẻ -{' '}
+            <span className="text-gold-300 drop-shadow">Giao hỏa tốc Đà Nẵng 1-2 giờ</span>
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-brand-50 sm:text-lg">
+
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/90 drop-shadow-sm sm:text-lg">
             {BRAND.name} - {BRAND.yearsExperience} năm phân phối gạo chính hãng.
             Phục vụ gia đình, quán cơm, nhà hàng, chương trình từ thiện với giá
             sỉ tốt nhất khu vực.
           </p>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <Link href="/products">
               <Button
                 size="lg"
-                className="w-full gap-2 bg-gold-500 text-white hover:bg-gold-600 sm:w-auto"
+                className="w-full gap-2 bg-gold-500 text-white shadow-lg shadow-gold-500/20 transition-all hover:bg-gold-600 hover:shadow-xl hover:shadow-gold-500/30 sm:w-auto"
               >
                 Xem catalogue gạo
                 <ArrowRight className="h-4 w-4" />
@@ -50,22 +52,22 @@ export function HeroBanner() {
               onClick={() => quickZaloConsult()}
               size="lg"
               variant="outline"
-              className="w-full gap-2 border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white sm:w-auto"
+              className="w-full gap-2 border-white/30 bg-white/10 text-white backdrop-blur-md transition-all hover:bg-white/20 hover:text-white sm:w-auto"
             >
               <MessageCircle className="h-4 w-4" />
               Tư vấn nhận báo giá sỉ
             </Button>
           </div>
 
-          <div className="mt-8 grid grid-cols-3 gap-3">
+          <div className="mt-9 grid grid-cols-3 gap-3">
             {trustBadges.map((b) => (
               <div
                 key={b.label}
-                className="rounded-xl bg-white/10 p-3 backdrop-blur-sm transition-colors hover:bg-white/15"
+                className="flex h-full flex-col items-center rounded-xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/15 hover:shadow-lg hover:shadow-black/10"
               >
                 <b.icon className="h-5 w-5 text-gold-300" />
-                <p className="mt-1.5 text-sm font-bold text-white">{b.value}</p>
-                <p className="text-[11px] text-brand-100">{b.label}</p>
+                <p className="mt-2 text-sm font-bold text-white drop-shadow-sm">{b.value}</p>
+                <p className="mt-0.5 text-[11px] leading-tight text-brand-100">{b.label}</p>
               </div>
             ))}
           </div>
