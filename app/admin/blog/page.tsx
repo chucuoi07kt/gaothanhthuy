@@ -1,18 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Placeholder from '@tiptap/extension-placeholder';
 import {
   Plus, Pencil, Trash2, FileText, RefreshCw,
-  Bold, Italic, Strikethrough, Code, Code2,
-  Heading1, Heading2, Heading3,
-  List, ListOrdered, Quote,
-  Undo2, Redo2,
   Search, Eye, Clock, Type,
   Save, RotateCcw, Send, Image as ImageIcon, X, Tag as TagIcon, FolderTree, CalendarDays,
 } from 'lucide-react';
+import { MarkdownEditor } from '@/src/components/admin/MarkdownEditor';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -70,43 +64,6 @@ interface DraftSnapshot {
   form: FormData;
   content: string;
   savedAt: string;
-}
-
-function ToolbarDivider() {
-  return <div className="mx-0.5 h-5 w-px bg-border dark:bg-zinc-600" />;
-}
-
-function ToolbarButton({
-  onClick,
-  isActive,
-  disabled,
-  title,
-  children,
-}: {
-  onClick: () => void;
-  isActive?: boolean;
-  disabled?: boolean;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      title={title}
-      aria-label={title}
-      className={cn(
-        'flex h-8 w-8 items-center justify-center rounded-md transition-colors',
-        isActive
-          ? 'bg-brand-600 text-white shadow-sm'
-          : 'text-muted-foreground hover:bg-brand-100 hover:text-brand-700 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-100',
-        disabled && 'cursor-not-allowed opacity-40',
-      )}
-    >
-      {children}
-    </button>
-  );
 }
 
 function stripHtml(html: string): string {
@@ -200,20 +157,8 @@ export default function AdminBlogPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewHtml, setPreviewHtml] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
+  const [editorContent, setEditorContent] = useState('');
   const autoSaveTimer = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const editor = useEditor({
-    extensions: [StarterKit, Placeholder.configure({ placeholder: 'Viết nội dung bài viết...' })],
-    content: '',
-    editorProps: {
-      attributes: {
-        class: 'prose prose-sm max-w-none min-h-[150px] sm:min-h-[200px] px-4 py-3 text-sm outline-none dark:prose-invert',
-      },
-    },
-    onUpdate: () => setContentTick((t) => t + 1),
-  });
-
-  useEffect(() => () => { editor?.destroy(); }, [editor]);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
@@ -269,16 +214,16 @@ export default function AdminBlogPage() {
 
   const wordCount = useMemo(() => {
     void contentTick;
-    const text = stripHtml(editor?.getHTML() || '');
+    const text = stripHtml(editorContent);
     return countWords(text);
-  }, [editor, contentTick]);
+  }, [editorContent, contentTick]);
 
   const readMins = readingTime(wordCount);
 
   // Auto Save to localStorage
   const saveDraft = useCallback(() => {
     if (!modalOpen) return;
-    const content = editor?.getHTML() || '';
+    const content = editorContent;
     if (!form.title.trim() && !content.trim()) return;
     const snapshot: DraftSnapshot = {
       form,
@@ -291,7 +236,7 @@ export default function AdminBlogPage() {
       setDraftSavedAt(snapshot.savedAt);
       setHasDraft(true);
     } catch { /* ignore */ }
-  }, [modalOpen, form, editor]);
+  }, [modalOpen, form, editorContent]);
 
   // Auto save timer
   useEffect(() => {
@@ -310,7 +255,7 @@ export default function AdminBlogPage() {
       setForm(snapshot.form);
       setTagList(snapshot.form.tags ? snapshot.form.tags.split(',').map((t) => t.trim()).filter(Boolean) : []);
       setSlugEdited(true);
-      editor?.commands.setContent(snapshot.content);
+      setEditorContent(snapshot.content);
       setModalOpen(true);
       toast.success(`Đã khôi phục bản nháp (lúc ${new Date(snapshot.savedAt).toLocaleString('vi-VN')})`);
     } catch {
@@ -349,7 +294,7 @@ export default function AdminBlogPage() {
     setTagList([]);
     setSlugEdited(false);
     setDraftSavedAt(null);
-    editor?.commands.setContent('');
+    setEditorContent('');
     setModalOpen(true);
   };
 
@@ -373,7 +318,7 @@ export default function AdminBlogPage() {
     setTagList([]);
     setSlugEdited(true);
     setDraftSavedAt(null);
-    editor?.commands.setContent(p.content || '');
+    setEditorContent(p.content || '');
     setModalOpen(true);
   };
 
@@ -391,8 +336,7 @@ export default function AdminBlogPage() {
   };
 
   const handlePreview = () => {
-    const content = editor?.getHTML() || '';
-    setPreviewHtml(content);
+    setPreviewHtml(editorContent);
     setPreviewTitle(form.title || 'Xem trước bài viết');
     setPreviewOpen(true);
   };
@@ -404,7 +348,7 @@ export default function AdminBlogPage() {
 
   const handlePublish = async () => {
     if (!form.title.trim()) { toast.error('Vui lòng nhập tiêu đề'); return; }
-    const content = editor?.getHTML() || '';
+    const content = editorContent;
     const slug = form.slug || slugify(form.title);
     const publishDate = form.publish_date
       ? new Date(form.publish_date).toISOString()
@@ -458,8 +402,6 @@ export default function AdminBlogPage() {
       else { toast.error('Lỗi xoá', { id: 'del' }); setPosts(prev); }
     } catch { toast.error('Lỗi kết nối', { id: 'del' }); setPosts(prev); }
   };
-
-  if (!editor && modalOpen) return null;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -702,57 +644,13 @@ export default function AdminBlogPage() {
 
             <div>
               <Label>Nội dung</Label>
-              {editor && (
-                <div className={cn('mt-1.5', isDark && 'dark')}>
-                  <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1 rounded-t-xl border border-b-0 border-border bg-brand-50/90 px-2 py-1.5 backdrop-blur-sm dark:border-zinc-700 dark:bg-zinc-800/90">
-                    <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor.isActive('heading', { level: 1 })} title="Tiêu đề 1">
-                      <Heading1 className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor.isActive('heading', { level: 2 })} title="Tiêu đề 2">
-                      <Heading2 className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} isActive={editor.isActive('heading', { level: 3 })} title="Tiêu đề 3">
-                      <Heading3 className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarDivider />
-                    <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} isActive={editor.isActive('bold')} title="Đậm">
-                      <Bold className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} isActive={editor.isActive('italic')} title="Nghiêng">
-                      <Italic className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} isActive={editor.isActive('strike')} title="Gạch ngang">
-                      <Strikethrough className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} isActive={editor.isActive('code')} title="Mã inline">
-                      <Code className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarDivider />
-                    <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} isActive={editor.isActive('bulletList')} title="Danh sách">
-                      <List className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} isActive={editor.isActive('orderedList')} title="Danh sách số">
-                      <ListOrdered className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} isActive={editor.isActive('blockquote')} title="Trích dẫn">
-                      <Quote className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} isActive={editor.isActive('codeBlock')} title="Khối mã">
-                      <Code2 className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarDivider />
-                    <ToolbarButton onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Hoàn tác">
-                      <Undo2 className="h-4 w-4" />
-                    </ToolbarButton>
-                    <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Làm lại">
-                      <Redo2 className="h-4 w-4" />
-                    </ToolbarButton>
-                  </div>
-                  <div className="rounded-b-xl border border-border bg-white focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-zinc-700 dark:bg-zinc-900">
-                    <EditorContent editor={editor} />
-                  </div>
-                </div>
-              )}
+              <div className="mt-1.5">
+                <MarkdownEditor
+                  content={editorContent}
+                  onChange={(html) => { setEditorContent(html); setContentTick((t) => t + 1); }}
+                  isDark={isDark}
+                />
+              </div>
             </div>
 
             {/* Word Count & Reading Time */}
