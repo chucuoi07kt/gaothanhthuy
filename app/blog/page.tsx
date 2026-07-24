@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Calendar, Clock, Search, Sparkles, ArrowRight, Newspaper } from 'lucide-react';
 import { fetchBlogPosts } from '@/src/lib/products';
+import { BlogImage } from '@/src/components/BlogImage';
 import type { BlogPost } from '@/src/types';
 
 export default function BlogPage() {
@@ -149,11 +150,15 @@ export default function BlogPage() {
                   className="group relative block overflow-hidden rounded-3xl border border-border bg-white shadow-soft transition-all duration-500 hover:-translate-y-1 hover:shadow-card lg:flex"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden lg:aspect-auto lg:w-1/2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <BlogImage
                       src={featured.image}
                       alt={featured.title}
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      width={800}
+                      height={500}
+                      priority
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      rounded="rounded-none"
+                      className="h-full w-full transition-transform duration-700 group-hover:scale-105"
                     />
                     <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-gold-500 px-3 py-1.5 text-xs font-semibold text-white shadow-soft">
                       <Sparkles className="h-3.5 w-3.5" />
@@ -198,11 +203,14 @@ export default function BlogPage() {
                       className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
                     >
                       <div className="relative aspect-[16/10] overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <BlogImage
                           src={post.image}
                           alt={post.title}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          width={640}
+                          height={400}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          rounded="rounded-none"
+                          className="h-full w-full transition-transform duration-500 group-hover:scale-105"
                         />
                         <span className="absolute left-3 top-3 rounded-full bg-brand-600/95 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm transition-colors group-hover:bg-brand-700">
                           {post.category}

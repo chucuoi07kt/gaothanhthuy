@@ -216,7 +216,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         <div className="container-page max-w-4xl">
           <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-card">
             <BlogImage
-n              src={post.image}
+              src={post.image}
               alt={post.title}
               width={1200}
               height={675}

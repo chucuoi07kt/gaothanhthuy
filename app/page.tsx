@@ -8,6 +8,7 @@ import { PromoSlider } from '@/src/components/PromoSlider';
 import { ProductCard } from '@/src/components/ProductCard';
 import { CategoryShowcase, BrandStory } from '@/src/components/Sections';
 import { WarehouseGallery } from '@/src/components/WarehouseGallery';
+import { BlogImage } from '@/src/components/BlogImage';
 import { fetchProducts, fetchBlogPosts } from '@/src/lib/products';
 import type { Product, BlogPost } from '@/src/types';
 
@@ -128,11 +129,14 @@ export default function HomePage() {
                   className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <BlogImage
                       src={post.image}
                       alt={post.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      width={640}
+                      height={400}
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                      rounded="rounded-none"
+                      className="h-full w-full transition-transform duration-500 group-hover:scale-105"
                     />
                     <span className="absolute left-3 top-3 rounded-full bg-brand-600 px-2.5 py-1 text-xs font-medium text-white">
                       {post.category}
