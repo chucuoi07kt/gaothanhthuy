@@ -1,28 +1,39 @@
 import { BRAND } from '@/src/lib/brand';
 import type { BlogPost } from '@/src/types';
 
+const SITE_URL = `https://${BRAND.domain}`;
+
 export function buildArticleSchema(post: BlogPost, publishedISO: string) {
-  const url = `https://${BRAND.domain}/blog/${post.slug}`;
+  const url = `${SITE_URL}/blog/${post.slug}`;
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
     '@id': `${url}#article`,
     headline: post.title,
     description: post.excerpt,
-    image: [post.image],
+    image: [
+      {
+        '@type': 'ImageObject',
+        url: post.image,
+        width: 1200,
+        height: 675,
+      },
+    ],
     datePublished: publishedISO,
     dateModified: publishedISO,
     author: {
       '@type': 'Organization',
       name: post.author,
-      url: `https://${BRAND.domain}`,
+      url: SITE_URL,
     },
     publisher: {
       '@type': 'Organization',
       name: BRAND.name,
       logo: {
         '@type': 'ImageObject',
-        url: `https://${BRAND.domain}/logo.png`,
+        url: `${SITE_URL}/logo.png`,
+        width: 512,
+        height: 512,
       },
     },
     mainEntityOfPage: {
@@ -30,11 +41,21 @@ export function buildArticleSchema(post: BlogPost, publishedISO: string) {
       '@id': url,
     },
     articleSection: post.category,
+    wordCount: post.content
+      ? post.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length
+      : 0,
+    keywords: [
+      post.category,
+      'gạo Đà Nẵng',
+      'gạo sỉ Đà Nẵng',
+      BRAND.name,
+    ].join(', '),
+    inLanguage: 'vi-VN',
   };
 }
 
 export function buildBreadcrumbSchema(post: BlogPost) {
-  const url = `https://${BRAND.domain}/blog/${post.slug}`;
+  const url = `${SITE_URL}/blog/${post.slug}`;
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -43,13 +64,13 @@ export function buildBreadcrumbSchema(post: BlogPost) {
         '@type': 'ListItem',
         position: 1,
         name: 'Trang chủ',
-        item: `https://${BRAND.domain}`,
+        item: SITE_URL,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Tin tức',
-        item: `https://${BRAND.domain}/blog`,
+        item: `${SITE_URL}/blog`,
       },
       {
         '@type': 'ListItem',
@@ -58,6 +79,58 @@ export function buildBreadcrumbSchema(post: BlogPost) {
         item: url,
       },
     ],
+  };
+}
+
+export function buildBlogListBreadcrumbSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Trang chủ',
+        item: SITE_URL,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Tin tức',
+        item: `${SITE_URL}/blog`,
+      },
+    ],
+  };
+}
+
+export function buildBlogListSchema(posts: BlogPost[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'Cẩm nang gạo & tin tức thị trường',
+    description:
+      'Hướng dẫn chọn gạo, bảng giá sỉ, cách bảo quản gạo đúng cách. Tin tức thị trường gạo Đà Nẵng.',
+    url: `${SITE_URL}/blog`,
+    publisher: {
+      '@type': 'Organization',
+      name: BRAND.name,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/logo.png`,
+      },
+    },
+    blogPost: posts.slice(0, 10).map((post) => ({
+      '@type': 'BlogPosting',
+      headline: post.title,
+      description: post.excerpt,
+      url: `${SITE_URL}/blog/${post.slug}`,
+      datePublished: post.publishedAt,
+      image: post.image,
+      author: {
+        '@type': 'Organization',
+        name: post.author,
+      },
+    })),
   };
 }
 
@@ -71,7 +144,7 @@ export function buildFaqSchema(post: BlogPost) {
         name: `${post.title} — Gạo ${BRAND.shortName} có cung cấp không?`,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: `Có, Gạo ${BRAND.shortName} cung cấp đa dạng dòng gạo chất lượng tại Đà Nẵng. Quý khách có thể xem toàn bộ catalogue tại https://${BRAND.domain}/products hoặc liên hệ ${BRAND.hotline} để được tư vấn chi tiết.`,
+          text: `Có, Gạo ${BRAND.shortName} cung cấp đa dạng dòng gạo chất lượng tại Đà Nẵng. Quý khách có thể xem toàn bộ catalogue tại ${SITE_URL}/products hoặc liên hệ ${BRAND.hotline} để được tư vấn chi tiết.`,
         },
       },
       {

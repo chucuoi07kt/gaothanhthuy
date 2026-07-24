@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import Image from 'next/image';
 import { Plus, Search, Pencil, Trash2, Package, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -322,7 +323,9 @@ export default function AdminProductsPage() {
               <div key={p.id} className="rounded-xl border border-border bg-white p-4 shadow-soft">
                 <div className="flex items-start gap-3">
                   {p.image ? (
-                    <img src={getFirstImage(p.image)} alt={p.name} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg">
+                      <Image src={getFirstImage(p.image)} alt={p.name} fill sizes="48px" className="h-full w-full object-cover" />
+                    </div>
                   ) : (
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-400">
                       <Package className="h-5 w-5" />
@@ -394,7 +397,9 @@ export default function AdminProductsPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           {p.image ? (
-                            <img src={getFirstImage(p.image)} alt={p.name} className="h-9 w-9 rounded-lg object-cover" />
+                            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg">
+                              <Image src={getFirstImage(p.image)} alt={p.name} fill sizes="36px" className="h-full w-full object-cover" />
+                            </div>
                           ) : (
                             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-400">
                               <Package className="h-4 w-4" />

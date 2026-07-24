@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useRef, useCallback } from 'react';
 import { Upload, X, Plus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -79,7 +80,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {images.map((img, idx) => (
               <div key={idx} className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-gray-100">
-                <img src={img} alt={`Ảnh ${idx}`} className="h-full w-full object-cover" />
+                <Image src={img} alt={`Ảnh ${idx}`} fill sizes="(max-width: 768px) 33vw, 25vw" className="h-full w-full object-cover" />
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); removeImage(idx); }}
@@ -122,7 +123,7 @@ export function ImageUpload({ value, onChange, label = 'Hình ảnh', multiple =
       <label className="text-sm font-medium text-foreground">{label}</label>
       {singleImage ? (
         <div className="relative h-40 rounded-xl overflow-hidden border border-border">
-          <img src={singleImage} className="h-full w-full object-cover" alt="Preview" />
+          <Image src={singleImage} fill sizes="(max-width: 768px) 100vw, 400px" className="h-full w-full object-cover" alt="Preview" />
           <button type="button" onClick={() => onChange('')} className="absolute top-2 right-2 p-1 bg-white rounded-full text-red-600 shadow-md">
             <X className="h-4 w-4" />
           </button>

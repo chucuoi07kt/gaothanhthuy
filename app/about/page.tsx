@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Award, Building2, HandHeart, MapPin, Phone, Truck, Users, Wheat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BRAND } from '@/src/lib/brand';
@@ -152,10 +153,13 @@ export default function AboutPage() {
 
           <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-soft">
             <div className="aspect-[4/3] w-full bg-brand-50">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src="https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=900"
                 alt="Kho gạo Ngọc Anh Đà Nẵng"
+                width={900}
+                height={675}
+                loading="lazy"
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="h-full w-full object-cover"
               />
             </div>

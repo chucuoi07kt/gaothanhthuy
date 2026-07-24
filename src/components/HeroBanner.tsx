@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, MessageCircle, Truck, Award, TrendingUp, Wheat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -75,11 +76,13 @@ export function HeroBanner() {
 
         <div className="relative hidden lg:block">
           <div className="relative mx-auto aspect-square max-w-md overflow-hidden rounded-3xl border-4 border-white/20 shadow-2xl">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=900"
               alt="Gạo Ngọc Anh - gạo sạch Đà Nẵng"
-              className="h-full w-full object-cover"
+              fill
+              priority
+              sizes="(max-width: 1024px) 0px, 400px"
+              className="object-cover"
             />
           </div>
           <div className="absolute -bottom-4 -left-4 rounded-2xl bg-white p-4 shadow-xl">

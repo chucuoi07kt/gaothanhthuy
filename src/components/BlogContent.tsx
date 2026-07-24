@@ -75,10 +75,14 @@ export function BlogContent({ html, onTocReady }: BlogContentProps) {
       wrapper.appendChild(table);
     });
 
-    // Lazy-load images + responsive
+    // Lazy-load images + responsive + CLS prevention
     root.querySelectorAll('img').forEach((img) => {
       img.setAttribute('loading', 'lazy');
       img.setAttribute('decoding', 'async');
+      if (!img.hasAttribute('width') && !img.hasAttribute('height')) {
+        img.setAttribute('width', '1200');
+        img.setAttribute('height', '675');
+      }
       img.classList.add('rounded-xl', 'w-full', 'h-auto');
       if (!img.alt) img.alt = 'Hình ảnh bài viết';
     });
@@ -120,7 +124,7 @@ export function BlogContent({ html, onTocReady }: BlogContentProps) {
   return (
     <div
       ref={containerRef}
-      className="prose prose-blog max-w-none prose-headings:scroll-mt-24 prose-headings:font-display prose-headings:text-brand-900 prose-p:leading-relaxed prose-a:text-brand-700 prose-a:no-underline hover:prose-a:underline prose-strong:text-brand-900 prose-blockquote:border-l-brand-500 prose-blockquote:bg-brand-50/40 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-code:rounded prose-code:bg-brand-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-brand-700 prose-code:before:content-none prose-code:after:content-none prose-pre:rounded-xl prose-pre:border prose-pre:border-border/20 prose-img:shadow-soft"
+      className="prose prose-blog max-w-none prose-headings:scroll-mt-24 prose-headings:font-display prose-headings:text-brand-900 prose-p:leading-relaxed prose-p:text-sm sm:prose-p:text-base prose-a:text-brand-700 prose-a:no-underline hover:prose-a:underline prose-a:break-words prose-strong:text-brand-900 prose-blockquote:border-l-brand-500 prose-blockquote:bg-brand-50/40 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-code:rounded prose-code:bg-brand-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-brand-700 prose-code:before:content-none prose-code:after:content-none prose-pre:rounded-xl prose-pre:border prose-pre:border-border/20 prose-pre:overflow-x-auto prose-img:shadow-soft prose-img:rounded-xl"
     >
       {parse(html || '<p>Nội dung đang được cập nhật...</p>', options)}
     </div>

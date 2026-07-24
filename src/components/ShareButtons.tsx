@@ -38,9 +38,9 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm font-medium text-muted-foreground">Chia sẻ:</span>
-      <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+      <span className="text-xs font-medium text-muted-foreground sm:text-sm">Chia sẻ:</span>
+      <div className="flex items-center gap-1.5 sm:gap-2">
         {shareLinks.map((link) => {
           const Icon = link.icon;
           return (
@@ -50,7 +50,7 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Chia sẻ lên ${link.label}`}
-              className={`flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:text-white hover:shadow-md ${link.bg} ${link.color}`}
+              className={`flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:text-white hover:shadow-md sm:h-10 sm:w-10 ${link.bg} ${link.color}`}
             >
               <Icon className="h-4 w-4" />
             </a>
@@ -59,7 +59,7 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
         <button
           onClick={handleCopy}
           aria-label="Sao chép link"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-brand-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-300 hover:bg-brand-50 hover:shadow-md"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white text-brand-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-300 hover:bg-brand-50 hover:shadow-md sm:h-10 sm:w-10"
         >
           {copied ? <Check className="h-4 w-4 text-green-600" /> : <Link2 className="h-4 w-4" />}
         </button>
