@@ -1,6 +1,6 @@
 import type { Product, ProductMetrics, WeightOption, BlogPost } from '@/src/types';
 import { convertCategoryToSlug, getCategoryLabel } from './categories';
-import { parseImageList } from '@/lib/utils';
+import { parseImageList, slugifyVietnamese } from '@/lib/utils';
 
 const FALLBACK_IMAGE = 'https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=900';
 
@@ -100,7 +100,8 @@ export function normalizeProduct(raw: SheetProductRaw): Product {
     raw.bestSeller === '1' ||
     raw.bestSeller === 'yes';
 
-  const slug = safeString(raw.slug, id);
+  const rawSlug = safeString(raw.slug, '');
+  const slug = rawSlug || slugifyVietnamese(name) || id;
 
   return {
     id,
@@ -144,7 +145,8 @@ export interface SheetBlogRaw {
 export function normalizeBlogPost(raw: SheetBlogRaw): BlogPost {
   const id = safeString(raw.id, String(Math.random()));
   const title = safeString(raw.title, 'Bài viết chưa có tiêu đề');
-  const slug = safeString(raw.slug, id);
+  const rawSlug = safeString(raw.slug, '');
+  const slug = rawSlug || slugifyVietnamese(title) || id;
   const content = safeString(raw.content, '');
   const created = safeString(raw.created_at, safeString(raw.publishedAt, new Date().toISOString()));
 
@@ -198,10 +200,10 @@ export async function fetchBlogPosts(): Promise<BlogPost[]> {
   }
 }
 
-export async function fetchProductById(id: string): Promise<Product | null> {
+export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   try {
     const products = await fetchProducts();
-    return products.find((p) => p.slug === id || p.id === id) || null;
+    return products.find((p) => p.slug === slug) || null;
   } catch {
     return null;
   }

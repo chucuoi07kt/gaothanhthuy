@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProductsFromSheet, writeToSheet, generateProductId, type SheetProduct } from '@/src/lib/sheets';
+import { slugifyVietnamese } from '@/lib/utils';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
@@ -43,6 +44,7 @@ export async function POST(req: NextRequest) {
     const product: any = {
       id,
       name: body.name || '',
+      slug: body.slug || slugifyVietnamese(body.name || '') || id,
       category: body.category || '',
       price: parseInt(String(body.price).replace(/[^\d]/g, ''), 10) || 0,
       weight_options: body.weight_options || '',

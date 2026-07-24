@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ImageUpload } from '@/src/components/admin/ImageUpload';
-import { getFirstImage } from '@/lib/utils';
+import { getFirstImage, slugifyVietnamese } from '@/lib/utils';
 import type { SheetProduct } from '@/src/lib/sheets';
 
 const CATEGORIES = [
@@ -25,6 +25,7 @@ const PER_PAGE = 10;
 interface FormData {
   id: string;
   name: string;
+  slug: string;
   category: string;
   price: string;
   weight_options: string;
@@ -38,7 +39,7 @@ interface FormData {
 }
 
 const emptyForm: FormData = {
-  id: '', name: '', category: CATEGORIES[0], price: '', weight_options: '5kg, 10kg, 25kg, 50kg',
+  id: '', name: '', slug: '', category: CATEGORIES[0], price: '', weight_options: '5kg, 10kg, 25kg, 50kg',
   image: '', description: '', deo: '0', no: '0', mem: '0', thom: '0',origin: '',
 };
 
@@ -53,6 +54,7 @@ export default function AdminProductsPage() {
   const [form, setForm] = useState<FormData>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [slugEdited, setSlugEdited] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -104,6 +106,7 @@ export default function AdminProductsPage() {
   const openAdd = () => {
     setEditing(false);
     setForm(emptyForm);
+    setSlugEdited(false);
     setModalOpen(true);
   };
 
@@ -111,10 +114,8 @@ export default function AdminProductsPage() {
     setEditing(true);
     const rawProduct = p as any;
     
-    // Khôi phục văn bản mô tả (đổi các thẻ BR về dấu ngắt dòng thực tế)
     const displayDescription = (p.description || '').replace(/\[BR\]/g, '\n');
 
-    // Chuẩn hóa chuỗi ảnh khi sửa
     let cleanImageString = p.image || '';
     if (cleanImageString.startsWith('[') && cleanImageString.endsWith(']')) {
       try {
@@ -128,6 +129,7 @@ export default function AdminProductsPage() {
     setForm({
       id: p.id,
       name: p.name || '',
+      slug: (p as any).slug || slugifyVietnamese(p.name || '') || p.id || '',
       category: p.category || CATEGORIES[0],
       price: String(p.price || 0),
       weight_options: p.weight_options || '',
@@ -139,11 +141,15 @@ export default function AdminProductsPage() {
       thom: String(rawProduct['thơm'] ?? rawProduct.thơm ?? rawProduct.thom ?? 0),
       origin: p.origin || '', 
     });
+    setSlugEdited(true);
     setModalOpen(true);
   };
 
   const handleSave = async () => {
     if (!form.name.trim()) { toast.error('Vui lòng nhập tên sản phẩm'); return; }
+    const finalSlug = (form.slug || slugifyVietnamese(form.name.trim())).trim();
+    if (!finalSlug) { toast.error('Slug không được để trống'); return; }
+    if (!/^[a-z0-9-]+$/.test(finalSlug)) { toast.error('Slug chỉ được chứa chữ thường (a-z), số (0-9) và dấu gạch ngang (-)'); return; }
     setSaving(true);
     toast.loading('Đang đồng bộ dữ liệu...', { id: 'sync' });
 
@@ -155,11 +161,11 @@ export default function AdminProductsPage() {
 
     const safeDescription = form.description.trim();
 
-    // Rút gọn payload loại bỏ hoàn toàn việc lặp key trùng tên gây gãy build
     const payload = {
       action: editing ? 'update' : 'insert',
       id: form.id || undefined,
       name: form.name.trim(),
+      slug: finalSlug,
       category: form.category,
       price: cleanPrice,
       weight_options: form.weight_options.trim(),
@@ -179,6 +185,7 @@ export default function AdminProductsPage() {
       setProducts((prev) => prev.map((p) => p.id === form.id ? ({
         ...p,
         name: payload.name,
+        slug: payload.slug,
         category: payload.category,
         price: payload.price,
         weight_options: payload.weight_options,
@@ -198,6 +205,7 @@ export default function AdminProductsPage() {
       const newProduct: any = {
         id: newId,
         name: payload.name,
+        slug: payload.slug,
         category: payload.category,
         price: payload.price,
         weight_options: payload.weight_options,
@@ -261,7 +269,6 @@ export default function AdminProductsPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      {/* Header */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-lg font-bold text-foreground sm:text-xl">Quản lý sản phẩm</h1>
@@ -285,7 +292,6 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -307,7 +313,6 @@ export default function AdminProductsPage() {
         </Select>
       </div>
 
-      {/* Mobile: Card layout */}
       <div className="grid grid-cols-1 gap-3 sm:hidden">
         {loading ? (
           <div className="rounded-xl border border-border bg-white p-8 text-center text-sm text-muted-foreground">Đang tải...</div>
@@ -366,7 +371,6 @@ export default function AdminProductsPage() {
         )}
       </div>
 
-      {/* Desktop: Table layout */}
       <div className="hidden overflow-hidden rounded-xl border border-border bg-white shadow-soft sm:block">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -436,7 +440,6 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-center gap-2">
           <Button variant="outline" size="sm" disabled={currentPage <= 1}
@@ -447,7 +450,6 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-      {/* Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
@@ -456,8 +458,27 @@ export default function AdminProductsPage() {
           <div className="space-y-4">
             <div>
               <Label>Tên sản phẩm *</Label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+              <Input value={form.name} onChange={(e) => {
+                const newName = e.target.value;
+                if (slugEdited) {
+                  setForm({ ...form, name: newName });
+                } else {
+                  setForm({ ...form, name: newName, slug: slugifyVietnamese(newName) });
+                }
+              }}
                 placeholder="VD: Gạo ST25 Lúa Tôm" />
+            </div>
+            <div>
+              <Label>Slug (URL thân thiện) *</Label>
+              <Input value={form.slug} onChange={(e) => {
+                setSlugEdited(true);
+                setForm({ ...form, slug: e.target.value });
+              }}
+                placeholder="tu-dong-sinh-khi-nhap-ten"
+                className={!/^[a-z0-9-]*$/.test(form.slug) ? 'border-red-400' : ''} />
+              {form.slug && !/^[a-z0-9-]+$/.test(form.slug) && (
+                <p className="mt-1 text-xs text-red-500">Slug chỉ được chứa a-z, 0-9 và dấu "-"</p>
+              )}
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
@@ -477,18 +498,16 @@ export default function AdminProductsPage() {
               </div>
             </div>
 
-            {/* 🔍 Anh sửa chính xác lại khối này ở dòng 480 nhé: */}
 <div className="space-y-2">
   <Label htmlFor="origin" className="text-sm font-medium">Xuất xứ gạo</Label>
   <Input
     id="origin"
-    value={form.origin || ''} // ✅ Đổi formData thành form
-    onChange={(e) => setForm({ ...form, origin: e.target.value })} // ✅ Đổi setFormData thành setForm
+    value={form.origin || ''}
+    onChange={(e) => setForm({ ...form, origin: e.target.value })}
     placeholder="Ví dụ: Miền Tây, Sóc Trăng, Điện Biên, Hải Hậu..."
     className="w-full"
   />
 </div>
-
 
             <div>
               <Label>Quy cách đóng gói</Label>

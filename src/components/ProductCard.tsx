@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Check, MapPin, Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn, getFirstImage } from '@/lib/utils'; // Đã import getFirstImage ở đây
+import { cn, getFirstImage } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProductImage } from './ProductImage';
@@ -29,9 +29,9 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card">
-      <Link href={`/products/${product.slug}`} className="relative block aspect-[4/3] overflow-hidden">
+      <Link href={`/san-pham/${product.slug}`} className="relative block aspect-[4/3] overflow-hidden">
         <ProductImage
-          src={getFirstImage(product.image)} // Đã bọc hàm getFirstImage để xử lý chuỗi nhiều ảnh Cloudinary
+          src={getFirstImage(product.image)}
           alt={product.name}
           rounded="rounded-none"
           className="h-full w-full transition-transform duration-500 group-hover:scale-105"
@@ -48,7 +48,7 @@ export function ProductCard({ product }: { product: Product }) {
       </Link>
 
       <div className="flex flex-1 flex-col p-4">
-        <Link href={`/products/${product.slug}`}>
+        <Link href={`/san-pham/${product.slug}`}>
           <h3 className="line-clamp-1 text-base font-semibold text-foreground transition-colors group-hover:text-brand-700">
             {product.name}
           </h3>
@@ -88,7 +88,6 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         </div>
 
-        {/* Khu vực nút bấm đã loại bỏ nút Zalo trùng lặp, giao diện dàn hàng ngang cân đối hơn */}
         <div className="mt-4 flex gap-2">
           <Button
             onClick={handleAdd}
