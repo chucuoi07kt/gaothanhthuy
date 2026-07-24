@@ -23,6 +23,7 @@ import { getFirstImage } from '@/lib/utils';
 import { ImageUpload } from '@/src/components/admin/ImageUpload';
 import { WarehouseManager } from '@/src/components/admin/WarehouseManager';
 import type { HomepageItem } from '@/src/lib/homepage.service';
+import { DEFAULT_HERO_BANNERS } from '@/src/lib/homepage-defaults';
 
 interface HeroForm {
   id: string;
@@ -38,29 +39,7 @@ const emptyForm: HeroForm = {
   id: '', title: '', description: '', image: '', link: '', order: 0, enabled: true,
 };
 
-const DEFAULT_BANNERS = [
-  {
-    id: 'family',
-    image: 'https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    title: 'Gạo ngon cho mọi gia đình',
-    description: 'Gạo chính hãng dẻo thơm, sạch an toàn cho bữa cơm gia đình.',
-    link: '/products',
-  },
-  {
-    id: 'restaurant',
-    image: 'https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    title: 'Giá sỉ cho quán ăn – nhà hàng',
-    description: 'Chiết khấu hấp dẫn khi nhập sỉ cho quán cơm, nhà hàng tại Đà Nẵng.',
-    link: '',
-  },
-  {
-    id: 'delivery',
-    image: 'https://images.pexels.com/photos/4393474/pexels-photo-4393474.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    title: 'Giao nhanh toàn Đà Nẵng',
-    description: 'Giao hỏa tốc nội thành 1-2 giờ, không lo gián đoạn nguồn cung.',
-    link: '/products',
-  },
-];
+const DEFAULT_BANNERS = DEFAULT_HERO_BANNERS;
 
 export default function AdminHomepagePage() {
   const [items, setItems] = useState<HomepageItem[]>([]);
