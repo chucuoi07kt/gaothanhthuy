@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getHomepageItemsFromSheet, parseEnabled, generateHomepageId, type HomepageItem } from '@/src/lib/homepage.service';
 import { writeToSheet, fetchSheetData } from '@/src/lib/sheets';
 
@@ -28,9 +29,12 @@ export async function POST(req: NextRequest) {
     }));
 
     if (body.action === 'delete') {
-      return NextResponse.json(
-        await writeToSheet('homepage', 'delete', { id: body.id })
-      );
+      const result = await writeToSheet('homepage', 'delete', { id: body.id });
+      if (result.success) {
+        revalidatePath('/', 'layout');
+        revalidatePath('/api/homepage');
+      }
+      return NextResponse.json(result);
     }
 
     const section = body.section || 'hero';
@@ -47,9 +51,12 @@ export async function POST(req: NextRequest) {
     };
 
     const action = body.action === 'update' ? 'update' : 'insert';
-    return NextResponse.json(
-      await writeToSheet('homepage', action, item)
-    );
+    const result = await writeToSheet('homepage', action, item);
+    if (result.success) {
+      revalidatePath('/', 'layout');
+      revalidatePath('/api/homepage');
+    }
+    return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }

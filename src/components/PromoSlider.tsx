@@ -64,7 +64,7 @@ export function PromoSlider() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/homepage', { cache: 'no-store' });
+        const res = await fetch(`/api/homepage?t=${Date.now()}`, { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
         const allItems: HomepageItem[] = data.items || [];
@@ -73,6 +73,8 @@ export function PromoSlider() {
           .sort((a, b) => a.order - b.order);
         if (heroItems.length > 0) {
           setBanners(mapHeroItemsToBanners(heroItems));
+        } else {
+          setBanners(FALLBACK_BANNERS);
         }
       } catch {
         // FALLBACK_BANNERS already set as initial state
