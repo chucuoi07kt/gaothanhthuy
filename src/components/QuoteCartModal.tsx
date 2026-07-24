@@ -18,6 +18,7 @@ import { BRAND } from '@/src/lib/brand';
 import { ProductImage } from './ProductImage';
 
 export function QuoteCartModal() {
+  const router = useRouter();
   const { items, isOpen, setOpen, removeItem, updateQuantity, clear } = useCartStore();
   const [showDesktopFallback, setShowDesktopFallback] = useState(false);
 
