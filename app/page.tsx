@@ -41,9 +41,8 @@ export default function HomePage() {
   return (
     <>
       <HeroBanner />
-
 <section className="relative -mt-8 pb-4">
-  <div className="px-4">
+  <div className="container-page">
     <PromoSlider />
   </div>
 </section>
