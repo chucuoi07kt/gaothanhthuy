@@ -1,6 +1,7 @@
 export interface SheetProduct {
   id: string;
   name: string;
+  slug: string;
   category: string;
   price: number;
   weight_options: string;
@@ -107,6 +108,7 @@ export async function getProductsFromSheet(): Promise<SheetProduct[]> {
     return {
       id: row.id || '',
       name: row.name || '',
+      slug: row.slug || '',
       category: row.category || '',
       price: parsePrice(row.price),
       weight_options: row.weight_options || '',
