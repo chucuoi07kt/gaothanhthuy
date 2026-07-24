@@ -61,7 +61,7 @@ export function BlogContent({ html, onTocReady }: BlogContentProps) {
     onTocReady?.(toc);
   }, [toc, onTocReady]);
 
-  // Post-process: syntax highlight + responsive tables + lazy images
+  // Post-process: syntax highlight + responsive tables
   useEffect(() => {
     const root = containerRef.current;
     if (!root) return;
@@ -73,18 +73,6 @@ export function BlogContent({ html, onTocReady }: BlogContentProps) {
       wrapper.className = 'table-wrap my-6';
       table.parentNode?.insertBefore(wrapper, table);
       wrapper.appendChild(table);
-    });
-
-    // Lazy-load images + responsive + CLS prevention
-    root.querySelectorAll('img').forEach((img) => {
-      img.setAttribute('loading', 'lazy');
-      img.setAttribute('decoding', 'async');
-      if (!img.hasAttribute('width') && !img.hasAttribute('height')) {
-        img.setAttribute('width', '1200');
-        img.setAttribute('height', '675');
-      }
-      img.classList.add('rounded-xl', 'w-full', 'h-auto');
-      if (!img.alt) img.alt = 'Hình ảnh bài viết';
     });
 
     // Syntax highlight code blocks
@@ -111,6 +99,24 @@ export function BlogContent({ html, onTocReady }: BlogContentProps) {
       if (domNode.type !== 'tag') return;
 
       const el = domNode as Element;
+
+      // Render content images with responsive aspect-ratio + object-cover
+      if (el.name === 'img') {
+        const src = el.attribs.src || '';
+        const alt = el.attribs.alt || 'Hình ảnh bài viết';
+        return (
+          <span className="my-6 block overflow-hidden rounded-xl shadow-soft">
+            <img
+              src={src}
+              alt={alt}
+              loading="lazy"
+              decoding="async"
+              className="aspect-video w-full object-cover sm:aspect-[4/3]"
+            />
+          </span>
+        );
+      }
+
       // Add heading IDs during parse as fallback
       if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(el.name)) {
         const text = extractText(el);
