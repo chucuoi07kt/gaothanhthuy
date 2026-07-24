@@ -119,7 +119,7 @@ export function PromoSlider() {
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl border border-border bg-white shadow-soft"
+      className="relative overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={() => setIsPaused(true)}
@@ -136,14 +136,14 @@ export function PromoSlider() {
                   fill
                   priority={idx === 0}
                   loading={idx === 0 ? 'eager' : 'lazy'}
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
+                  sizes="100vw"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/20" />
               </div>
 
               <div className="absolute inset-0 flex items-center">
-                <div className="px-6 sm:px-10 lg:px-14">
+                <div className="container-page">
                   <div className="max-w-md">
                     <h2 className="text-xl font-bold leading-tight text-white drop-shadow-lg sm:text-3xl lg:text-4xl">
                       {banner.title}
