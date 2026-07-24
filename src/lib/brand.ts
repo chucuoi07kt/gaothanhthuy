@@ -11,7 +11,7 @@ export const BRAND = {
   address: '126 Nguyễn Lương Bằng, Phường Hòa Khánh Bắc, Quận Liên Chiểu, TP. Đà Nẵng',
   city: 'Đà Nẵng',
   usp: 'Giao hỏa tốc nội thành Đà Nẵng (Nhận trong 1-2 tiếng)',
-  email: 'lienhe@gaothanhthuy.vn',
+  email: 'lienhe@gaongocanh.vn',
   hours: '7:00 - 19:00 (T2 - CN)',
   partners: ['Sun Group', 'Grand Tourane Resort', 'FPT City Đà Nẵng', 'Vinpearl'],
 };
