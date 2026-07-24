@@ -34,6 +34,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (!found) return {};
     const normalized = normalizeBlogPost(found);
     const url = `${SITE_URL}/blog/${normalized.slug}`;
+    const rawDate = found.created_at || new Date().toISOString();
+    const isoDate = !isNaN(new Date(rawDate).getTime())
+      ? new Date(rawDate).toISOString()
+      : new Date().toISOString();
 
     return {
       title: normalized.metaTitle || normalized.title,
@@ -45,6 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         BRAND.name,
         'giao gạo hỏa tốc Đà Nẵng',
         'báo giá gạo sỉ',
+        normalized.title,
       ],
       authors: [{ name: normalized.author }],
       creator: normalized.author,
@@ -56,8 +61,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         locale: 'vi_VN',
         url,
         siteName: BRAND.name,
-        title: normalized.title,
-        description: normalized.excerpt,
+        title: normalized.metaTitle || normalized.title,
+        description: normalized.metaDescription || normalized.excerpt,
         images: [
           {
             url: normalized.image,
@@ -66,14 +71,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             alt: normalized.title,
           },
         ],
-        publishedTime: normalized.publishedAt,
+        publishedTime: isoDate,
+        modifiedTime: isoDate,
         authors: [normalized.author],
+        tags: [normalized.category, 'gạo Đà Nẵng', 'gạo sỉ'],
       },
       twitter: {
         card: 'summary_large_image',
-        title: normalized.title,
-        description: normalized.excerpt,
-        images: [normalized.image],
+        title: normalized.metaTitle || normalized.title,
+        description: normalized.metaDescription || normalized.excerpt,
+        images: [
+          {
+            url: normalized.image,
+            alt: normalized.title,
+          },
+        ],
       },
       robots: {
         index: true,
