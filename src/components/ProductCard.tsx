@@ -29,72 +29,79 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card">
-      <Link href={`/san-pham/${product.slug}`} className="relative block aspect-[4/3] overflow-hidden">
+      <Link
+        href={`/san-pham/${product.slug}`}
+        className="relative block aspect-[4/3] overflow-hidden"
+      >
         <ProductImage
           src={getFirstImage(product.image)}
           alt={product.name}
           rounded="rounded-none"
           className="h-full w-full transition-transform duration-500 group-hover:scale-105"
         />
+
         {product.bestSeller && (
           <Badge className="absolute left-3 top-3 bg-gold-500 text-white shadow-soft">
             Bán chạy
           </Badge>
         )}
+
         <div className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-brand-700 backdrop-blur">
           <MapPin className="h-3 w-3" />
           {product.origin}
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col p-4">
+      <div className="flex flex-1 flex-col p-3">
         <Link href={`/san-pham/${product.slug}`}>
           <h3 className="line-clamp-1 text-base font-semibold text-foreground transition-colors group-hover:text-brand-700">
             {product.name}
           </h3>
         </Link>
-        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-          {product.shortDescription}
-        </p>
 
-        <div className="mt-3">
+        <div className="mt-2">
           <VisualMeters metrics={product.metrics} variant="compact" />
         </div>
 
-        <div className="mt-3 grid grid-cols-4 gap-1.5">
-  {product.weights.map((w) => (
-    <button
-      key={w}
-      type="button"
-      onClick={() => setSelectedWeight(w)}
-      className={cn(
-        'w-full rounded-full border py-1 text-center text-xs font-medium transition-all',
-        selectedWeight === w
-          ? 'border-brand-600 bg-brand-600 text-white'
-          : 'border-border bg-white text-muted-foreground hover:border-brand-400 hover:text-brand-700'
-      )}
-    >
-      {w}
-    </button>
-  ))}
-</div>
+        <div className="mt-2 grid grid-cols-4 gap-1.5">
+          {product.weights.map((w) => (
+            <button
+              key={w}
+              type="button"
+              onClick={() => setSelectedWeight(w)}
+              className={cn(
+                'w-full rounded-full border py-1 text-center text-xs font-medium transition-all',
+                selectedWeight === w
+                  ? 'border-brand-600 bg-brand-600 text-white'
+                  : 'border-border bg-white text-muted-foreground hover:border-brand-400 hover:text-brand-700'
+              )}
+            >
+              {w}
+            </button>
+          ))}
+        </div>
 
-        <div className="mt-3 flex items-end justify-between">
+        <div className="mt-2 flex items-end justify-between">
           <div>
-            <span className="text-xs text-muted-foreground">Giá tham khảo</span>
+            <span className="text-xs text-muted-foreground">
+              Giá tham khảo
+            </span>
+
             <p className="text-lg font-bold text-brand-700">
               {product.pricePerKg.toLocaleString('vi-VN')}đ
-              <span className="text-xs font-normal text-muted-foreground">/kg</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                /kg
+              </span>
             </p>
           </div>
         </div>
 
-        <div className="mt-4 flex gap-2">
+        <div className="mt-3 flex gap-2">
           <Button
             onClick={handleAdd}
             size="sm"
             className={cn(
-              'flex-1 gap-1.5 transition-all text-xs',
+              'flex-1 gap-1.5 text-xs transition-all',
               added
                 ? 'bg-brand-700 text-white'
                 : 'bg-brand-600 text-white hover:bg-brand-700'
@@ -102,19 +109,22 @@ export function ProductCard({ product }: { product: Product }) {
           >
             {added ? (
               <>
-                <Check className="h-3.5 w-3.5" /> Đã thêm
+                <Check className="h-3.5 w-3.5" />
+                Đã thêm
               </>
             ) : (
               <>
-                <Plus className="h-3.5 w-3.5" /> Báo Giá
+                <Plus className="h-3.5 w-3.5" />
+                Báo Giá
               </>
             )}
           </Button>
+
           <Button
             onClick={() => setOpen(true)}
             size="sm"
             variant="outline"
-            className="border-brand-200 text-brand-700 hover:bg-brand-50 text-xs px-3"
+            className="border-brand-200 px-3 text-xs text-brand-700 hover:bg-brand-50"
           >
             Xem
           </Button>
