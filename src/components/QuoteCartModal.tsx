@@ -62,11 +62,14 @@ export function QuoteCartModal() {
               Thêm các sản phẩm gạo bạn quan tâm để nhận báo giá sỉ tốt nhất.
             </p>
             <Button
-              onClick={() => setOpen(false)}
-              className="mt-2 bg-brand-600 text-white hover:bg-brand-700"
-            >
-              Khám phá catalogue
-            </Button>
+  onClick={() => {
+    setOpen(false);
+  setTimeout(() => router.push("/products"), 150);
+  }}
+  className="mt-2 bg-brand-600 text-white hover:bg-brand-700"
+>
+  Khám phá catalogue
+</Button>
           </div>
         ) : (
           <>
