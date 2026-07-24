@@ -96,18 +96,18 @@ export default function HomePage() {
 
       <section className="section-pad pt-4">
         <div className="container-page">
-          <div className="mb-6 flex items-end justify-between">
-            <div>
-              <span className="text-sm font-semibold uppercase tracking-wide text-brand-600">
+          <div className="mb-5 flex items-end justify-between sm:mb-6">
+            <div className="min-w-0">
+              <span className="text-xs font-semibold uppercase tracking-wide text-brand-600 sm:text-sm">
                 Cẩm nang gạo
               </span>
-              <h2 className="mt-1 text-2xl font-bold text-foreground sm:text-3xl">
+              <h2 className="mt-1 text-xl font-bold text-foreground sm:text-2xl lg:text-3xl">
                 Tin tức & hướng dẫn chọn gạo
               </h2>
             </div>
             <Link
               href="/blog"
-              className="hidden items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700 sm:flex"
+              className="hidden shrink-0 items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700 sm:flex"
             >
               Tất cả bài viết
               <ArrowRight className="h-4 w-4" />
@@ -142,14 +142,14 @@ export default function HomePage() {
                       {post.category}
                     </span>
                   </div>
-                  <div className="flex flex-1 flex-col p-4">
-                    <h3 className="line-clamp-2 text-base font-semibold text-foreground transition-colors group-hover:text-brand-700">
+                  <div className="flex flex-1 flex-col p-3 sm:p-4">
+                    <h3 className="line-clamp-2 text-sm font-semibold text-foreground transition-colors group-hover:text-brand-700 sm:text-base">
                       {post.title}
                     </h3>
-                    <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                    <p className="mt-2 line-clamp-2 text-xs text-muted-foreground sm:text-sm">
                       {post.excerpt}
                     </p>
-                    <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground sm:mt-3 sm:text-xs">
                       <Newspaper className="h-3.5 w-3.5" />
                       {post.publishedAt} · {post.readingMinutes} phút đọc
                     </div>
