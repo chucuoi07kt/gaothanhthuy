@@ -27,7 +27,7 @@ export function VisualMeters({
   const entries = Object.entries(metrics) as [keyof ProductMetrics, number][];
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn('space-y-1.5', className)}>
       {entries.map(([key, value]) => (
         <MeterRow
           key={key}
@@ -47,8 +47,8 @@ function MeterRow({
 }: MeterRowProps & { variant: string }) {
   if (variant === 'compact') {
     return (
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-medium text-muted-foreground">
+      <div className="flex items-center justify-between gap-1">
+        <span className="text-xs font-medium text-muted-foreground">
           {label}
         </span>
 
@@ -57,7 +57,7 @@ function MeterRow({
             <span
               key={i}
               className={cn(
-                'h-1 w-3.5 rounded-full',
+                'h-1.5 w-4 rounded-full transition-colors',
                 i < value ? 'bg-gold-500' : 'bg-muted'
               )}
             />
@@ -84,12 +84,12 @@ function MeterRow({
           <div
             key={i}
             className={cn(
-              'h-1.5 flex-1 rounded-full transition-all duration-500',
+              'h-2 flex-1 rounded-full transition-all duration-500',
               i < value
                 ? 'bg-gradient-to-r from-brand-500 to-gold-500'
                 : 'bg-muted'
             )}
-            style={{ transitionDelay: `${i * 50}ms` }}
+            style={{ transitionDelay: `${i * 60}ms` }}
           />
         ))}
       </div>
