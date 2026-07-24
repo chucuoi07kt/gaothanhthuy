@@ -11,7 +11,7 @@ export interface HomepageItem {
   enabled: boolean;
 }
 
-function parseEnabled(val: string): boolean {
+export function parseEnabled(val: string): boolean {
   const v = String(val || '').toLowerCase().trim();
   return v === 'true' || v === '1' || v === 'yes';
 }
@@ -28,4 +28,26 @@ export async function getHomepageItemsFromSheet(): Promise<HomepageItem[]> {
     link: row.link || '',
     enabled: parseEnabled(row.enabled),
   }));
+}
+
+export async function getHeroSlidesFromSheet(): Promise<HomepageItem[]> {
+  const items = await getHomepageItemsFromSheet();
+  return items
+    .filter((item) => item.section === 'hero')
+    .sort((a, b) => a.order - b.order);
+}
+
+export async function getWarehouseImagesFromSheet(): Promise<HomepageItem[]> {
+  const items = await getHomepageItemsFromSheet();
+  return items
+    .filter((item) => item.section === 'warehouse')
+    .sort((a, b) => a.order - b.order);
+}
+
+export function generateHomepageId(existing: HomepageItem[]): string {
+  const maxId = existing.reduce((max, item) => {
+    const num = parseInt(item.id.replace(/\D/g, ''), 10);
+    return isNaN(num) ? max : Math.max(max, num);
+  }, 0);
+  return String(maxId + 1);
 }

@@ -1,34 +1,26 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Warehouse, Truck, PackageCheck, Boxes } from 'lucide-react';
+import type { HomepageItem } from '@/src/lib/homepage.service';
+import { DEFAULT_WAREHOUSE_IMAGES, WAREHOUSE_SPAN_CLASSES } from '@/src/lib/homepage-defaults';
 
-const galleryImages = [
-  {
-    src: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=compress&cs=tinysrgb&w=900&q=80',
-    alt: 'Kho gạo quy mô lớn tại Đà Nẵng',
-    label: 'Kho chính 126 Nguyễn Lương Bằng',
-    span: 'lg:row-span-2',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=compress&cs=tinysrgb&w=900&q=80',
-    alt: 'Đóng bao gạo sỉ sẵn sàng giao',
-    label: 'Đóng gói sỉ - 5/10/25/50kg',
-    span: '',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=compress&cs=tinysrgb&w=900&q=80',
-    alt: 'Xe tải giao gạo hỏa tốc',
-    label: 'Đội xe giao hỏa tốc 1-2h',
-    span: '',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=compress&cs=tinysrgb&w=900&q=80',
-    alt: 'Hàng trăm bao gạo trong kho',
-    label: 'Năng lực 15 tấn/ngày',
-    span: 'lg:col-span-2',
-  },
-];
+type GalleryImage = {
+  src: string;
+  alt: string;
+  label: string;
+  span: string;
+};
+
+const FALLBACK_IMAGES: GalleryImage[] = DEFAULT_WAREHOUSE_IMAGES.map((img, idx) => ({
+  src: img.image,
+  alt: img.description || img.title,
+  label: img.title,
+  span: WAREHOUSE_SPAN_CLASSES[idx % WAREHOUSE_SPAN_CLASSES.length],
+}));
+
+const SPAN_CLASSES = WAREHOUSE_SPAN_CLASSES;
 
 const stats = [
   { icon: Warehouse, value: '500m²', label: 'Diện tích kho' },
@@ -38,6 +30,32 @@ const stats = [
 ];
 
 export function WarehouseGallery() {
+  const [images, setImages] = useState<GalleryImage[]>(FALLBACK_IMAGES);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/homepage', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const allItems: HomepageItem[] = data.items || [];
+        const warehouseItems = allItems
+          .filter((it) => it.section === 'warehouse' && it.enabled)
+          .sort((a, b) => a.order - b.order);
+        if (warehouseItems.length > 0) {
+          setImages(warehouseItems.map((item, idx) => ({
+            src: item.image,
+            alt: item.title || item.description || 'Ảnh kho bãi',
+            label: item.title || item.description || '',
+            span: SPAN_CLASSES[idx % SPAN_CLASSES.length],
+          })));
+        }
+      } catch {
+        // FALLBACK_IMAGES already set as initial state
+      }
+    })();
+  }, []);
+
   return (
     <section className="section-pad bg-brand-50/60">
       <div className="container-page">
@@ -56,7 +74,7 @@ export function WarehouseGallery() {
         </div>
 
         <div className="grid auto-rows-[180px] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {galleryImages.map((img, idx) => (
+          {images.map((img, idx) => (
             <div
               key={idx}
               className={`group relative cursor-pointer overflow-hidden rounded-2xl shadow-md transition-transform duration-300 hover:scale-105 ${img.span}`}
