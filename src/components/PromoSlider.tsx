@@ -119,7 +119,7 @@ export function PromoSlider() {
 
   return (
     <div
-      className="relative overflow-hidden"
+      className="relative overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={() => setIsPaused(true)}
@@ -129,7 +129,7 @@ export function PromoSlider() {
         <div className="flex touch-pan-y [will-change:transform]">
           {banners.map((banner, idx) => (
             <div key={banner.id} className="relative min-w-0 flex-[0_0_100%]">
-              <div className="relative aspect-[16/9] w-full sm:aspect-[21/9] lg:aspect-[24/8]">
+              <div className="relative aspect-[16/8] w-full sm:aspect-[16/7] lg:aspect-[16/6]">
                 <Image
                   src={banner.image}
                   alt={banner.title}
@@ -143,7 +143,7 @@ export function PromoSlider() {
               </div>
 
               <div className="absolute inset-0 flex items-center">
-                <div className="container-page">
+                <div className="px-6 sm:px-8 lg:px-10">
                   <div className="max-w-md">
                     <h2 className="text-xl font-bold leading-tight text-white drop-shadow-lg sm:text-3xl lg:text-4xl">
                       {banner.title}

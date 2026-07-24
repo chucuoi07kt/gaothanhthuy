@@ -42,8 +42,10 @@ export default function HomePage() {
     <>
       <HeroBanner />
 
-      <section className="relative -mt-8 pb-4 overflow-hidden">
-        <PromoSlider />
+      <section className="relative -mt-8 sm:-mt-12 lg:-mt-16 px-4 sm:px-6 lg:px-8 pb-4">
+        <div className="mx-auto max-w-7xl">
+          <PromoSlider />
+        </div>
       </section>
 
       <CategoryShowcase />
