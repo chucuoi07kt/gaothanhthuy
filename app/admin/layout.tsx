@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Wheat, Package, FileText, LogOut, ExternalLink, Menu, X } from 'lucide-react';
+import { Wheat, Package, FileText, LogOut, ExternalLink, Menu, X, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth, AuthProvider } from '@/src/lib/auth';
 
 const navItems = [
+  { href: '/admin/homepage', label: 'Trang chủ', icon: Home },
   { href: '/admin/products', label: 'Sản phẩm', icon: Package },
   { href: '/admin/blog', label: 'Bài viết', icon: FileText },
 ];
