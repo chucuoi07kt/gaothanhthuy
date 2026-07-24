@@ -18,6 +18,7 @@ import {
 import { getFirstImage } from '@/lib/utils';
 import { ImageUpload } from '@/src/components/admin/ImageUpload';
 import type { HomepageItem } from '@/src/lib/homepage.service';
+import { DEFAULT_WAREHOUSE_IMAGES } from '@/src/lib/homepage-defaults';
 
 interface WarehouseForm {
   id: string;
@@ -33,36 +34,7 @@ const emptyForm: WarehouseForm = {
   id: '', title: '', description: '', image: '', link: '', order: 0, enabled: true,
 };
 
-const DEFAULT_WAREHOUSE_IMAGES = [
-  {
-    id: 'wh1',
-    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=compress&cs=tinysrgb&w=900&q=80',
-    title: 'Kho chính 126 Nguyễn Lương Bằng',
-    description: 'Kho gạo quy mô lớn tại Đà Nẵng',
-    link: '',
-  },
-  {
-    id: 'wh2',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=compress&cs=tinysrgb&w=900&q=80',
-    title: 'Đóng gói sỉ - 5/10/25/50kg',
-    description: 'Đóng bao gạo sỉ sẵn sàng giao',
-    link: '',
-  },
-  {
-    id: 'wh3',
-    image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=compress&cs=tinysrgb&w=900&q=80',
-    title: 'Đội xe giao hỏa tốc 1-2h',
-    description: 'Xe tải giao gạo hỏa tốc',
-    link: '',
-  },
-  {
-    id: 'wh4',
-    image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=compress&cs=tinysrgb&w=900&q=80',
-    title: 'Năng lực 15 tấn/ngày',
-    description: 'Hàng trăm bao gạo trong kho',
-    link: '',
-  },
-];
+const FALLBACK_WAREHOUSE_IMAGES = DEFAULT_WAREHOUSE_IMAGES;
 
 export function WarehouseManager() {
   const [items, setItems] = useState<HomepageItem[]>([]);
@@ -292,8 +264,8 @@ export function WarehouseManager() {
     setSaving(true);
     toast.loading('Đang thêm ảnh mẫu...', { id: 'wh-seed' });
     try {
-      for (let i = 0; i < DEFAULT_WAREHOUSE_IMAGES.length; i++) {
-        const w = DEFAULT_WAREHOUSE_IMAGES[i];
+      for (let i = 0; i < FALLBACK_WAREHOUSE_IMAGES.length; i++) {
+        const w = FALLBACK_WAREHOUSE_IMAGES[i];
         await fetch('/api/homepage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
