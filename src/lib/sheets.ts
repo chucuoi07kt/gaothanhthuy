@@ -1,3 +1,5 @@
+import { slugifyVietnamese } from '@/lib/utils';
+
 export interface SheetProduct {
   id: string;
   name: string;
@@ -108,7 +110,7 @@ export async function getProductsFromSheet(): Promise<SheetProduct[]> {
     return {
       id: row.id || '',
       name: row.name || '',
-      slug: row.slug || '',
+      slug: row.slug || slugifyVietnamese(row.name || '') || row.id || '',
       category: row.category || '',
       price: parsePrice(row.price),
       weight_options: row.weight_options || '',
@@ -145,10 +147,15 @@ export async function writeToSheet(
 ): Promise<{ success: boolean; error?: string }> {
   if (!APPS_SCRIPT_URL) return { success: false, error: 'GOOGLE_APPS_SCRIPT_URL not configured' };
   try {
-    if (tab === 'sp' && data && typeof data.description === 'string') {
-      data.description = data.description
-        .replace(/\r\n/g, '\n')
-        .replace(/\r/g, '\n');
+    if (tab === 'sp' && data) {
+      if (typeof data.description === 'string') {
+        data.description = data.description
+          .replace(/\r\n/g, '\n')
+          .replace(/\r/g, '\n');
+      }
+      if (!data.slug && data.name) {
+        data.slug = slugifyVietnamese(String(data.name)) || String(data.id || '');
+      }
     }
 
     const res = await fetch(APPS_SCRIPT_URL, {
