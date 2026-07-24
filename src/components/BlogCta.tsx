@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { ArrowRight, Check, MapPin, MessageCircle, Phone, Plus, ShoppingBag, Truck } from 'lucide-react';
 import { toast } from 'sonner';
@@ -54,10 +55,11 @@ export function BlogCta() {
       <div className="overflow-hidden rounded-3xl border border-brand-200 bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900 p-6 text-white shadow-card sm:p-8">
         <div className="flex flex-col items-center justify-between gap-6 lg:flex-row">
           <div className="flex items-center gap-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/logo.png"
               alt={`Logo ${BRAND.name}`}
+              width={64}
+              height={64}
               className="h-16 w-auto object-contain"
             />
             <div>

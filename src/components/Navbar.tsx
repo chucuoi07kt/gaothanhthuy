@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Menu, ShoppingBag, X, Phone, MapPin, ShieldAlert } from 'lucide-react';
@@ -78,9 +79,12 @@ export function Navbar() {
         {/* KHU VỰC LOGO + CHỮ: Giữ lại tên thương hiệu, thay icon cũ bằng logo.png lớn hết cỡ */}
         <Link href="/" className="flex h-16 items-center gap-3 shrink-0 py-1 group">
           <div className="flex h-full items-center justify-center">
-            <img 
-              src="/logo.png" 
-              alt="Logo Gạo Ngọc Anh" 
+            <Image
+              src="/logo.png"
+              alt="Logo Gạo Ngọc Anh"
+              width={56}
+              height={56}
+              priority
               className="h-full w-auto object-contain max-h-14 transition-transform duration-200 group-hover:scale-102"
             />
           </div>

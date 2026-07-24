@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Phone, MapPin, Clock, Mail, MessageCircle } from 'lucide-react';
 import { BRAND } from '@/src/lib/brand';
 import { categories } from '@/src/lib/categories';
@@ -15,9 +16,11 @@ export function Footer() {
             {/* KHU VỰC LOGO + CHỮ Ở FOOTER: Logo vừa bằng khối chữ tương tự như trên Navbar */}
             <div className="flex items-center gap-3 shrink-0 py-1">
               <div className="flex h-14 items-center justify-center">
-                <img 
-                  src="/logo.png" 
-                  alt="Logo Gạo Ngọc Anh" 
+                <Image
+                  src="/logo.png"
+                  alt="Logo Gạo Ngọc Anh"
+                  width={56}
+                  height={56}
                   className="h-full w-auto object-contain max-h-14 block"
                 />
               </div>

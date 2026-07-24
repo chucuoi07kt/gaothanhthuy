@@ -75,10 +75,14 @@ export function BlogContent({ html, onTocReady }: BlogContentProps) {
       wrapper.appendChild(table);
     });
 
-    // Lazy-load images + responsive
+    // Lazy-load images + responsive + CLS prevention
     root.querySelectorAll('img').forEach((img) => {
       img.setAttribute('loading', 'lazy');
       img.setAttribute('decoding', 'async');
+      if (!img.hasAttribute('width') && !img.hasAttribute('height')) {
+        img.setAttribute('width', '1200');
+        img.setAttribute('height', '675');
+      }
       img.classList.add('rounded-xl', 'w-full', 'h-auto');
       if (!img.alt) img.alt = 'Hình ảnh bài viết';
     });

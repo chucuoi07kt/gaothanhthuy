@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Warehouse, Truck, PackageCheck, Boxes } from 'lucide-react';
 
 const galleryImages = [
@@ -60,11 +61,12 @@ export function WarehouseGallery() {
               key={idx}
               className={`group relative cursor-pointer overflow-hidden rounded-2xl shadow-md transition-transform duration-300 hover:scale-105 ${img.span}`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={img.src}
                 alt={img.alt}
+                fill
                 loading="lazy"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
