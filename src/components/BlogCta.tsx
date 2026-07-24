@@ -117,7 +117,7 @@ export function BlogCta() {
                 className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
               >
                 <Link
-                  href={`/products/${p.slug}`}
+                  href={`/san-pham/${p.slug}`}
                   className="relative block aspect-[4/3] overflow-hidden"
                 >
                   <ProductImage
@@ -138,7 +138,7 @@ export function BlogCta() {
                 </Link>
 
                 <div className="flex flex-1 flex-col p-3 sm:p-4">
-                  <Link href={`/products/${p.slug}`}>
+                  <Link href={`/san-pham/${p.slug}`}>
                     <h4 className="line-clamp-1 text-sm font-semibold text-foreground transition-colors group-hover:text-brand-700">
                       {p.name}
                     </h4>
@@ -197,7 +197,7 @@ export function BlogCta() {
                         </>
                       )}
                     </Button>
-                    <Link href={`/products/${p.slug}`}>
+                    <Link href={`/san-pham/${p.slug}`}>
                       <Button
                         size="sm"
                         variant="outline"
