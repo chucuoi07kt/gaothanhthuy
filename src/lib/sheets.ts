@@ -141,7 +141,7 @@ export async function getBlogFromSheet(): Promise<SheetBlogPost[]> {
 }
 
 export async function writeToSheet(
-  tab: 'sp' | 'blog',
+  tab: 'sp' | 'blog' | 'homepage',
   action: 'insert' | 'update' | 'delete',
   data: Record<string, unknown>
 ): Promise<{ success: boolean; error?: string }> {
