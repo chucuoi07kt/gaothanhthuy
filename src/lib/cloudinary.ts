@@ -13,6 +13,42 @@ export async function uploadToCloudinary(file: File): Promise<string> {
   return optimizeWebP(data.secure_url);
 }
 
+export async function uploadToCloudinaryWithProgress(
+  file: File,
+  onProgress?: (percent: number) => void,
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', UPLOAD_URL);
+
+    xhr.upload.onprogress = (e: ProgressEvent) => {
+      if (e.lengthComputable && onProgress) {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          resolve(optimizeWebP(data.secure_url));
+        } catch {
+          reject(new Error('Cloudinary parse error'));
+        }
+      } else {
+        reject(new Error(`Cloudinary upload failed: ${xhr.responseText}`));
+      }
+    };
+
+    xhr.onerror = () => reject(new Error('Cloudinary upload network error'));
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    xhr.send(formData);
+  });
+}
+
 export function optimizeWebP(url: string): string {
   if (!url || !url.includes('res.cloudinary.com')) return url;
   return url.replace('/upload/', '/upload/f_webp,q_auto/');
