@@ -3,24 +3,18 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { ArrowRight, Check, MapPin, MessageCircle, Phone, Plus, ShoppingBag, Truck } from 'lucide-react';
-import { toast } from 'sonner';
-import { cn, getFirstImage } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+import { ArrowRight, MessageCircle, Phone, ShoppingBag, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ProductImage } from '@/src/components/ProductImage';
 import { BRAND } from '@/src/lib/brand';
 import { fetchProducts } from '@/src/lib/products';
+import { ProductCard } from '@/src/components/ProductCard';
 import { quickZaloConsult } from '@/src/lib/zalo';
 import { useCartStore } from '@/src/store/cartStore';
 import type { Product } from '@/src/types';
 
 export function BlogCta() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedWeights, setSelectedWeights] = useState<Record<string, string>>({});
-  const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
 
-  const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
 
   useEffect(() => {
@@ -35,19 +29,6 @@ export function BlogCta() {
       }
     })();
   }, []);
-
-  const getWeight = (p: Product) =>
-    selectedWeights[p.id] ?? p.weights[0] ?? '5kg';
-
-  const handleAdd = (p: Product) => {
-    const weight = getWeight(p) as Product['weights'][number];
-    addItem(p, weight, 1);
-    setAddedIds((prev) => ({ ...prev, [p.id]: true }));
-    toast.success(`Đã thêm "${p.name} - ${weight}" vào danh sách báo giá`);
-    setTimeout(() => {
-      setAddedIds((prev) => ({ ...prev, [p.id]: false }));
-    }, 1600);
-  };
 
   return (
     <>
@@ -107,110 +88,10 @@ export function BlogCta() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-          {products.map((p) => {
-            const weight = getWeight(p);
-            const added = !!addedIds[p.id];
-            return (
-              <div
-                key={p.id}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
-              >
-                <Link
-                  href={`/san-pham/${p.slug}`}
-                  className="relative block aspect-[4/3] overflow-hidden"
-                >
-                  <ProductImage
-                    src={getFirstImage(p.image)}
-                    alt={p.name}
-                    rounded="rounded-none"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  {p.bestSeller && (
-                    <Badge className="absolute left-3 top-3 bg-gold-500 text-white shadow-soft">
-                      Bán chạy
-                    </Badge>
-                  )}
-                  <div className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-brand-700 backdrop-blur">
-                    <MapPin className="h-3 w-3" />
-                    {p.origin}
-                  </div>
-                </Link>
-
-                <div className="flex flex-1 flex-col p-3 sm:p-4">
-                  <Link href={`/san-pham/${p.slug}`}>
-                    <h4 className="line-clamp-1 text-sm font-semibold text-foreground transition-colors group-hover:text-brand-700">
-                      {p.name}
-                    </h4>
-                  </Link>
-                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                    {p.shortDescription}
-                  </p>
-
-                  <div className="mt-2 flex flex-wrap gap-1.5 sm:mt-2.5">
-                    {p.weights.slice(0, 3).map((w) => (
-                      <button
-                        key={w}
-                        onClick={() =>
-                          setSelectedWeights((prev) => ({ ...prev, [p.id]: w }))
-                        }
-                        className={cn(
-                          'rounded-full border px-2.5 py-0.5 text-xs font-medium transition-all',
-                          weight === w
-                            ? 'border-brand-600 bg-brand-600 text-white'
-                            : 'border-border bg-white text-muted-foreground hover:border-brand-400 hover:text-brand-700'
-                        )}
-                      >
-                        {w}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="mt-2 flex items-end justify-between sm:mt-2.5">
-                    <div>
-                      <span className="text-xs text-muted-foreground">Giá tham khảo</span>
-                      <p className="text-base font-bold text-brand-700">
-                        {p.pricePerKg.toLocaleString('vi-VN')}đ
-                        <span className="text-xs font-normal text-muted-foreground">/kg</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex gap-2">
-                    <Button
-                      onClick={() => handleAdd(p)}
-                      size="sm"
-                      className={cn(
-                        'flex-1 gap-1.5 text-xs transition-all',
-                        added
-                          ? 'bg-brand-700 text-white'
-                          : 'bg-brand-600 text-white hover:bg-brand-700'
-                      )}
-                    >
-                      {added ? (
-                        <>
-                          <Check className="h-3.5 w-3.5" /> Đã thêm
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="h-3.5 w-3.5" /> Báo giá
-                        </>
-                      )}
-                    </Button>
-                    <Link href={`/san-pham/${p.slug}`}>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-brand-200 px-3 text-xs text-brand-700 hover:bg-brand-50"
-                      >
-                        Xem
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
         </div>
 
         <div className="mt-5 flex flex-col gap-3 sm:mt-6 sm:flex-row sm:items-center sm:justify-between">
