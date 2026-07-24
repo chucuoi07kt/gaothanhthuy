@@ -52,49 +52,49 @@ export function BlogCta() {
   return (
     <>
       {/* Banner Gạo Thanh Thủy */}
-      <div className="overflow-hidden rounded-3xl border border-brand-200 bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900 p-6 text-white shadow-card sm:p-8">
-        <div className="flex flex-col items-center justify-between gap-6 lg:flex-row">
-          <div className="flex items-center gap-4">
+      <div className="overflow-hidden rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900 p-4 text-white shadow-card sm:rounded-3xl sm:p-6 lg:p-8">
+        <div className="flex flex-col items-center justify-between gap-4 sm:gap-6 lg:flex-row">
+          <div className="flex items-center gap-3 sm:gap-4">
             <Image
               src="/logo.png"
               alt={`Logo ${BRAND.name}`}
-              width={64}
-              height={64}
-              className="h-16 w-auto object-contain"
+              width={48}
+              height={48}
+              className="h-12 w-auto object-contain sm:h-16"
             />
-            <div>
-              <h3 className="text-lg font-bold sm:text-xl">{BRAND.name}</h3>
-              <p className="mt-0.5 text-sm text-brand-100">
+            <div className="min-w-0">
+              <h3 className="text-base font-bold sm:text-lg lg:text-xl">{BRAND.name}</h3>
+              <p className="mt-0.5 text-xs text-brand-100 sm:text-sm">
                 {BRAND.yearsExperience} năm uy tín · Giao hỏa tốc Đà Nẵng 1-2h
               </p>
             </div>
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <a href={`tel:${BRAND.hotlineRaw}`} className="inline-flex">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <a href={`tel:${BRAND.hotlineRaw}`} className="inline-flex flex-1 sm:flex-none">
               <Button
-                size="lg"
-                className="gap-2 bg-white text-brand-700 hover:bg-brand-50"
+                size="sm"
+                className="w-full gap-2 bg-white text-brand-700 hover:bg-brand-50 sm:size-lg sm:w-auto"
               >
-                <Phone className="h-5 w-5" /> {BRAND.hotline}
+                <Phone className="h-4 w-4 sm:h-5 sm:w-5" /> <span className="text-xs sm:text-sm">{BRAND.hotline}</span>
               </Button>
             </a>
             <Button
               onClick={() => quickZaloConsult()}
-              size="lg"
-              className="gap-2 bg-zalo text-white hover:bg-zalo/90"
+              size="sm"
+              className="flex-1 gap-2 bg-zalo text-white hover:bg-zalo/90 sm:size-lg sm:flex-none"
             >
-              <MessageCircle className="h-5 w-5" /> Tư vấn Zalo
+              <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" /> <span className="text-xs sm:text-sm">Tư vấn Zalo</span>
             </Button>
           </div>
         </div>
       </div>
 
       {/* Products section */}
-      <div className="mt-8">
-        <div className="mb-5 flex items-center justify-between">
+      <div className="mt-6 sm:mt-8">
+        <div className="mb-4 flex items-center justify-between sm:mb-5">
           <div className="flex items-center gap-2">
             <div className="h-6 w-1 rounded-full bg-brand-600" />
-            <h3 className="text-xl font-bold text-foreground sm:text-2xl">
+            <h3 className="text-lg font-bold text-foreground sm:text-xl lg:text-2xl">
               Sản phẩm nổi bật
             </h3>
           </div>
@@ -107,7 +107,7 @@ export function BlogCta() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
           {products.map((p) => {
             const weight = getWeight(p);
             const added = !!addedIds[p.id];
@@ -137,7 +137,7 @@ export function BlogCta() {
                   </div>
                 </Link>
 
-                <div className="flex flex-1 flex-col p-4">
+                <div className="flex flex-1 flex-col p-3 sm:p-4">
                   <Link href={`/products/${p.slug}`}>
                     <h4 className="line-clamp-1 text-sm font-semibold text-foreground transition-colors group-hover:text-brand-700">
                       {p.name}
@@ -147,7 +147,7 @@ export function BlogCta() {
                     {p.shortDescription}
                   </p>
 
-                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  <div className="mt-2 flex flex-wrap gap-1.5 sm:mt-2.5">
                     {p.weights.slice(0, 3).map((w) => (
                       <button
                         key={w}
@@ -166,7 +166,7 @@ export function BlogCta() {
                     ))}
                   </div>
 
-                  <div className="mt-2.5 flex items-end justify-between">
+                  <div className="mt-2 flex items-end justify-between sm:mt-2.5">
                     <div>
                       <span className="text-xs text-muted-foreground">Giá tham khảo</span>
                       <p className="text-base font-bold text-brand-700">
@@ -213,7 +213,7 @@ export function BlogCta() {
           })}
         </div>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-5 flex flex-col gap-3 sm:mt-6 sm:flex-row sm:items-center sm:justify-between">
           <Link href="/products">
             <Button
               variant="outline"
@@ -233,10 +233,10 @@ export function BlogCta() {
       </div>
 
       {/* Contact strip */}
-      <div className="mt-6 flex flex-col items-center gap-4 rounded-2xl border border-border bg-brand-50/40 p-5 sm:flex-row sm:justify-between">
+      <div className="mt-5 flex flex-col items-center gap-3 rounded-2xl border border-border bg-brand-50/40 p-4 sm:mt-6 sm:flex-row sm:justify-between sm:p-5 sm:gap-4">
         <div className="flex items-center gap-3">
-          <Truck className="h-8 w-8 text-brand-600" />
-          <div>
+          <Truck className="h-7 w-7 shrink-0 text-brand-600 sm:h-8 sm:w-8" />
+          <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground">
               Cần tư vấn báo giá sỉ gạo tại Đà Nẵng?
             </p>
@@ -245,15 +245,15 @@ export function BlogCta() {
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <a href={`tel:${BRAND.hotlineRaw}`} className="inline-flex">
-            <Button className="gap-2 bg-brand-600 text-white hover:bg-brand-700">
-              <Phone className="h-4 w-4" /> Gọi {BRAND.hotline}
+        <div className="flex w-full gap-2 sm:w-auto">
+          <a href={`tel:${BRAND.hotlineRaw}`} className="inline-flex flex-1 sm:flex-none">
+            <Button className="flex-1 gap-2 bg-brand-600 text-white hover:bg-brand-700 sm:flex-none">
+              <Phone className="h-4 w-4" /> <span className="sm:hidden">Gọi</span><span className="hidden sm:inline">Gọi {BRAND.hotline}</span>
             </Button>
           </a>
           <Button
             onClick={() => quickZaloConsult()}
-            className="gap-2 bg-zalo text-white hover:bg-zalo/90"
+            className="flex-1 gap-2 bg-zalo text-white hover:bg-zalo/90 sm:flex-none"
           >
             <MessageCircle className="h-4 w-4" /> Zalo
           </Button>

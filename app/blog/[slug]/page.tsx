@@ -164,33 +164,33 @@ export default async function BlogPostPage({ params }: PageProps) {
           <div className="absolute right-0 top-40 h-80 w-80 rounded-full bg-brand-400 blur-3xl" />
         </div>
 
-        <div className="container-page relative max-w-3xl py-8 sm:py-12 lg:py-16">
+        <div className="container-page relative max-w-3xl py-6 sm:py-12 lg:py-16">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-1.5 text-xs text-brand-100">
-            <Link href="/" className="transition-colors hover:text-white">Trang chủ</Link>
-            <span>/</span>
-            <Link href="/blog" className="transition-colors hover:text-white">Tin tức</Link>
-            <span>/</span>
+          <nav className="flex items-center gap-1 text-[11px] text-brand-100 sm:gap-1.5 sm:text-xs">
+            <Link href="/" className="shrink-0 transition-colors hover:text-white">Trang chủ</Link>
+            <span className="shrink-0">/</span>
+            <Link href="/blog" className="shrink-0 transition-colors hover:text-white">Tin tức</Link>
+            <span className="shrink-0">/</span>
             <span className="line-clamp-1 font-medium text-white">{post.title}</span>
           </nav>
 
           {/* Category badge */}
-          <span className="mt-5 inline-flex items-center rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-medium backdrop-blur-sm">
+          <span className="mt-4 inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-medium backdrop-blur-sm sm:mt-5 sm:px-3.5 sm:py-1.5 sm:text-xs">
             {post.category}
           </span>
 
           {/* Title */}
-          <h1 className="mt-4 text-2xl font-bold leading-tight text-balance drop-shadow-sm sm:text-3xl lg:text-4xl">
+          <h1 className="mt-3 text-xl font-bold leading-tight text-balance drop-shadow-sm sm:mt-4 sm:text-2xl lg:text-4xl">
             {post.title}
           </h1>
 
           {/* Excerpt */}
-          <p className="mt-4 text-base leading-relaxed text-brand-50 sm:text-lg">
+          <p className="mt-3 text-sm leading-relaxed text-brand-50 sm:mt-4 sm:text-base lg:text-lg">
             {post.excerpt}
           </p>
 
           {/* Meta row */}
-          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-brand-100">
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-brand-100 sm:mt-6 sm:gap-x-5 sm:gap-y-2 sm:text-xs">
             <span className="flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5 text-gold-300" />
               {post.publishedAt}
@@ -212,9 +212,9 @@ export default async function BlogPostPage({ params }: PageProps) {
       </section>
 
       {/* Cover image */}
-      <section className="relative -mt-6 sm:-mt-8">
+      <section className="relative -mt-4 sm:-mt-8">
         <div className="container-page max-w-4xl">
-          <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-card">
+          <div className="overflow-hidden rounded-xl border border-border bg-white shadow-card sm:rounded-2xl">
             <BlogImage
               src={post.image}
               alt={post.title}
@@ -230,18 +230,18 @@ export default async function BlogPostPage({ params }: PageProps) {
       </section>
 
       {/* Article body */}
-      <article className="section-pad pt-8">
+      <article className="section-pad pt-6 sm:pt-8">
         <div className="container-page max-w-5xl">
-          <p className="mb-6 text-lg font-medium text-foreground">{post.excerpt}</p>
+          <p className="mb-5 text-sm font-medium text-foreground sm:mb-6 sm:text-lg">{post.excerpt}</p>
           <BlogArticle html={post.content} />
 
           {/* Share buttons */}
-          <div className="mt-8 flex items-center justify-between rounded-2xl border border-border bg-brand-50/30 px-5 py-4">
+          <div className="mt-6 flex items-center justify-between rounded-xl border border-border bg-brand-50/30 px-3 py-3 sm:mt-8 sm:rounded-2xl sm:px-5 sm:py-4">
             <ShareButtons title={post.title} slug={post.slug} />
           </div>
 
           {/* CTA cuối bài: Banner + Products + Cart + Contact */}
-          <div className="mt-10 max-w-4xl">
+          <div className="mt-8 max-w-4xl sm:mt-10">
             <BlogCta />
           </div>
 
@@ -251,11 +251,12 @@ export default async function BlogPostPage({ params }: PageProps) {
           </div>
 
           {/* Back to blog link */}
-          <div className="mt-6">
+          <div className="mt-5 sm:mt-6">
             <Link href="/blog">
               <Button variant="outline" className="gap-2 border-brand-200 text-brand-700 hover:bg-brand-50">
                 <ArrowLeft className="h-4 w-4" />
-                Quay lại danh sách bài viết
+                <span className="hidden sm:inline">Quay lại danh sách bài viết</span>
+                <span className="sm:hidden">Quay lại</span>
               </Button>
             </Link>
           </div>
@@ -264,7 +265,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
       {/* Previous / Next navigation */}
       {(prevPost || nextPost) && (
-        <section className="pb-8">
+        <section className="pb-6 sm:pb-8">
           <div className="container-page max-w-4xl">
             <PostNavigation prev={prevPost} next={nextPost} />
           </div>
@@ -275,11 +276,11 @@ export default async function BlogPostPage({ params }: PageProps) {
       {related.length > 0 && (
         <section className="section-pad pt-4">
           <div className="container-page max-w-5xl">
-            <div className="mb-6 flex items-center gap-2">
+            <div className="mb-4 flex items-center gap-2 sm:mb-6">
               <div className="h-6 w-1 rounded-full bg-brand-600" />
-              <h2 className="text-xl font-bold text-foreground sm:text-2xl">Bài viết liên quan</h2>
+              <h2 className="text-lg font-bold text-foreground sm:text-xl lg:text-2xl">Bài viết liên quan</h2>
             </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((b) => (
                 <Link
                   key={b.id}
@@ -300,12 +301,12 @@ export default async function BlogPostPage({ params }: PageProps) {
                       {b.category}
                     </span>
                   </div>
-                  <div className="flex flex-1 flex-col p-5">
+                  <div className="flex flex-1 flex-col p-4 sm:p-5">
                     <h3 className="line-clamp-2 text-sm font-semibold text-foreground transition-colors group-hover:text-brand-700">
                       {b.title}
                     </h3>
                     <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{b.excerpt}</p>
-                    <div className="mt-4 flex items-center gap-3 border-t border-border/60 pt-3 text-xs text-muted-foreground">
+                    <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground sm:gap-3">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {b.publishedAt}
@@ -319,10 +320,11 @@ export default async function BlogPostPage({ params }: PageProps) {
                 </Link>
               ))}
             </div>
-            <div className="mt-8 text-center">
+            <div className="mt-6 text-center sm:mt-8">
               <Link href="/blog">
                 <Button variant="outline" className="gap-2 border-brand-200 text-brand-700 hover:bg-brand-50">
-                  Xem tất cả bài viết
+                  <span className="hidden sm:inline">Xem tất cả bài viết</span>
+                  <span className="sm:hidden">Xem tất cả</span>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>

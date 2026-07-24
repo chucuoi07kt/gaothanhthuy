@@ -84,7 +84,7 @@ export function TableOfContents({ items }: TableOfContentsProps) {
         <button
           onClick={() => setMobileOpen(true)}
           aria-label="Mở mục lục"
-          className="fixed bottom-6 left-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:bg-brand-700 hover:shadow-lg"
+          className="fixed bottom-20 left-4 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-brand-600 text-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:bg-brand-700 hover:shadow-lg sm:bottom-6 sm:left-6 sm:h-12 sm:w-12"
         >
           <List className="h-5 w-5" />
         </button>
