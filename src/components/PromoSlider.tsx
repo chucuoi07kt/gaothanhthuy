@@ -8,6 +8,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { cn } from '@/lib/utils';
 import { quickZaloConsult } from '@/src/lib/zalo';
+import type { HomepageItem } from '@/src/lib/homepage.service';
 
 type Banner = {
   id: string;
@@ -19,11 +20,10 @@ type Banner = {
   external?: boolean;
 };
 
-const banners: Banner[] = [
+const FALLBACK_BANNERS: Banner[] = [
   {
     id: 'family',
-    image:
-      'https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    image: 'https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=1600',
     title: 'Gạo ngon cho mọi gia đình',
     description: 'Gạo chính hãng dẻo thơm, sạch an toàn cho bữa cơm gia đình.',
     cta: 'Xem sản phẩm',
@@ -31,8 +31,7 @@ const banners: Banner[] = [
   },
   {
     id: 'restaurant',
-    image:
-      'https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    image: 'https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=1600',
     title: 'Giá sỉ cho quán ăn – nhà hàng',
     description: 'Chiết khấu hấp dẫn khi nhập sỉ cho quán cơm, nhà hàng tại Đà Nẵng.',
     cta: 'Nhận báo giá',
@@ -41,8 +40,7 @@ const banners: Banner[] = [
   },
   {
     id: 'delivery',
-    image:
-      'https://images.pexels.com/photos/4393474/pexels-photo-4393474.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    image: 'https://images.pexels.com/photos/4393474/pexels-photo-4393474.jpeg?auto=compress&cs=tinysrgb&w=1600',
     title: 'Giao nhanh toàn Đà Nẵng',
     description: 'Giao hỏa tốc nội thành 1-2 giờ, không lo gián đoạn nguồn cung.',
     cta: 'Đặt ngay',
@@ -50,8 +48,7 @@ const banners: Banner[] = [
   },
   {
     id: 'agency',
-    image:
-      'https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=1600',
+    image: 'https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=1600',
     title: 'Chiết khấu cao cho đại lý',
     description: 'Hợp tác phân phối dài hạn với mức chiết khấu ưu đãi nhất.',
     cta: 'Liên hệ',
@@ -59,6 +56,22 @@ const banners: Banner[] = [
     external: true,
   },
 ];
+
+function mapHeroItemsToBanners(items: HomepageItem[]): Banner[] {
+  return items.map((item) => {
+    const isExternal = item.link.startsWith('http');
+    const cta = isExternal ? 'Xem ngay' : item.link ? 'Xem thêm' : 'Liên hệ';
+    return {
+      id: item.id,
+      image: item.image,
+      title: item.title,
+      description: item.description,
+      cta,
+      href: item.link || '',
+      external: isExternal,
+    };
+  });
+}
 
 const AUTOPLAY_DELAY = 5000;
 
@@ -69,6 +82,26 @@ export function PromoSlider() {
   );
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [banners, setBanners] = useState<Banner[]>(FALLBACK_BANNERS);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/homepage', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const allItems: HomepageItem[] = data.items || [];
+        const heroItems = allItems
+          .filter((it) => it.section === 'hero' && it.enabled)
+          .sort((a, b) => a.order - b.order);
+        if (heroItems.length > 0) {
+          setBanners(mapHeroItemsToBanners(heroItems));
+        }
+      } catch {
+        // keep fallback
+      }
+    })();
+  }, []);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -115,15 +148,15 @@ export function PromoSlider() {
     >
       <div ref={emblaRef} className="overflow-hidden">
         <div className="flex touch-pan-y [will-change:transform]">
-          {banners.map((banner) => (
+          {banners.map((banner, idx) => (
             <div key={banner.id} className="relative min-w-0 flex-[0_0_100%]">
               <div className="relative aspect-[16/9] w-full sm:aspect-[21/9] lg:aspect-[24/8]">
                 <Image
                   src={banner.image}
                   alt={banner.title}
                   fill
-                  priority={banner.id === 'family'}
-                  loading={banner.id === 'family' ? 'eager' : 'lazy'}
+                  priority={idx === 0}
+                  loading={idx === 0 ? 'eager' : 'lazy'}
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1280px"
                   className="object-cover"
                 />
