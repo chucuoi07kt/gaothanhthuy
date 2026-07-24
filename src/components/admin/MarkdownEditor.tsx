@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -22,6 +22,7 @@ import {
   Undo2, Redo2,
   Link as LinkIcon, Image as ImageIcon,
   Table as TableIcon, Minus, Smile,
+  Upload, X, Loader2, Pencil, Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,8 @@ import {
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from '@/components/ui/popover';
+import { uploadToCloudinaryWithProgress } from '@/src/lib/cloudinary';
+import { toast } from 'sonner';
 
 const lowlight = createLowlight(common);
 
@@ -77,6 +80,19 @@ function ToolbarButton({
   );
 }
 
+interface UploadTask {
+  id: string;
+  fileName: string;
+  progress: number;
+  status: 'uploading' | 'done' | 'error';
+}
+
+interface ImageNodeInfo {
+  src: string;
+  alt: string;
+  pos: number;
+}
+
 interface MarkdownEditorProps {
   content: string;
   onChange: (html: string) => void;
@@ -90,6 +106,16 @@ export function MarkdownEditor({ content, onChange, isDark }: MarkdownEditorProp
   const [imageUrl, setImageUrl] = useState('');
   const [imageAlt, setImageAlt] = useState('');
   const [emojiCategory, setEmojiCategory] = useState('Biểu cảm');
+  const [uploadTasks, setUploadTasks] = useState<UploadTask[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [captionDialogOpen, setCaptionDialogOpen] = useState(false);
+  const [captionText, setCaptionText] = useState('');
+  const [captionTargetPos, setCaptionTargetPos] = useState<number | null>(null);
+  const [replaceDialogOpen, setReplaceDialogOpen] = useState(false);
+  const [replaceTargetPos, setReplaceTargetPos] = useState<number | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragCounter = useRef(0);
 
   const editor = useEditor({
     extensions: [
@@ -135,6 +161,239 @@ export function MarkdownEditor({ content, onChange, isDark }: MarkdownEditorProp
 
   useEffect(() => () => { editor?.destroy(); }, [editor]);
 
+  // --- Image upload helpers ---
+
+  const insertImageAtCursor = useCallback((src: string, alt: string) => {
+    if (!editor) return;
+    editor.chain().focus().setImage({ src, alt }).run();
+  }, [editor]);
+
+  const insertImageAfterPos = useCallback((pos: number, src: string, alt: string) => {
+    if (!editor) return;
+    editor
+      .chain()
+      .focus()
+      .insertContentAt(pos, { type: 'image', attrs: { src, alt } })
+      .run();
+  }, [editor]);
+
+  const handleFiles = useCallback(async (files: FileList | File[], insertPos?: number) => {
+    if (!editor) return;
+    const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    if (fileArray.length === 0) return;
+
+    let basePos: number = insertPos ?? editor.state.selection.from;
+
+    for (const file of fileArray) {
+      const taskId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      setUploadTasks((prev) => [...prev, {
+        id: taskId, fileName: file.name, progress: 0, status: 'uploading',
+      }]);
+
+      try {
+        const url = await uploadToCloudinaryWithProgress(file, (percent) => {
+          setUploadTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, progress: percent } : t));
+        });
+
+        setUploadTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, status: 'done', progress: 100 } : t));
+
+        insertImageAfterPos(basePos, url, '');
+        basePos = basePos + 1;
+      } catch {
+        setUploadTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, status: 'error' } : t));
+        toast.error(`Lỗi tải ảnh: ${file.name}`);
+      }
+    }
+
+    setTimeout(() => {
+      setUploadTasks((prev) => prev.filter((t) => t.status === 'uploading'));
+    }, 2000);
+  }, [editor, insertImageAfterPos]);
+
+  // --- Drag & Drop on editor area ---
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current++;
+    if (e.dataTransfer.types.includes('Files')) {
+      setIsDragging(true);
+    }
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current--;
+    if (dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current = 0;
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      if (editor) {
+        const coords = { left: e.clientX, top: e.clientY };
+        try {
+          const pos = editor.view.posAtCoords(coords)?.pos ?? null;
+          handleFiles(e.dataTransfer.files, pos ?? undefined);
+          return;
+        } catch {
+          // fall through to cursor position
+        }
+      }
+      handleFiles(e.dataTransfer.files);
+    }
+  }, [editor, handleFiles]);
+
+  // --- Paste images ---
+
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    const imageItems: DataTransferItem[] = [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) {
+        imageItems.push(items[i]);
+      }
+    }
+    if (imageItems.length > 0) {
+      e.preventDefault();
+      const files = imageItems
+        .map((item) => item.getAsFile())
+        .filter((f): f is File => f !== null);
+      if (files.length > 0) {
+        handleFiles(files);
+      }
+    }
+  }, [handleFiles]);
+
+  // --- Image node actions (caption, replace, delete) ---
+
+  const getSelectedImageInfo = useCallback((): ImageNodeInfo | null => {
+    if (!editor) return null;
+    const { state } = editor;
+    const { selection } = state;
+    const node = 'node' in selection ? (selection as { node: { type: { name: string }; attrs: { src: string; alt?: string } } }).node : null;
+    if (node && node.type.name === 'image') {
+      return {
+        src: node.attrs.src,
+        alt: node.attrs.alt || '',
+        pos: selection.from,
+      };
+    }
+    const $pos = selection.$from;
+    const parent = $pos.parent;
+    for (let i = 0; i < parent.childCount; i++) {
+      const child = parent.child(i);
+      if (child.type.name === 'image') {
+        const childPos = $pos.start() + i;
+        return {
+          src: child.attrs.src,
+          alt: child.attrs.alt || '',
+          pos: childPos,
+        };
+      }
+    }
+    return null;
+  }, [editor]);
+
+  const openCaptionDialog = useCallback(() => {
+    const info = getSelectedImageInfo();
+    if (!info) {
+      toast.error('Vui lòng chọn một ảnh trước');
+      return;
+    }
+    setCaptionText(info.alt);
+    setCaptionTargetPos(info.pos);
+    setCaptionDialogOpen(true);
+  }, [getSelectedImageInfo]);
+
+  const confirmCaption = useCallback(() => {
+    if (!editor || captionTargetPos === null) return;
+    editor
+      .chain()
+      .focus()
+      .setNodeSelection(captionTargetPos)
+      .updateAttributes('image', { alt: captionText.trim() })
+      .run();
+    setCaptionDialogOpen(false);
+    setCaptionText('');
+    setCaptionTargetPos(null);
+  }, [editor, captionTargetPos, captionText]);
+
+  const openReplaceDialog = useCallback(() => {
+    const info = getSelectedImageInfo();
+    if (!info) {
+      toast.error('Vui lòng chọn một ảnh trước');
+      return;
+    }
+    setReplaceTargetPos(info.pos);
+    setReplaceDialogOpen(true);
+  }, [getSelectedImageInfo]);
+
+  const handleReplaceFile = useCallback(async (files: FileList) => {
+    if (!editor || replaceTargetPos === null) return;
+    const fileArray = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    if (fileArray.length === 0) return;
+
+    const file = fileArray[0];
+    const taskId = `replace-${Date.now()}`;
+    setUploadTasks((prev) => [...prev, {
+      id: taskId, fileName: file.name, progress: 0, status: 'uploading',
+    }]);
+
+    try {
+      const url = await uploadToCloudinaryWithProgress(file, (percent) => {
+        setUploadTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, progress: percent } : t));
+      });
+      setUploadTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, status: 'done', progress: 100 } : t));
+
+      editor
+        .chain()
+        .focus()
+        .setNodeSelection(replaceTargetPos)
+        .updateAttributes('image', { src: url })
+        .run();
+      setReplaceDialogOpen(false);
+      setReplaceTargetPos(null);
+    } catch {
+      setUploadTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, status: 'error' } : t));
+      toast.error(`Lỗi tải ảnh: ${file.name}`);
+    }
+
+    setTimeout(() => {
+      setUploadTasks((prev) => prev.filter((t) => t.status === 'uploading'));
+    }, 2000);
+  }, [editor, replaceTargetPos]);
+
+  const deleteImage = useCallback(() => {
+    if (!editor) return;
+    const info = getSelectedImageInfo();
+    if (!info) {
+      toast.error('Vui lòng chọn một ảnh trước');
+      return;
+    }
+    editor
+      .chain()
+      .focus()
+      .setNodeSelection(info.pos)
+      .deleteSelection()
+      .run();
+  }, [editor, getSelectedImageInfo]);
+
+  // --- Existing toolbar actions ---
+
   const setLink = useCallback(() => {
     if (!editor) return;
     const previousUrl = editor.getAttributes('link').href || '';
@@ -163,12 +422,12 @@ export function MarkdownEditor({ content, onChange, isDark }: MarkdownEditorProp
     if (!editor) return;
     const url = imageUrl.trim();
     if (url) {
-      editor.chain().focus().setImage({ src: url, alt: imageAlt.trim() || undefined }).run();
+      insertImageAtCursor(url, imageAlt.trim());
     }
     setImageDialogOpen(false);
     setImageUrl('');
     setImageAlt('');
-  }, [editor, imageUrl, imageAlt]);
+  }, [editor, imageUrl, imageAlt, insertImageAtCursor]);
 
   const insertTable = useCallback(() => {
     if (!editor) return;
@@ -181,6 +440,8 @@ export function MarkdownEditor({ content, onChange, isDark }: MarkdownEditorProp
   }, [editor]);
 
   if (!editor) return null;
+
+  const isImageSelected = editor.isActive('image');
 
   return (
     <div className={cn(isDark && 'dark')}>
@@ -243,10 +504,29 @@ export function MarkdownEditor({ content, onChange, isDark }: MarkdownEditorProp
         <ToolbarButton onClick={setLink} isActive={editor.isActive('link')} title="Liên kết">
           <LinkIcon className="h-4 w-4" />
         </ToolbarButton>
-        <ToolbarButton onClick={setImage} title="Ảnh">
+        <ToolbarButton onClick={setImage} title="Chèn ảnh (URL)">
           <ImageIcon className="h-4 w-4" />
         </ToolbarButton>
+        <ToolbarButton onClick={() => fileInputRef.current?.click()} title="Tải ảnh lên">
+          <Upload className="h-4 w-4" />
+        </ToolbarButton>
         <ToolbarDivider />
+
+        {/* Image actions (visible when image is selected) */}
+        {isImageSelected && (
+          <>
+            <ToolbarButton onClick={openCaptionDialog} title="Chú thích ảnh">
+              <Pencil className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton onClick={openReplaceDialog} title="Thay thế ảnh">
+              <Upload className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton onClick={deleteImage} title="Xoá ảnh">
+              <Trash2 className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarDivider />
+          </>
+        )}
 
         {/* Emoji */}
         <Popover>
@@ -314,9 +594,70 @@ export function MarkdownEditor({ content, onChange, isDark }: MarkdownEditorProp
         </div>
       )}
 
-      <div className="rounded-b-xl border border-border bg-white focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-zinc-700 dark:bg-zinc-900">
+      {/* Upload progress bar */}
+      {uploadTasks.length > 0 && (
+        <div className="border-x border-border bg-brand-50/30 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/30">
+          {uploadTasks.map((task) => (
+            <div key={task.id} className="mb-1.5 last:mb-0">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5 truncate">
+                  {task.status === 'uploading' && <Loader2 className="h-3 w-3 animate-spin" />}
+                  {task.status === 'done' && <span className="text-green-600">✓</span>}
+                  {task.status === 'error' && <X className="h-3 w-3 text-red-500" />}
+                  <span className="truncate">{task.fileName}</span>
+                </span>
+                <span className="ml-2 shrink-0">{task.progress}%</span>
+              </div>
+              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                <div
+                  className={cn(
+                    'h-full rounded-full transition-all duration-300',
+                    task.status === 'error' ? 'bg-red-500' : task.status === 'done' ? 'bg-green-500' : 'bg-brand-500',
+                  )}
+                  style={{ width: `${task.progress}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div
+        className={cn(
+          'relative rounded-b-xl border border-border bg-white focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-zinc-700 dark:bg-zinc-900',
+          isDragging && 'ring-2 ring-brand-500 ring-offset-2',
+        )}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onPaste={handlePaste}
+      >
         <EditorContent editor={editor} />
+        {isDragging && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-b-xl bg-brand-50/80 dark:bg-zinc-800/80">
+            <div className="flex flex-col items-center gap-2 text-brand-600 dark:text-brand-400">
+              <Upload className="h-8 w-8" />
+              <p className="text-sm font-medium">Thả ảnh vào đây</p>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Hidden file input for upload button */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files && e.target.files.length > 0) {
+            handleFiles(e.target.files);
+            e.target.value = '';
+          }
+        }}
+      />
 
       {/* Link Dialog */}
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
@@ -342,7 +683,7 @@ export function MarkdownEditor({ content, onChange, isDark }: MarkdownEditorProp
         </DialogContent>
       </Dialog>
 
-      {/* Image Dialog */}
+      {/* Image URL Dialog */}
       <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -370,6 +711,63 @@ export function MarkdownEditor({ content, onChange, isDark }: MarkdownEditorProp
           <DialogFooter>
             <Button variant="outline" onClick={() => setImageDialogOpen(false)}>Huỷ</Button>
             <Button onClick={confirmImage}>Chèn</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Caption Dialog */}
+      <Dialog open={captionDialogOpen} onOpenChange={setCaptionDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Chú thích ảnh</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Chú thích (Alt text)</Label>
+              <Input
+                value={captionText}
+                onChange={(e) => setCaptionText(e.target.value)}
+                placeholder="Mô tả ảnh..."
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); confirmCaption(); } }}
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCaptionDialogOpen(false)}>Huỷ</Button>
+            <Button onClick={confirmCaption}>Lưu</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Replace Dialog */}
+      <Dialog open={replaceDialogOpen} onOpenChange={setReplaceDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Thay thế ảnh</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">Chọn ảnh mới để thay thế ảnh hiện tại.</p>
+            <div
+              onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = () => {
+                  if (input.files && input.files.length > 0) {
+                    handleReplaceFile(input.files);
+                  }
+                };
+                input.click();
+              }}
+              className="flex h-28 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border transition-all hover:border-brand-400"
+            >
+              <Upload className="h-6 w-6 text-muted-foreground" />
+              <p className="mt-1 text-xs text-muted-foreground">Chọn ảnh mới</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReplaceDialogOpen(false)}>Huỷ</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
