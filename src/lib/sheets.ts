@@ -87,7 +87,7 @@ function parseCSV(csv: string): Record<string, string>[] {
   return rows;
 }
 
-export async function fetchSheetData(tab: 'sp' | 'blog'): Promise<Record<string, string>[]> {
+export async function fetchSheetData(tab: 'sp' | 'blog' | 'homepage'): Promise<Record<string, string>[]> {
   if (!SHEET_ID) return [];
   const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${tab}`;
   const res = await fetch(csvUrl, { cache: 'no-store' });
