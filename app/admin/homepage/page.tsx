@@ -5,6 +5,7 @@ import Image from 'next/image';
 import {
   Home, RefreshCw, Plus, Pencil, Trash2, Eye,
   ExternalLink, ArrowUp, ArrowDown, Save, X,
+  Image as ImageIcon, LayoutDashboard,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -15,8 +16,12 @@ import { Switch } from '@/components/ui/switch';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  Tabs, TabsContent, TabsList, TabsTrigger,
+} from '@/components/ui/tabs';
 import { getFirstImage } from '@/lib/utils';
 import { ImageUpload } from '@/src/components/admin/ImageUpload';
+import { WarehouseManager } from '@/src/components/admin/WarehouseManager';
 import type { HomepageItem } from '@/src/lib/homepage.service';
 
 interface HeroForm {
@@ -67,6 +72,7 @@ export default function AdminHomepagePage() {
   const [saving, setSaving] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewItem, setPreviewItem] = useState<HomepageItem | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('hero');
 
   const heroItems = items
     .filter((item) => item.section === 'hero')
@@ -329,12 +335,12 @@ export default function AdminHomepagePage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      {/* Header */}
+      {/* Page header */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-lg font-bold text-foreground sm:text-xl">Hero Slider</h1>
+          <h1 className="text-lg font-bold text-foreground sm:text-xl">Nội dung trang chủ</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            {heroItems.length} banner{heroItems.length !== 1 ? 's' : ''} · section: hero
+            Quản lý Hero Slider và Kho bãi
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -347,6 +353,33 @@ export default function AdminHomepagePage() {
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">{refreshing ? 'Đang...' : 'Đồng bộ'}</span>
           </Button>
+        </div>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-5 grid w-full grid-cols-2 sm:w-auto sm:inline-flex">
+          <TabsTrigger value="hero" className="gap-2 text-xs sm:text-sm">
+            <LayoutDashboard className="h-4 w-4" />
+            <span className="hidden sm:inline">Hero Slider</span>
+            <span className="sm:hidden">Hero</span>
+          </TabsTrigger>
+          <TabsTrigger value="warehouse" className="gap-2 text-xs sm:text-sm">
+            <ImageIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">Kho bãi</span>
+            <span className="sm:hidden">Kho</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="hero">
+      {/* Hero section header */}
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-foreground sm:text-xl">Hero Slider</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            {heroItems.length} banner{heroItems.length !== 1 ? 's' : ''} · section: hero
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             onClick={handleRefresh}
@@ -751,6 +784,12 @@ export default function AdminHomepagePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+        </TabsContent>
+
+        <TabsContent value="warehouse">
+          <WarehouseManager />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
