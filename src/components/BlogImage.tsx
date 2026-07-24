@@ -5,29 +5,18 @@ import { useState } from 'react';
 import { cn, getFirstImage } from '@/lib/utils';
 import { BRAND } from '@/src/lib/brand';
 
-interface ProductImageProps {
+interface BlogImageProps {
   src: string;
   alt: string;
-  className?: string;
-  rounded?: string;
-  fill?: boolean;
+  width?: number;
+  height?: number;
   priority?: boolean;
   sizes?: string;
+  className?: string;
+  rounded?: string;
 }
 
-export function ProductImage({
-  src,
-  alt,
-  className,
-  rounded = 'rounded-xl',
-  fill = false,
-  priority = false,
-  sizes,
-}: ProductImageProps) {
-  const [error, setError] = useState(false);
-  const safeSrc = getFirstImage(src);
-
-  const shimmer = (w: number, h: number) => `
+const shimmer = (w: number, h: number) => `
 <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
@@ -39,12 +28,24 @@ export function ProductImage({
   <rect width="${w}" height="${h}" fill="url(#g)"/>
 </svg>`;
 
-  const toBase64 = (str: string) =>
-    typeof window === 'undefined'
-      ? Buffer.from(str).toString('base64')
-      : btoa(str);
+const toBase64 = (str: string) =>
+  typeof window === 'undefined'
+    ? Buffer.from(str).toString('base64')
+    : btoa(str);
 
-  const blurDataUrl = `data:image/svg+xml;base64,${toBase64(shimmer(8, 6))}`;
+export function BlogImage({
+  src,
+  alt,
+  width = 1200,
+  height = 675,
+  priority = false,
+  sizes,
+  className,
+  rounded = 'rounded-xl',
+}: BlogImageProps) {
+  const [error, setError] = useState(false);
+  const safeSrc = getFirstImage(src);
+  const blurDataUrl = `data:image/svg+xml;base64,${toBase64(shimmer(width, height))}`;
 
   if (error || !safeSrc) {
     return (
@@ -54,6 +55,7 @@ export function ProductImage({
           rounded,
           className
         )}
+        style={{ aspectRatio: `${width} / ${height}` }}
       >
         <div className="text-center px-4">
           <div className="text-2xl font-bold text-brand-700">
@@ -67,29 +69,12 @@ export function ProductImage({
     );
   }
 
-  if (fill) {
-    return (
-      <Image
-        src={safeSrc}
-        alt={alt}
-        fill
-        priority={priority}
-        loading={priority ? 'eager' : 'lazy'}
-        placeholder="blur"
-        blurDataURL={blurDataUrl}
-        sizes={sizes}
-        onError={() => setError(true)}
-        className={cn('object-cover', rounded, className)}
-      />
-    );
-  }
-
   return (
     <Image
       src={safeSrc}
       alt={alt}
-      width={800}
-      height={600}
+      width={width}
+      height={height}
       priority={priority}
       loading={priority ? 'eager' : 'lazy'}
       placeholder="blur"
