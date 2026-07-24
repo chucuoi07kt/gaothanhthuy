@@ -200,10 +200,10 @@ export async function fetchBlogPosts(): Promise<BlogPost[]> {
   }
 }
 
-export async function fetchProductById(id: string): Promise<Product | null> {
+export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   try {
     const products = await fetchProducts();
-    return products.find((p) => p.slug === id || p.id === id) || null;
+    return products.find((p) => p.slug === slug) || null;
   } catch {
     return null;
   }
