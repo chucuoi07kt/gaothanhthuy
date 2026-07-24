@@ -11,8 +11,8 @@ interface MeterRowProps {
 const metricLabels: Record<keyof ProductMetrics, string> = {
   stickiness: 'Dẻo',
   fluffiness: 'Nở',
-  softness: 'Mềm ',
-  fragrance: 'Thơm ',
+  softness: 'Mềm',
+  fragrance: 'Thơm',
 };
 
 export function VisualMeters({
