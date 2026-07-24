@@ -129,6 +129,40 @@
   color: #c9d1d9;
   background: transparent;
 }
+
+/* Prevent horizontal overflow on very small screens */
+@media (max-width: 430px) {
+  .prose-blog {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  .prose-blog pre {
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+  .prose-blog code {
+    font-size: 0.75rem;
+    word-break: break-all;
+  }
+  .prose-blog img {
+    max-width: 100%;
+    height: auto;
+  }
+  .prose-blog table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  .prose-blog h1,
+  .prose-blog h2,
+  .prose-blog h3,
+  .prose-blog h4 {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+}
 .hljs-comment, .hljs-quote { color: #8b949e; font-style: italic; }
 .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-type { color: #ff7b72; }
 .hljs-string, .hljs-attr, .hljs-meta-string { color: #a5d6ff; }
