@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import Image from 'next/image';
 import {
   Plus, Pencil, Trash2, FileText, RefreshCw,
   Search, Eye, Clock, Type,
@@ -441,8 +442,9 @@ export default function AdminBlogPage() {
             <div key={p.id} className="rounded-xl border border-border bg-white p-4 shadow-soft">
               <div className="flex items-start gap-3">
                 {p.thumbnail ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.thumbnail} alt={p.title} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg">
+                    <Image src={p.thumbnail} alt={p.title} fill sizes="48px" className="h-full w-full object-cover" />
+                  </div>
                 ) : (
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-400"><FileText className="h-5 w-5" /></div>
                 )}
@@ -483,8 +485,9 @@ export default function AdminBlogPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         {p.thumbnail ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={p.thumbnail} alt={p.title} className="h-9 w-9 rounded-lg object-cover" />
+                          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg">
+                            <Image src={p.thumbnail} alt={p.title} fill sizes="36px" className="h-full w-full object-cover" />
+                          </div>
                         ) : (
                           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-400"><FileText className="h-4 w-4" /></div>
                         )}
@@ -745,8 +748,9 @@ export default function AdminBlogPage() {
           <DialogHeader><DialogTitle>Xem trước: {previewTitle}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             {form.thumbnail && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={form.thumbnail} alt={previewTitle} className="aspect-[16/9] w-full rounded-xl object-cover" />
+              <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl">
+                <Image src={form.thumbnail} alt={previewTitle} fill sizes="(max-width: 768px) 100vw, 768px" className="h-full w-full object-cover" />
+              </div>
             )}
             <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
               {form.category && <span className="rounded-full bg-brand-50 px-2.5 py-1 font-medium text-brand-700">{form.category}</span>}
