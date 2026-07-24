@@ -33,10 +33,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const section = body.section || 'hero';
     const id = body.id || generateHomepageId(existing);
     const item: Record<string, unknown> = {
       id,
-      section: 'hero',
+      section,
       order: parseInt(String(body.order ?? 0), 10) || 0,
       title: body.title || '',
       description: body.description || '',

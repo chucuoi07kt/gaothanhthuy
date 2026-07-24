@@ -37,6 +37,13 @@ export async function getHeroSlidesFromSheet(): Promise<HomepageItem[]> {
     .sort((a, b) => a.order - b.order);
 }
 
+export async function getWarehouseImagesFromSheet(): Promise<HomepageItem[]> {
+  const items = await getHomepageItemsFromSheet();
+  return items
+    .filter((item) => item.section === 'warehouse')
+    .sort((a, b) => a.order - b.order);
+}
+
 export function generateHomepageId(existing: HomepageItem[]): string {
   const maxId = existing.reduce((max, item) => {
     const num = parseInt(item.id.replace(/\D/g, ''), 10);

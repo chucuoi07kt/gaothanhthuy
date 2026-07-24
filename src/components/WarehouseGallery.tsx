@@ -1,9 +1,18 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Warehouse, Truck, PackageCheck, Boxes } from 'lucide-react';
+import type { HomepageItem } from '@/src/lib/homepage.service';
 
-const galleryImages = [
+type GalleryImage = {
+  src: string;
+  alt: string;
+  label: string;
+  span: string;
+};
+
+const FALLBACK_IMAGES: GalleryImage[] = [
   {
     src: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=compress&cs=tinysrgb&w=900&q=80',
     alt: 'Kho gạo quy mô lớn tại Đà Nẵng',
@@ -30,6 +39,8 @@ const galleryImages = [
   },
 ];
 
+const SPAN_CLASSES = ['', '', '', 'lg:col-span-2'];
+
 const stats = [
   { icon: Warehouse, value: '500m²', label: 'Diện tích kho' },
   { icon: Boxes, value: '15 tấn', label: 'Năng lực mỗi ngày' },
@@ -38,6 +49,32 @@ const stats = [
 ];
 
 export function WarehouseGallery() {
+  const [images, setImages] = useState<GalleryImage[]>(FALLBACK_IMAGES);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/homepage', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const allItems: HomepageItem[] = data.items || [];
+        const warehouseItems = allItems
+          .filter((it) => it.section === 'warehouse' && it.enabled)
+          .sort((a, b) => a.order - b.order);
+        if (warehouseItems.length > 0) {
+          setImages(warehouseItems.map((item, idx) => ({
+            src: item.image,
+            alt: item.title || item.description || 'Ảnh kho bãi',
+            label: item.title || item.description || '',
+            span: SPAN_CLASSES[idx % SPAN_CLASSES.length],
+          })));
+        }
+      } catch {
+        // keep fallback
+      }
+    })();
+  }, []);
+
   return (
     <section className="section-pad bg-brand-50/60">
       <div className="container-page">
@@ -56,7 +93,7 @@ export function WarehouseGallery() {
         </div>
 
         <div className="grid auto-rows-[180px] grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {galleryImages.map((img, idx) => (
+          {images.map((img, idx) => (
             <div
               key={idx}
               className={`group relative cursor-pointer overflow-hidden rounded-2xl shadow-md transition-transform duration-300 hover:scale-105 ${img.span}`}
