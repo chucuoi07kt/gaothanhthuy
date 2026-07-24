@@ -8,6 +8,7 @@ import { normalizeBlogPost } from '@/src/lib/products';
 import { BRAND } from '@/src/lib/brand';
 import { ReadingProgress, BackToTop } from '@/src/components/BlogReadingUX';
 import { BlogArticle } from '@/src/components/BlogArticle';
+import { BlogImage } from '@/src/components/BlogImage';
 import { ShareButtons } from '@/src/components/ShareButtons';
 import { PostNavigation } from '@/src/components/PostNavigation';
 import { BlogCta } from '@/src/components/BlogCta';
@@ -214,11 +215,15 @@ export default async function BlogPostPage({ params }: PageProps) {
       <section className="relative -mt-6 sm:-mt-8">
         <div className="container-page max-w-4xl">
           <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-card">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={post.image}
+            <BlogImage
+n              src={post.image}
               alt={post.title}
-              className="aspect-[16/9] w-full object-cover"
+              width={1200}
+              height={675}
+              priority
+              sizes="(max-width: 768px) 100vw, 768px"
+              rounded="rounded-none"
+              className="w-full"
             />
           </div>
         </div>
@@ -282,11 +287,14 @@ export default async function BlogPostPage({ params }: PageProps) {
                   className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <BlogImage
                       src={b.image}
                       alt={b.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      width={640}
+                      height={400}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      rounded="rounded-none"
+                      className="h-full w-full transition-transform duration-500 group-hover:scale-105"
                     />
                     <span className="absolute left-3 top-3 rounded-full bg-brand-600/95 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
                       {b.category}
