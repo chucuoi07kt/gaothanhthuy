@@ -61,22 +61,23 @@ export function ProductCard({ product }: { product: Product }) {
           <VisualMeters metrics={product.metrics} variant="compact" />
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {product.weights.map((w) => (
-            <button
-              key={w}
-              onClick={() => setSelectedWeight(w)}
-              className={cn(
-                'rounded-full border px-2.5 py-0.5 text-xs font-medium transition-all',
-                selectedWeight === w
-                  ? 'border-brand-600 bg-brand-600 text-white'
-                  : 'border-border bg-white text-muted-foreground hover:border-brand-400 hover:text-brand-700'
-              )}
-            >
-              {w}
-            </button>
-          ))}
-        </div>
+        <div className="mt-3 grid grid-cols-4 gap-1.5">
+  {product.weights.map((w) => (
+    <button
+      key={w}
+      type="button"
+      onClick={() => setSelectedWeight(w)}
+      className={cn(
+        'w-full rounded-full border py-1 text-center text-xs font-medium transition-all',
+        selectedWeight === w
+          ? 'border-brand-600 bg-brand-600 text-white'
+          : 'border-border bg-white text-muted-foreground hover:border-brand-400 hover:text-brand-700'
+      )}
+    >
+      {w}
+    </button>
+  ))}
+</div>
 
         <div className="mt-3 flex items-end justify-between">
           <div>
