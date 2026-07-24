@@ -7,6 +7,9 @@ export async function POST() {
     revalidatePath('/', 'layout');
     revalidatePath('/products');
     revalidatePath('/blog');
+    revalidatePath('/api/homepage');
+    revalidatePath('/api/products');
+    revalidatePath('/api/blog');
 
     return NextResponse.json({ 
       success: true, 

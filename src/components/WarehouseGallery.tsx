@@ -35,7 +35,7 @@ export function WarehouseGallery() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/homepage', { cache: 'no-store' });
+        const res = await fetch(`/api/homepage?t=${Date.now()}`, { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
         const allItems: HomepageItem[] = data.items || [];
@@ -49,6 +49,8 @@ export function WarehouseGallery() {
             label: item.title || item.description || '',
             span: SPAN_CLASSES[idx % SPAN_CLASSES.length],
           })));
+        } else {
+          setImages(FALLBACK_IMAGES);
         }
       } catch {
         // FALLBACK_IMAGES already set as initial state
