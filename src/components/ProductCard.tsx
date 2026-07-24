@@ -15,6 +15,7 @@ import type { Product, WeightOption } from '@/src/types';
 export function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
+
   const [selectedWeight, setSelectedWeight] = useState<WeightOption>(
     product.weights[0]
   );
@@ -23,7 +24,9 @@ export function ProductCard({ product }: { product: Product }) {
   const handleAdd = () => {
     addItem(product, selectedWeight, 1);
     setAdded(true);
-    toast.success(`Đã thêm "${product.name} - ${selectedWeight}" vào danh sách báo giá`);
+    toast.success(
+      `Đã thêm "${product.name} - ${selectedWeight}" vào danh sách báo giá`
+    );
     setTimeout(() => setAdded(false), 1600);
   };
 
@@ -54,13 +57,16 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="flex flex-1 flex-col p-3">
         <Link href={`/san-pham/${product.slug}`}>
-          <h3 className="line-clamp-1 text-base font-semibold text-foreground transition-colors group-hover:text-brand-700">
+          <h3 className="line-clamp-1 text-[15px] font-semibold text-foreground transition-colors group-hover:text-brand-700">
             {product.name}
           </h3>
         </Link>
 
         <div className="mt-2">
-          <VisualMeters metrics={product.metrics} variant="compact" />
+          <VisualMeters
+            metrics={product.metrics}
+            variant="compact"
+          />
         </div>
 
         <div className="mt-2 grid grid-cols-4 gap-1.5">
@@ -81,19 +87,17 @@ export function ProductCard({ product }: { product: Product }) {
           ))}
         </div>
 
-        <div className="mt-2 flex items-end justify-between">
-          <div>
-            <span className="text-xs text-muted-foreground">
-              Giá tham khảo
-            </span>
+        <div className="mt-2">
+          <span className="text-xs text-muted-foreground">
+            Giá tham khảo
+          </span>
 
-            <p className="text-lg font-bold text-brand-700">
-              {product.pricePerKg.toLocaleString('vi-VN')}đ
-              <span className="text-xs font-normal text-muted-foreground">
-                /kg
-              </span>
-            </p>
-          </div>
+          <p className="text-lg font-bold leading-none text-brand-700">
+            {product.pricePerKg.toLocaleString('vi-VN')}đ
+            <span className="text-xs font-normal text-muted-foreground">
+              /kg
+            </span>
+          </p>
         </div>
 
         <div className="mt-3 flex gap-2">
@@ -101,7 +105,7 @@ export function ProductCard({ product }: { product: Product }) {
             onClick={handleAdd}
             size="sm"
             className={cn(
-              'flex-1 gap-1.5 text-xs transition-all',
+              'h-9 flex-1 gap-1 text-xs transition-all',
               added
                 ? 'bg-brand-700 text-white'
                 : 'bg-brand-600 text-white hover:bg-brand-700'
@@ -124,7 +128,7 @@ export function ProductCard({ product }: { product: Product }) {
             onClick={() => setOpen(true)}
             size="sm"
             variant="outline"
-            className="border-brand-200 px-3 text-xs text-brand-700 hover:bg-brand-50"
+            className="h-9 border-brand-200 px-3 text-xs text-brand-700 hover:bg-brand-50"
           >
             Xem
           </Button>
