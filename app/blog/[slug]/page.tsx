@@ -35,8 +35,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const url = `${SITE_URL}/blog/${normalized.slug}`;
 
     return {
-      title: normalized.title,
-      description: normalized.excerpt,
+      title: normalized.metaTitle || normalized.title,
+      description: normalized.metaDescription || normalized.excerpt,
       keywords: [
         normalized.category,
         'gạo Đà Nẵng',

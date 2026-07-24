@@ -137,6 +137,8 @@ export interface SheetBlogRaw {
   publishedAt?: string;
   reading_minutes?: string | number;
   readingMinutes?: string | number;
+  meta_title?: string;
+  meta_description?: string;
 }
 
 export function normalizeBlogPost(raw: SheetBlogRaw): BlogPost {
@@ -165,6 +167,8 @@ export function normalizeBlogPost(raw: SheetBlogRaw): BlogPost {
     publishedAt,
     readingMinutes: Math.max(1, safeParseInt(raw.reading_minutes ?? raw.readingMinutes, 3)),
     image: safeString(raw.thumbnail, safeString(raw.image, FALLBACK_IMAGE)),
+    metaTitle: safeString(raw.meta_title, ''),
+    metaDescription: safeString(raw.meta_description, ''),
   };
 }
 

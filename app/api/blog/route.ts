@@ -29,6 +29,8 @@ export async function POST(req: NextRequest) {
       summary: body.summary || '',
       content: body.content || '',
       created_at: body.created_at || new Date().toISOString(),
+      meta_title: body.meta_title || '',
+      meta_description: body.meta_description || '',
     };
 
     const action = body.action === 'update' ? 'update' : 'insert';

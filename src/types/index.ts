@@ -53,6 +53,8 @@ export interface BlogPost {
   publishedAt: string;
   readingMinutes: number;
   image: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface Category {
