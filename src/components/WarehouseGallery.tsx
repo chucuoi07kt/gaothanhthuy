@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Warehouse, Truck, PackageCheck, Boxes } from 'lucide-react';
 import type { HomepageItem } from '@/src/lib/homepage.service';
+import { DEFAULT_WAREHOUSE_IMAGES, WAREHOUSE_SPAN_CLASSES } from '@/src/lib/homepage-defaults';
 
 type GalleryImage = {
   src: string;
@@ -12,34 +13,14 @@ type GalleryImage = {
   span: string;
 };
 
-const FALLBACK_IMAGES: GalleryImage[] = [
-  {
-    src: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=compress&cs=tinysrgb&w=900&q=80',
-    alt: 'Kho gạo quy mô lớn tại Đà Nẵng',
-    label: 'Kho chính 126 Nguyễn Lương Bằng',
-    span: 'lg:row-span-2',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=compress&cs=tinysrgb&w=900&q=80',
-    alt: 'Đóng bao gạo sỉ sẵn sàng giao',
-    label: 'Đóng gói sỉ - 5/10/25/50kg',
-    span: '',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=compress&cs=tinysrgb&w=900&q=80',
-    alt: 'Xe tải giao gạo hỏa tốc',
-    label: 'Đội xe giao hỏa tốc 1-2h',
-    span: '',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=compress&cs=tinysrgb&w=900&q=80',
-    alt: 'Hàng trăm bao gạo trong kho',
-    label: 'Năng lực 15 tấn/ngày',
-    span: 'lg:col-span-2',
-  },
-];
+const FALLBACK_IMAGES: GalleryImage[] = DEFAULT_WAREHOUSE_IMAGES.map((img, idx) => ({
+  src: img.image,
+  alt: img.description || img.title,
+  label: img.title,
+  span: WAREHOUSE_SPAN_CLASSES[idx % WAREHOUSE_SPAN_CLASSES.length],
+}));
 
-const SPAN_CLASSES = ['', '', '', 'lg:col-span-2'];
+const SPAN_CLASSES = WAREHOUSE_SPAN_CLASSES;
 
 const stats = [
   { icon: Warehouse, value: '500m²', label: 'Diện tích kho' },
@@ -70,7 +51,7 @@ export function WarehouseGallery() {
           })));
         }
       } catch {
-        // keep fallback
+        // FALLBACK_IMAGES already set as initial state
       }
     })();
   }, []);

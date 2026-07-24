@@ -9,6 +9,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import { cn } from '@/lib/utils';
 import { quickZaloConsult } from '@/src/lib/zalo';
 import type { HomepageItem } from '@/src/lib/homepage.service';
+import { DEFAULT_HERO_BANNERS } from '@/src/lib/homepage-defaults';
 
 type Banner = {
   id: string;
@@ -20,42 +21,18 @@ type Banner = {
   external?: boolean;
 };
 
-const FALLBACK_BANNERS: Banner[] = [
-  {
-    id: 'family',
-    image: 'https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    title: 'Gạo ngon cho mọi gia đình',
-    description: 'Gạo chính hãng dẻo thơm, sạch an toàn cho bữa cơm gia đình.',
-    cta: 'Xem sản phẩm',
-    href: '/products',
-  },
-  {
-    id: 'restaurant',
-    image: 'https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    title: 'Giá sỉ cho quán ăn – nhà hàng',
-    description: 'Chiết khấu hấp dẫn khi nhập sỉ cho quán cơm, nhà hàng tại Đà Nẵng.',
-    cta: 'Nhận báo giá',
-    href: '',
-    external: true,
-  },
-  {
-    id: 'delivery',
-    image: 'https://images.pexels.com/photos/4393474/pexels-photo-4393474.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    title: 'Giao nhanh toàn Đà Nẵng',
-    description: 'Giao hỏa tốc nội thành 1-2 giờ, không lo gián đoạn nguồn cung.',
-    cta: 'Đặt ngay',
-    href: '/products',
-  },
-  {
-    id: 'agency',
-    image: 'https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    title: 'Chiết khấu cao cho đại lý',
-    description: 'Hợp tác phân phối dài hạn với mức chiết khấu ưu đãi nhất.',
-    cta: 'Liên hệ',
-    href: '',
-    external: true,
-  },
-];
+const FALLBACK_BANNERS: Banner[] = DEFAULT_HERO_BANNERS.map((b) => {
+  const isExternal = b.link.startsWith('http');
+  return {
+    id: b.id,
+    image: b.image,
+    title: b.title,
+    description: b.description,
+    cta: isExternal ? 'Nhận báo giá' : b.link ? 'Xem sản phẩm' : 'Liên hệ',
+    href: b.link,
+    external: isExternal,
+  };
+});
 
 function mapHeroItemsToBanners(items: HomepageItem[]): Banner[] {
   return items.map((item) => {
@@ -98,7 +75,7 @@ export function PromoSlider() {
           setBanners(mapHeroItemsToBanners(heroItems));
         }
       } catch {
-        // keep fallback
+        // FALLBACK_BANNERS already set as initial state
       }
     })();
   }, []);
