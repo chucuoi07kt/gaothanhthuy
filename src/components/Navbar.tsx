@@ -46,10 +46,10 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-40 w-full transition-all duration-300',
+        'sticky top-0 z-40 w-full transition-all duration-300 ease-out',
         scrolled
-          ? 'border-b border-border bg-white/90 backdrop-blur-md shadow-soft'
-          : 'bg-white/70 backdrop-blur-sm'
+          ? 'border-b border-border/70 bg-white/85 backdrop-blur-lg shadow-[0_8px_30px_-12px_rgba(21,128,61,0.12)]'
+          : 'border-b border-transparent bg-white/70 backdrop-blur-sm'
       )}
     >
       <div className="hidden bg-brand-700 text-white">
@@ -75,9 +75,20 @@ export function Navbar() {
         </div>
       </div>
 
-      <div className="container-page flex h-16 items-center gap-6">
+      <div
+        className={cn(
+          'container-page flex items-center gap-6 transition-[height] duration-300 ease-out',
+          scrolled ? 'h-14' : 'h-16'
+        )}
+      >
         {/* Logo + tên thương hiệu */}
-        <Link href="/" className="flex h-16 items-center gap-2.5 shrink-0 py-1 group">
+        <Link
+          href="/"
+          className={cn(
+            'flex items-center gap-2.5 shrink-0 py-1 group transition-[height] duration-300 ease-out',
+            scrolled ? 'h-14' : 'h-16'
+          )}
+        >
           <div className="flex h-full items-center justify-center">
             <Image
               src="/logo.png"
@@ -85,7 +96,10 @@ export function Navbar() {
               width={60}
               height={60}
               priority
-              className="h-full w-auto object-contain max-h-[60px] transition-transform duration-200 group-hover:scale-105"
+              className={cn(
+                'h-full w-auto object-contain transition-all duration-300 ease-out group-hover:scale-105',
+                scrolled ? 'max-h-[52px]' : 'max-h-[60px]'
+              )}
             />
           </div>
           <div className="leading-tight">
