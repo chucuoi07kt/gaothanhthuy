@@ -33,13 +33,13 @@ export function CategoryShowcase() {
               <Link
                 key={c.slug}
                 href={`/products?category=${c.slug}`}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white p-3.5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
+                className="group relative flex flex-col overflow-hidden rounded-3xl border border-border/60 bg-white p-4 shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-400 hover:shadow-xl"
                 style={{ animationDelay: `${idx * 80}ms` }}
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700 transition-colors group-hover:bg-brand-600 group-hover:text-white">
-                  <Icon className="h-5 w-5" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 transition-colors">
+                  <Icon className="h-5 w-5 transition-all duration-300 group-hover:h-6 group-hover:w-6" />
                 </div>
-                <h3 className="mt-2.5 text-base font-semibold leading-tight text-foreground">
+                <h3 className="mt-3 text-base font-semibold leading-tight text-foreground">
                   {c.label}
                 </h3>
                 <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground">
