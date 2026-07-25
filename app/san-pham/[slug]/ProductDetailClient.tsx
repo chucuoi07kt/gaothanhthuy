@@ -1,107 +1,50 @@
 'use client';
 
+import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Check, MapPin, MessageCircle, Plus, ShoppingCart, Truck, Wheat, ChevronLeft, ChevronRight } from 'lucide-react';
-import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { Minus, Plus, Check, MessageCircle, MapPin, ShoppingCart, Truck, Wheat, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ProductImage } from '@/src/components/ProductImage';
-import { VisualMeters } from '@/src/components/VisualMeters';
-import { ProductCard } from '@/src/components/ProductCard';
-import { fetchProducts } from '@/src/lib/products';
-import { BRAND } from '@/src/lib/brand';
+import { cn, getFirstImage } from '@/lib/utils';
 import { useCartStore } from '@/src/store/cartStore';
 import { quickZaloConsult } from '@/src/lib/zalo';
+import { BRAND } from '@/src/lib/brand';
+import { VisualMeters } from '@/src/components/VisualMeters';
+import { ProductCard } from '@/src/components/ProductCard';
 import type { Product } from '@/src/types';
 
 interface ProductDetailClientProps {
-  slug: string;
-  initialProduct: Product;
+  product: Product;
   related: Product[];
 }
 
-export default function ProductDetailClient({ slug, initialProduct, related: initialRelated }: ProductDetailClientProps) {
-  const [product, setProduct] = useState<Product>(initialProduct);
-  const [related, setRelated] = useState<Product[]>(initialRelated);
-
-  const [selectedWeight, setSelectedWeight] = useState<string>('5kg');
-  const [quantity, setQuantity] = useState(1);
-  const [added, setAdded] = useState(false);
-  const [activeImageIdx, setActiveImageIndex] = useState<number>(0);
-  const [refreshing, setRefreshing] = useState(false);
-
+export function ProductDetailClient({ product, related }: ProductDetailClientProps) {
   const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedWeight, setSelectedWeight] = useState(product.weights[0]);
+  const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setRefreshing(true);
-      const allProducts = await fetchProducts();
-      if (cancelled) return;
-      if (!Array.isArray(allProducts) || allProducts.length === 0) {
-        setRefreshing(false);
-        return;
-      }
-      const found = allProducts.find((p) => p.slug === slug);
-      if (!found) {
-        setRefreshing(false);
-        return;
-      }
-      setProduct(found);
-      const relatedProducts = allProducts
-        .filter((p) => p.category === found.category && p.slug !== found.slug)
-        .slice(0, 4);
-      setRelated(relatedProducts);
-      const weights = found.weights && found.weights.length > 0 ? found.weights : ['5kg'];
-      setSelectedWeight(weights[0]);
-      setActiveImageIndex(0);
-      setRefreshing(false);
-    })();
-    return () => { cancelled = true; };
-  }, [slug]);
-
-  const weights = product.weights && product.weights.length > 0 ? product.weights : ['5kg'];
+  const images = product.image && product.image.length > 0 ? product.image : ['https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=900'];
+  const weights = product.weights && product.weights.length > 0 ? product.weights : ['1kg'];
   const tags = product.tags || [];
   const usage = product.usage || [];
-
-  const rawProduct = product as any;
-  const slideImages: string[] = [];
-  if (product.image) slideImages.push(product.image);
-  if (product.gallery && product.gallery.length > 0) {
-    product.gallery.forEach((img) => {
-      if (img && img !== product.image) slideImages.push(img);
-    });
-  }
-
-  const mainDescription = rawProduct.description || rawProduct.longDescription || rawProduct.shortDescription || '';
+  const mainDescription = product.description || product.shortDescription || '';
 
   const handleAdd = () => {
-    addItem(product, selectedWeight as Product['weights'][number], quantity);
+    addItem(product, selectedWeight, quantity);
     setAdded(true);
-    toast.success(
-      `Đã thêm ${quantity}x "${product.name} - ${selectedWeight}" vào danh sách báo giá`
-    );
-    setTimeout(() => setAdded(false), 1800);
+    setTimeout(() => setAdded(false), 2000);
   };
 
   const handleZalo = () => {
-    const msg = `Kính gửi Gạo Ngọc Anh, tôi muốn tư vấn báo giá sỉ cho: ${product.name} - quy cách ${selectedWeight} - số lượng ${quantity}. Xin cảm ơn!`;
-    quickZaloConsult(msg);
-  };
-
-  const nextSlide = () => {
-    setActiveImageIndex((prev) => (prev + 1) % slideImages.length);
-  };
-
-  const prevSlide = () => {
-    setActiveImageIndex((prev) => (prev - 1 + slideImages.length) % slideImages.length);
+    quickZaloConsult();
   };
 
   return (
-    <div aria-busy={refreshing}>
+    <div className="flex flex-col">
       <section className="border-b border-border bg-gradient-to-br from-brand-50 to-white py-6">
         <div className="container-page">
           <nav className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -110,7 +53,7 @@ export default function ProductDetailClient({ slug, initialProduct, related: ini
             <Link href="/products" className="hover:text-brand-700">Catalogue</Link>
             <span>/</span>
             <Link href={`/products?category=${product.category}`} className="hover:text-brand-700">
-              {product.categoryLabel}
+              {product.categoryLabel || product.category}
             </Link>
             <span>/</span>
             <span className="line-clamp-1 text-brand-700">{product.name}</span>
@@ -122,53 +65,37 @@ export default function ProductDetailClient({ slug, initialProduct, related: ini
         <div className="container-page grid gap-8 lg:grid-cols-2">
           <div className="space-y-3">
             <div className="group relative aspect-square overflow-hidden rounded-2xl border border-border bg-white shadow-soft">
-              <ProductImage
-                src={slideImages[activeImageIdx] || product.image}
+              <Image
+                src={images[selectedImage] || images[0]}
                 alt={product.name}
-                rounded="rounded-none"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="h-full w-full object-cover transition-all duration-300"
               />
-
               {product.bestSeller && (
                 <Badge className="absolute left-4 top-4 bg-gold-500 text-white z-10">Bán chạy</Badge>
               )}
-
-              {slideImages.length > 1 && (
-                <>
-                  <button
-                    onClick={prevSlide}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-md text-foreground backdrop-blur-sm transition-all hover:bg-white active:scale-95 opacity-0 group-hover:opacity-100 z-10"
-                  >
-                    <ChevronLeft className="h-6 w-6 text-gray-700" />
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-md text-foreground backdrop-blur-sm transition-all hover:bg-white active:scale-95 opacity-0 group-hover:opacity-100 z-10"
-                  >
-                    <ChevronRight className="h-6 w-6 text-gray-700" />
-                  </button>
-
-                  <div className="absolute right-4 bottom-4 bg-black/60 px-2.5 py-1 rounded-full text-[11px] font-medium text-white tracking-wider z-10">
-                    {activeImageIdx + 1} / {slideImages.length}
-                  </div>
-                </>
-              )}
             </div>
-
-            {slideImages.length > 1 && (
+            {images.length > 1 && (
               <div className="grid grid-cols-5 gap-2.5">
-                {slideImages.map((imgUrl, idx) => (
+                {images.map((img, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setActiveImageIndex(idx)}
+                    onClick={() => setSelectedImage(idx)}
                     className={cn(
-                      "relative aspect-square overflow-hidden rounded-xl border bg-white transition-all cursor-pointer",
-                      activeImageIdx === idx
-                        ? "border-brand-600 ring-2 ring-brand-600/20 opacity-100 scale-[1.02]"
-                        : "border-border opacity-70 hover:opacity-100"
+                      'relative aspect-square overflow-hidden rounded-xl border-2 transition-all',
+                      selectedImage === idx ? 'border-brand-600 shadow-soft' : 'border-border hover:border-brand-400'
                     )}
+                    aria-label={`Xem ảnh ${idx + 1}`}
                   >
-                    <ProductImage src={imgUrl} alt={`${product.name} hình phụ ${idx + 1}`} rounded="rounded-none" className="h-full w-full object-cover" />
+                    <Image
+                      src={img}
+                      alt={`${product.name} - ảnh ${idx + 1}`}
+                      fill
+                      sizes="100px"
+                      className="h-full w-full object-cover"
+                    />
                   </button>
                 ))}
               </div>
@@ -226,11 +153,11 @@ export default function ProductDetailClient({ slug, initialProduct, related: ini
             </div>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Button onClick={handleAdd} size="lg" className={cn('flex-1 gap-2', added ? 'bg-brand-700 text-white' : 'bg-brand-600 text-white hover:bg-brand-700')}>
-                {added ? <><Check className="h-5 w-5" /> Đã thêm vào danh sách</> : <><Plus className="h-5 w-5" /> Thêm vào danh sách báo giá</>}
+              <Button onClick={handleAdd} size="lg" className={cn('h-[3.125rem] flex-1 gap-2.5 text-base font-semibold', added ? 'bg-brand-700 text-white' : 'bg-brand-600 text-white hover:bg-brand-700')}>
+                {added ? <><Check className="h-6 w-6" /> Đã thêm vào danh sách</> : <><Plus className="h-6 w-6" /> Thêm vào danh sách báo giá</>}
               </Button>
-              <Button onClick={handleZalo} size="lg" className="flex-1 gap-2 bg-zalo text-white hover:bg-zalo/90">
-                <MessageCircle className="h-5 w-5" /> Tư vấn nhanh qua Zalo
+              <Button onClick={handleZalo} size="lg" className="h-[3.125rem] flex-1 gap-2.5 text-base bg-zalo text-white hover:bg-zalo/90">
+                <MessageCircle className="h-6 w-6" /> Tư vấn nhanh qua Zalo
               </Button>
             </div>
 
