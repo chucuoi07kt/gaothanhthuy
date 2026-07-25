@@ -19,7 +19,7 @@ export function CategoryShowcase() {
             Danh mục sản phẩm
           </span>
           <h2 className="mt-2 text-2xl font-bold text-foreground sm:text-3xl">
-            4 dòng gạo phục vụ mọi nhu cầu
+            4 dòng gạo phục cấp mọi nhu cầu
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Từ gạo gia đình đến gạo quán cơm, từ thiện, nấu bún phở
@@ -45,6 +45,18 @@ export function CategoryShowcase() {
                 <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground">
                   {c.description}
                 </p>
+                {c.badges && c.badges.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {c.badges.map((b) => (
+                      <span
+                        key={b}
+                        className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-700"
+                      >
+                        {b}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <div className="mt-2 flex items-center gap-1 text-sm font-medium text-brand-600 opacity-0 transition-opacity group-hover:opacity-100">
                   Xem sản phẩm
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -81,7 +93,7 @@ export function BrandStory() {
             {[
               'Kho chính: 126 Nguyễn Lương Bằng, Hòa Khánh Bắc, Liên Chiểu',
               'Giao hỏa tốc nội thành Đà Nẵng - nhận trong 1-2 tiếng',
-              'Phục vụ B2B: nhà hàng, quán cơm, chương trình từ thiện',
+              'Phục cấp B2B: nhà hàng, quán cơm, chương trình từ thiện',
               'Gạo chính hãng, nguồn gốc rõ ràng, không tẩm ướp',
             ].map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-sm text-foreground/80">

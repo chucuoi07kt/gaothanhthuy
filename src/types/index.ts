@@ -62,4 +62,5 @@ export interface Category {
   label: string;
   description: string;
   icon: string;
+  badges?: string[];
 }
