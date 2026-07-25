@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/src/store/cartStore';
 
@@ -31,7 +31,7 @@ export function FloatingCartButton() {
       aria-label="Mở danh sách báo giá"
     >
       <div className="relative">
-        <ShoppingBag className="h-5 w-5" />
+        <ShoppingCart className="h-5 w-5" />
         <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold">
           {totalItems}
         </span>

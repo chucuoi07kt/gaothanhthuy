@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from "next/navigation";
 import { useState } from 'react';
-import { Minus, Plus, ShoppingBag, Trash2, X, MessageCircle, Phone, QrCode } from 'lucide-react';
+import { Minus, Plus, ShoppingCart, Trash2, X, MessageCircle, Phone, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
@@ -43,7 +43,7 @@ export function QuoteCartModal() {
       >
         <SheetHeader className="border-b border-border bg-brand-50 px-5 py-4">
           <SheetTitle className="flex items-center gap-2 text-brand-800">
-            <ShoppingBag className="h-5 w-5" />
+            <ShoppingCart className="h-5 w-5" />
             Danh sách nhận báo giá
           </SheetTitle>
           <SheetDescription className="text-muted-foreground">
@@ -54,7 +54,7 @@ export function QuoteCartModal() {
         {items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-50">
-              <ShoppingBag className="h-9 w-9 text-brand-400" />
+              <ShoppingCart className="h-9 w-9 text-brand-400" />
             </div>
             <p className="text-base font-medium text-foreground">
               Danh sách báo giá đang trống

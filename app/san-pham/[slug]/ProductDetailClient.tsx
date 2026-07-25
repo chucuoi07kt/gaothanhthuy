@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Check, MapPin, MessageCircle, Plus, ShoppingBag, Truck, Wheat, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Check, MapPin, MessageCircle, Plus, ShoppingCart, Truck, Wheat, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -223,7 +223,7 @@ export default function ProductDetailClient({ slug, initialProduct, related: ini
             </div>
 
             <button onClick={() => setOpen(true)} className="mt-3 flex w-full items-center justify-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700">
-              <ShoppingBag className="h-4 w-4" /> Xem danh sách báo giá
+              <ShoppingCart className="h-4 w-4" /> Xem danh sách báo giá
             </button>
           </div>
         </div>

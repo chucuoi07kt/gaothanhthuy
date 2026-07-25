@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { ArrowRight, MessageCircle, Phone, ShoppingBag, Truck } from 'lucide-react';
+import { ArrowRight, MessageCircle, Phone, ShoppingCart, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BRAND } from '@/src/lib/brand';
 import { fetchProducts } from '@/src/lib/products';
@@ -100,7 +100,7 @@ export function BlogCta() {
               variant="outline"
               className="gap-2 border-brand-200 text-brand-700 hover:bg-brand-50"
             >
-              <ShoppingBag className="h-4 w-4" />
+              <ShoppingCart className="h-4 w-4" />
               Xem tất cả sản phẩm
             </Button>
           </Link>
@@ -108,7 +108,7 @@ export function BlogCta() {
             onClick={() => setOpen(true)}
             className="inline-flex items-center justify-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700"
           >
-            <ShoppingBag className="h-4 w-4" /> Xem danh sách báo giá
+            <ShoppingCart className="h-4 w-4" /> Xem danh sách báo giá
           </button>
         </div>
       </div>
