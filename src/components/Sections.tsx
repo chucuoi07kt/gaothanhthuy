@@ -14,14 +14,14 @@ export function CategoryShowcase() {
   return (
     <section className="section-pad">
       <div className="container-page">
-        <div className="mb-8 text-center">
+        <div className="mb-6 text-center">
           <span className="text-sm font-semibold uppercase tracking-wide text-brand-600">
             Danh mục sản phẩm
           </span>
-          <h2 className="mt-2 text-2xl font-bold text-foreground sm:text-3xl">
+          <h2 className="mt-1.5 text-2xl font-bold text-foreground sm:text-3xl">
             4 dòng gạo phục vụ mọi nhu cầu
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-1.5 text-sm text-muted-foreground">
             Từ gạo gia đình đến gạo quán cơm, từ thiện, nấu bún phở
           </p>
         </div>
@@ -33,31 +33,31 @@ export function CategoryShowcase() {
               <Link
                 key={c.slug}
                 href={`/products?category=${c.slug}`}
-                className="group relative flex flex-col overflow-hidden rounded-3xl border border-border/60 bg-white p-3 shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-400 hover:shadow-xl"
+                className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-white px-3 py-2 shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-400 hover:shadow-xl"
                 style={{ animationDelay: `${idx * 80}ms` }}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 transition-colors">
-                    <Icon className="h-4 w-4 transition-all duration-300 group-hover:h-5 group-hover:w-5" />
-                  </div>
-                  <ArrowRight className="mt-0.5 h-4 w-4 text-brand-600 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-brand-700" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 transition-colors">
+                  <Icon className="h-3.5 w-3.5 transition-all duration-300 group-hover:h-4 group-hover:w-4" />
                 </div>
-                <h3 className="mt-2 text-base font-semibold leading-tight text-foreground">
+                <h3 className="mt-1.5 text-base font-semibold leading-tight text-foreground">
                   {c.label}
                 </h3>
                 <p className="mt-1 line-clamp-1 text-sm leading-snug text-muted-foreground">
                   {c.description}
                 </p>
                 {c.badges && c.badges.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {c.badges.slice(0, 3).map((b) => (
-                      <span
-                        key={b}
-                        className="rounded-full bg-brand-50 px-1.5 py-0.5 text-[10px] font-medium text-brand-700"
-                      >
-                        {b}
-                      </span>
-                    ))}
+                  <div className="mt-1.5 flex items-center justify-between gap-1.5">
+                    <div className="flex flex-wrap gap-1">
+                      {c.badges.slice(0, 3).map((b) => (
+                        <span
+                          key={b}
+                          className="rounded-full bg-brand-50 px-1.5 py-px text-[10px] font-medium text-brand-700"
+                        >
+                          {b}
+                        </span>
+                      ))}
+                    </div>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-brand-600 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-brand-700" />
                   </div>
                 )}
               </Link>
