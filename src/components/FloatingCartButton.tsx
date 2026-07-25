@@ -25,7 +25,7 @@ export function FloatingCartButton() {
     <button
       onClick={() => setOpen(true)}
       className={cn(
-        'fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-brand-600 px-4 py-3 text-white shadow-card transition-all duration-300 hover:bg-brand-700 md:hidden',
+        'fixed bottom-5 right-5 z-30 hidden items-center gap-2 rounded-full bg-brand-600 px-4 py-3 text-white shadow-card transition-all duration-300 hover:bg-brand-700 md:flex',
         show ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
       )}
       aria-label="Mở danh sách báo giá"

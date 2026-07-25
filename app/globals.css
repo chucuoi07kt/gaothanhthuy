@@ -130,6 +130,15 @@
   background: transparent;
 }
 
+/* Reserve bottom space on mobile so the Floating Action Bar never covers
+   the footer or final page content. Matches the bar height (~58px) plus the
+   iPhone safe-area inset. Applied only below md, where the bar is visible. */
+@media (max-width: 767px) {
+  body.fab-visible {
+    padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 /* Prevent horizontal overflow on very small screens */
 @media (max-width: 430px) {
   .prose-blog {
@@ -169,7 +178,7 @@
 .hljs-number, .hljs-symbol, .hljs-bullet { color: #79c0ff; }
 .hljs-title, .hljs-class .hljs-title, .hljs-title.function_ { color: #d2a8ff; }
 .hljs-variable, .hljs-template-variable { color: #ffa657; }
-.hljs-built_in, .hljs-builtin-name { color: #79c0ff; }
+.hljs-built-in, .hljs-builtin-name { color: #79c0ff; }
 .hljs-tag, .hljs-name { color: #7ee787; }
 .hljs-attribute { color: #79c0ff; }
 .hljs-regexp, .hljs-link { color: #a5d6ff; }
