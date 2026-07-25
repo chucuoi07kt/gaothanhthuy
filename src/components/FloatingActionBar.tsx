@@ -69,7 +69,7 @@ export function FloatingActionBar() {
         hidden ? 'pointer-events-none translate-y-full' : 'translate-y-0'
       )}
       aria-hidden={hidden}
-      inert={hidden ? '' : undefined}
+      {...(hidden ? { inert: true } : {})}
     >
       <div className="mx-auto w-full max-w-md rounded-t-2xl border-t border-border bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_-8px_rgba(21,128,61,0.12)] animate-fade-in-up">
         <div className="grid h-[58px] grid-cols-3">
