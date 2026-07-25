@@ -19,7 +19,7 @@ export function CategoryShowcase() {
             Danh mục sản phẩm
           </span>
           <h2 className="mt-2 text-2xl font-bold text-foreground sm:text-3xl">
-            4 dòng gạo phục vụ mọi nhu cầu
+            4 dòng gạo phục cấp mọi nhu cầu
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Từ gạo gia đình đến gạo quán cơm, từ thiện, nấu bún phở
@@ -33,19 +33,19 @@ export function CategoryShowcase() {
               <Link
                 key={c.slug}
                 href={`/products?category=${c.slug}`}
-                className="group relative overflow-hidden rounded-2xl border border-border bg-white p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
+                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white p-3.5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
                 style={{ animationDelay: `${idx * 80}ms` }}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-700 transition-colors group-hover:bg-brand-600 group-hover:text-white">
-                  <Icon className="h-6 w-6" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700 transition-colors group-hover:bg-brand-600 group-hover:text-white">
+                  <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-4 text-base font-semibold text-foreground">
+                <h3 className="mt-2.5 text-base font-semibold leading-tight text-foreground">
                   {c.label}
                 </h3>
-                <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">
+                <p className="mt-1 line-clamp-2 text-sm leading-snug text-muted-foreground">
                   {c.description}
                 </p>
-                <div className="mt-3 flex items-center gap-1 text-sm font-medium text-brand-600 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="mt-2 flex items-center gap-1 text-sm font-medium text-brand-600 opacity-0 transition-opacity group-hover:opacity-100">
                   Xem sản phẩm
                   <ArrowRight className="h-3.5 w-3.5" />
                 </div>
