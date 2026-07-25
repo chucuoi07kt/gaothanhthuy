@@ -148,7 +148,6 @@ const config: Config = {
         'scale-in': 'scale-in 0.3s ease-out forwards',
         'bounce-soft': 'bounce-soft 1.5s ease-in-out infinite',
         'pulse-ring': 'pulse-ring 1.8s cubic-bezier(0.4,0,0.6,1) infinite',
-        'shimmer': 'shimmer 1.8s infinite',
         'slide-in-bottom': 'slide-in-bottom 0.3s ease-out forwards',
       },
       boxShadow: {

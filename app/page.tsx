@@ -10,6 +10,7 @@ import { CategoryShowcase, BrandStory } from '@/src/components/Sections';
 import { WarehouseGallery } from '@/src/components/WarehouseGallery';
 import { BlogImage } from '@/src/components/BlogImage';
 import { fetchProducts, fetchBlogPosts } from '@/src/lib/products';
+import { ProductCardSkeleton, BlogCardSkeleton } from '@/src/components/skeletons';
 import type { Product, BlogPost } from '@/src/types';
 
 export default function HomePage() {
@@ -69,8 +70,15 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <div className="py-20 text-center text-sm text-muted-foreground">
-              Đang tải sản phẩm từ Google Sheets...
+            <div
+              className="grid grid-cols-2 gap-4 lg:grid-cols-4"
+              role="status"
+              aria-busy="true"
+              aria-label="Đang tải sản phẩm bán chạy"
+            >
+              {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
             </div>
           ) : bestSellers.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-white p-10 text-center">
@@ -112,7 +120,18 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {posts.length === 0 ? (
+          {loading && posts.length === 0 ? (
+            <div
+              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+              role="status"
+              aria-busy="true"
+              aria-label="Đang tải bài viết"
+            >
+              {[0, 1, 2].map((i) => (
+                <BlogCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : posts.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-white p-10 text-center">
               <p className="text-sm text-muted-foreground">
                 Chưa có bài viết nào trong Google Sheet.

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Calendar, Clock, Search, Sparkles, ArrowRight, Newspaper } from 'lucide-react';
 import { fetchBlogPosts } from '@/src/lib/products';
 import { BlogImage } from '@/src/components/BlogImage';
+import { BlogCardSkeleton } from '@/src/components/skeletons';
 import type { BlogPost } from '@/src/types';
 
 export default function BlogPage() {
@@ -88,7 +89,7 @@ export default function BlogPage() {
               />
             </div>
             {/* Category pills */}
-            <div className="flex flex-wrap gap-2 overflow-x-auto no-scrollbar pb-1">
+            <div className="flex flex-wrap gap-2 overflow-x-auto no-scrollbar pb-1 min-h-[2.5rem]">
               {categories.map((cat) => (
                 <button
                   key={cat}
@@ -112,8 +113,15 @@ export default function BlogPage() {
       <section className="section-pad">
         <div className="container-page">
           {loading ? (
-            <div className="py-20 text-center text-sm text-muted-foreground animate-pulse">
-              Đang cập nhật tin tức mới nhất từ Google Sheets...
+            <div
+              className="grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3"
+              role="status"
+              aria-busy="true"
+              aria-label="Đang tải danh sách bài viết"
+            >
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <BlogCardSkeleton key={i} />
+              ))}
             </div>
           ) : posts.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-white p-6 text-center sm:p-12">
