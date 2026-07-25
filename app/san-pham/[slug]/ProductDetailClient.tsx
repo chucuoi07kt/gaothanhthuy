@@ -30,16 +30,26 @@ export default function ProductDetailClient({ slug, initialProduct, related: ini
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [activeImageIdx, setActiveImageIndex] = useState<number>(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   const addItem = useCartStore((s) => s.addItem);
   const setOpen = useCartStore((s) => s.setOpen);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
+      setRefreshing(true);
       const allProducts = await fetchProducts();
-      if (!Array.isArray(allProducts) || allProducts.length === 0) return;
+      if (cancelled) return;
+      if (!Array.isArray(allProducts) || allProducts.length === 0) {
+        setRefreshing(false);
+        return;
+      }
       const found = allProducts.find((p) => p.slug === slug);
-      if (!found) return;
+      if (!found) {
+        setRefreshing(false);
+        return;
+      }
       setProduct(found);
       const relatedProducts = allProducts
         .filter((p) => p.category === found.category && p.slug !== found.slug)
@@ -48,7 +58,9 @@ export default function ProductDetailClient({ slug, initialProduct, related: ini
       const weights = found.weights && found.weights.length > 0 ? found.weights : ['5kg'];
       setSelectedWeight(weights[0]);
       setActiveImageIndex(0);
+      setRefreshing(false);
     })();
+    return () => { cancelled = true; };
   }, [slug]);
 
   const weights = product.weights && product.weights.length > 0 ? product.weights : ['5kg'];
@@ -89,7 +101,7 @@ export default function ProductDetailClient({ slug, initialProduct, related: ini
   };
 
   return (
-    <>
+    <div aria-busy={refreshing}>
       <section className="border-b border-border bg-gradient-to-br from-brand-50 to-white py-6">
         <div className="container-page">
           <nav className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -290,6 +302,6 @@ export default function ProductDetailClient({ slug, initialProduct, related: ini
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
