@@ -75,53 +75,57 @@ export function Navbar() {
         </div>
       </div>
 
-      <div className="container-page flex h-16 items-center justify-between gap-4">
-        {/* KHU VỰC LOGO + CHỮ: Giữ lại tên thương hiệu, thay icon cũ bằng logo.png lớn hết cỡ */}
-        <Link href="/" className="flex h-16 items-center gap-3 shrink-0 py-1 group">
+      <div className="container-page flex h-16 items-center gap-6">
+        {/* Logo + tên thương hiệu */}
+        <Link href="/" className="flex h-16 items-center gap-2.5 shrink-0 py-1 group">
           <div className="flex h-full items-center justify-center">
             <Image
               src="/logo.png"
               alt="Logo Gạo Ngọc Anh"
-              width={56}
-              height={56}
+              width={60}
+              height={60}
               priority
-              className="h-full w-auto object-contain max-h-14 transition-transform duration-200 group-hover:scale-102"
+              className="h-full w-auto object-contain max-h-[60px] transition-transform duration-200 group-hover:scale-105"
             />
           </div>
           <div className="leading-tight">
-            <span className="block text-base font-bold text-brand-800 transition-colors group-hover:text-brand-600">
+            <span className="block font-display text-[15px] font-bold tracking-tight text-brand-800 transition-colors group-hover:text-brand-600">
               Gạo Ngọc Anh
             </span>
-            <span className="hidden text-[11px] text-muted-foreground sm:block">
+            <span className="hidden text-[11px] font-medium text-muted-foreground sm:block">
               {BRAND.yearsExperience} năm uy tín · Đà Nẵng
             </span>
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {navLinks.map((link) => {
-            const active =
-              link.href === '/'
-                ? pathname === '/'
-                : pathname.startsWith(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'rounded-lg px-3.5 py-2 text-sm font-medium transition-colors',
-                  active
-                    ? 'bg-brand-50 text-brand-700'
-                    : 'text-foreground/70 hover:bg-brand-50 hover:text-brand-700'
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+        {/* Navigation desktop — căn giữa */}
+        <div className="hidden flex-1 justify-center md:flex">
+          <nav className="flex items-center gap-1.5">
+            {navLinks.map((link) => {
+              const active =
+                link.href === '/'
+                  ? pathname === '/'
+                  : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    'rounded-full px-4 py-2 text-sm font-medium transition-all duration-200',
+                    active
+                      ? 'bg-brand-600 text-white shadow-sm'
+                      : 'text-foreground/70 hover:bg-brand-50 hover:text-brand-700'
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
-        <div className="flex items-center gap-2">
+        {/* CTA bên phải */}
+        <div className="flex items-center gap-2.5 ml-auto">
           <Button
             onClick={() => quickZaloConsult()}
             className="hidden bg-zalo text-white hover:bg-zalo/90 sm:inline-flex"
@@ -132,12 +136,12 @@ export function Navbar() {
 
           <button
             onClick={() => setOpen(true)}
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-brand-700 transition-all hover:bg-brand-50"
+            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-brand-700 transition-all hover:bg-brand-50 hover:border-brand-200"
             aria-label="Mở danh sách báo giá"
           >
             <ShoppingCart className="h-5 w-5" />
             {mounted && totalItems > 0 && (
-              <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-500 px-1 text-[11px] font-bold text-white shadow-soft animate-scale-in">
+              <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-gold-500 px-1 text-[11px] font-bold text-white shadow-soft ring-2 ring-white animate-scale-in">
                 {totalItems}
               </span>
             )}
