@@ -118,7 +118,7 @@ export function FloatingActionBar() {
               )}
             </span>
             <span className="text-[11px] font-semibold leading-none text-foreground/80">
-              Giỏ hàng
+              Báo Giá
             </span>
           </button>
         </div>
