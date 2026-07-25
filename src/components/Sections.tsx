@@ -57,9 +57,9 @@ export function CategoryShowcase() {
                     ))}
                   </div>
                 )}
-                <div className="mt-2 flex items-center gap-1 text-sm font-medium text-brand-600 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="mt-auto pt-3 flex items-center gap-1 text-sm font-medium text-brand-600 transition-colors group-hover:text-brand-700">
                   Xem sản phẩm
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                 </div>
               </Link>
             );
