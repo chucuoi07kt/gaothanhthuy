@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { Plus_Jakarta_Sans, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { Navbar } from '@/src/components/Navbar';
+import { NavbarSkeleton } from '@/src/components/skeletons';
 import { Footer } from '@/src/components/Footer';
 import { QuoteCartModal } from '@/src/components/QuoteCartModal';
 import { FloatingCartButton } from '@/src/components/FloatingCartButton';
@@ -115,7 +116,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased">
-        <Suspense fallback={null}>
+        <Suspense fallback={<NavbarSkeleton />}>
           <Navbar />
         </Suspense>
         <main className="min-h-[60vh]">{children}</main>

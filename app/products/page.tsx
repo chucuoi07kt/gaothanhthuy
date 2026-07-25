@@ -7,6 +7,7 @@ import { QuickSearch, defaultFilters, type FilterState } from '@/src/components/
 import { categories } from '@/src/lib/categories';
 import { applyFilters } from '@/src/lib/filters';
 import { fetchProducts } from '@/src/lib/products';
+import { ProductCardSkeleton, ProductListSkeleton } from '@/src/components/skeletons';
 import type { Product } from '@/src/types';
 
 function ProductsContent() {
@@ -78,8 +79,10 @@ function ProductsContent() {
           </div>
 
           {loading ? (
-            <div className="py-20 text-center text-sm text-muted-foreground">
-              Đang tải sản phẩm từ Google Sheets...
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
             </div>
           ) : filtered.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-white p-12 text-center">
@@ -119,9 +122,7 @@ export default function ProductsPage() {
   return (
     <Suspense
       fallback={
-        <div className="container-page py-20 text-center text-sm text-muted-foreground">
-          Đang tải catalogue...
-        </div>
+        <ProductListSkeleton />
       }
     >
       <ProductsContent />
