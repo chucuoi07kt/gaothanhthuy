@@ -19,7 +19,7 @@ export function CategoryShowcase() {
             Danh mục sản phẩm
           </span>
           <h2 className="mt-2 text-2xl font-bold text-foreground sm:text-3xl">
-            4 dòng gạo phục cấp mọi nhu cầu
+            4 dòng gạo phục vụ mọi nhu cầu
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Từ gạo gia đình đến gạo quán cơm, từ thiện, nấu bún phở
