@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { Plus_Jakarta_Sans, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { Navbar } from '@/src/components/Navbar';
@@ -114,7 +115,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased">
-        <Navbar />
+        <Suspense fallback={null}>
+          <Navbar />
+        </Suspense>
         <main className="min-h-[60vh]">{children}</main>
         <Footer />
         <QuoteCartModal />
