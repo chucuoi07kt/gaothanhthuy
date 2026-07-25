@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Menu, ShoppingCart, X, Phone, MapPin, ShieldAlert, Home, Wheat, Newspaper, Store, MessageCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/src/store/cartStore';
 import { BRAND } from '@/src/lib/brand';
 import { quickZaloConsult } from '@/src/lib/zalo';
+import { categories } from '@/src/lib/categories';
 
 const navLinks: { href: string; label: string; icon: LucideIcon }[] = [
   { href: '/', label: 'Trang chủ', icon: Home },
@@ -21,6 +22,8 @@ const navLinks: { href: string; label: string; icon: LucideIcon }[] = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const activeCategory = searchParams?.get('category') ?? 'all';
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -192,29 +195,76 @@ export function Navbar() {
                     ? pathname === '/'
                     : pathname.startsWith(link.href);
                 const Icon = link.icon;
+                const isCatalogue = link.href === '/products';
                 return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
-                      active
-                        ? 'bg-brand-50 text-brand-700'
-                        : 'text-foreground/80 hover:bg-brand-50'
-                    )}
-                  >
-                    <span
+                  <div key={link.href}>
+                    <Link
+                      href={link.href}
                       className={cn(
-                        'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors',
+                        'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                         active
-                          ? 'bg-brand-600 text-white'
-                          : 'bg-brand-50 text-brand-600'
+                          ? 'bg-brand-50 text-brand-700'
+                          : 'text-foreground/80 hover:bg-brand-50'
                       )}
                     >
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    {link.label}
-                  </Link>
+                      <span
+                        className={cn(
+                          'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors',
+                          active
+                            ? 'bg-brand-600 text-white'
+                            : 'bg-brand-50 text-brand-600'
+                        )}
+                      >
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      {link.label}
+                    </Link>
+
+                    {/* Danh mục con cho Catalogue gạo */}
+                    {isCatalogue && (
+                      <div className="mt-1 ml-12 space-y-0.5">
+                        {categories.map((cat) => {
+                          const catActive =
+                            pathname === '/products' &&
+                            activeCategory === cat.slug;
+                          return (
+                            <Link
+                              key={cat.slug}
+                              href={`/products?category=${cat.slug}`}
+                              className={cn(
+                                'flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors',
+                                catActive
+                                  ? 'bg-brand-100 text-brand-700'
+                                  : 'text-muted-foreground hover:bg-brand-50 hover:text-brand-700'
+                              )}
+                            >
+                              <span
+                                className={cn(
+                                  'h-1.5 w-1.5 shrink-0 rounded-full transition-colors',
+                                  catActive
+                                    ? 'bg-brand-600'
+                                    : 'bg-brand-300'
+                                )}
+                              />
+                              {cat.label}
+                            </Link>
+                          );
+                        })}
+                        <Link
+                          href="/products"
+                          className={cn(
+                            'flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-semibold transition-colors',
+                            pathname === '/products' && activeCategory === 'all'
+                              ? 'bg-brand-100 text-brand-700'
+                              : 'text-brand-600 hover:bg-brand-50 hover:text-brand-700'
+                          )}
+                        >
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+                          Xem tất cả sản phẩm
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>
