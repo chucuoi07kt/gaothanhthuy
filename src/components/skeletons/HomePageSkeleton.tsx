@@ -68,6 +68,9 @@ export function HomePageSkeleton() {
                   <Skeleton className="h-3 w-full" />
                   <Skeleton className="h-3 w-4/5" />
                 </div>
+                <div className="flex shrink-0 items-center pl-3">
+                  <Skeleton className="h-4 w-4" />
+                </div>
               </div>
             ))}
           </div>

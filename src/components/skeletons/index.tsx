@@ -24,6 +24,7 @@ export function ProductCardSkeleton({ className }: { className?: string }) {
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <Skeleton className="h-full w-full rounded-none" />
+        <Skeleton className="absolute bottom-3 right-3 h-6 w-16 rounded-full" />
       </div>
       <div className="flex flex-1 flex-col p-3">
         <div className="flex items-start justify-between gap-2">
@@ -60,7 +61,7 @@ export function ProductCardSkeleton({ className }: { className?: string }) {
 /**
  * Skeleton for a single BlogCard (grid item).
  * Mirrors: aspect-[16/10] image, category badge, 2-line title,
- * 2-line excerpt, meta row.
+ * 3-line excerpt, meta row.
  */
 export function BlogCardSkeleton({ className }: { className?: string }) {
   return (
@@ -73,13 +74,15 @@ export function BlogCardSkeleton({ className }: { className?: string }) {
     >
       <div className="relative aspect-[16/10] overflow-hidden">
         <Skeleton className="h-full w-full rounded-none" />
+        <Skeleton className="absolute left-3 top-3 h-6 w-20 rounded-full" />
       </div>
-      <div className="flex flex-1 flex-col p-4">
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="mt-2 h-4 w-2/3" />
         <Skeleton className="mt-2 h-3 w-full" />
         <Skeleton className="mt-1.5 h-3 w-4/5" />
-        <div className="mt-3 flex items-center gap-2 border-t border-border/60 pt-3">
+        <Skeleton className="mt-1.5 h-3 w-3/5" />
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3 sm:gap-3">
           <Skeleton className="h-3 w-24" />
           <Skeleton className="h-3 w-16" />
         </div>

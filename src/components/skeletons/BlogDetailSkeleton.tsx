@@ -40,7 +40,9 @@ export function BlogDetailSkeleton() {
       {/* Cover image */}
       <section className="relative -mt-4 sm:-mt-8">
         <div className="container-page max-w-4xl" aria-hidden="true">
-          <Skeleton className="aspect-video w-full rounded-2xl" />
+          <div className="overflow-hidden rounded-xl border border-border bg-white shadow-card sm:rounded-2xl">
+            <Skeleton className="aspect-video w-full rounded-none" />
+          </div>
         </div>
       </section>
 
@@ -104,6 +106,9 @@ export function BlogDetailSkeleton() {
             {[0, 1, 2].map((i) => (
               <BlogCardSkeleton key={i} />
             ))}
+          </div>
+          <div className="mt-6 text-center sm:mt-8">
+            <Skeleton className="mx-auto h-10 w-44 rounded-xl" />
           </div>
         </div>
       </section>
