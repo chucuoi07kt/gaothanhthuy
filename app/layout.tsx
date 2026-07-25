@@ -6,6 +6,7 @@ import { Navbar } from '@/src/components/Navbar';
 import { Footer } from '@/src/components/Footer';
 import { QuoteCartModal } from '@/src/components/QuoteCartModal';
 import { FloatingCartButton } from '@/src/components/FloatingCartButton';
+import { FloatingActionBar } from '@/src/components/FloatingActionBar';
 import { BRAND } from '@/src/lib/brand';
 
 const display = Plus_Jakarta_Sans({
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
     template: `%s | ${BRAND.name}`,
   },
   description:
-    'Gạo Ngọc Anh - 30 năm uy tín phân phối gạo sỉ & lẻ tại Đà Nẵng. Giao hỏa tốc nội thành 1-2 giờ. Gạo ST25, Lài Miên, Hàm Châu, Khang Dân chính hãng, giá sỉ tốt nhất.',
+    'Gạo Ngọc Anh - 30 năm uy tín phân phối gạo sỉ & lẻ tại Đà Nẵng. Giao hỏa tốc nội thành 1-2 giờ. Gạo ST25, Lài Miên, Hà Châu, Khang Dân chính hãng, giá sỉ tốt nhất.',
   keywords: [
     'gạo Đà Nẵng',
     'gạo sỉ Đà Nẵng',
@@ -118,6 +119,7 @@ export default function RootLayout({
         <Footer />
         <QuoteCartModal />
         <FloatingCartButton />
+        <FloatingActionBar />
         <Toaster
           position="top-center"
           toastOptions={{

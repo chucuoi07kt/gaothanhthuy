@@ -130,6 +130,33 @@
   background: transparent;
 }
 
+/* Reserve bottom space on mobile so the Floating Action Bar never covers
+   the footer or final page content. Matches the bar height (~58px) plus the
+   iPhone safe-area inset. Applied only below md, where the bar is visible. */
+@media (max-width: 767px) {
+  body.fab-visible {
+    padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Blog Floating Stack offset: lifts the Mục lục / Quay lên đầu buttons
+   above other floating UI so nothing overlaps.
+   - Desktop (md+): clears the FloatingCartButton (~68px + 16px gap).
+   - Mobile (<md): clears the full-width Floating Action Bar when visible. */
+:root {
+  --fab-stack-offset: 0px;
+}
+@media (min-width: 768px) {
+  :root {
+    --fab-stack-offset: 72px;
+  }
+}
+@media (max-width: 767px) {
+  body.fab-visible {
+    --fab-stack-offset: calc(74px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 /* Prevent horizontal overflow on very small screens */
 @media (max-width: 430px) {
   .prose-blog {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/src/store/cartStore';
 
@@ -25,13 +25,13 @@ export function FloatingCartButton() {
     <button
       onClick={() => setOpen(true)}
       className={cn(
-        'fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-brand-600 px-4 py-3 text-white shadow-card transition-all duration-300 hover:bg-brand-700 md:hidden',
+        'fixed bottom-5 right-5 z-30 hidden items-center gap-2 rounded-full bg-brand-600 px-4 py-3 text-white shadow-card transition-all duration-300 hover:bg-brand-700 md:flex',
         show ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
       )}
       aria-label="Mở danh sách báo giá"
     >
       <div className="relative">
-        <ShoppingBag className="h-5 w-5" />
+        <ShoppingCart className="h-5 w-5" />
         <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold-500 px-1 text-[10px] font-bold">
           {totalItems}
         </span>
