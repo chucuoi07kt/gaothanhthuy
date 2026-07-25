@@ -139,6 +139,24 @@
   }
 }
 
+/* Blog Floating Stack offset: lifts the Mục lục / Quay lên đầu buttons
+   above other floating UI so nothing overlaps.
+   - Desktop (md+): clears the FloatingCartButton (~68px + 16px gap).
+   - Mobile (<md): clears the full-width Floating Action Bar when visible. */
+:root {
+  --fab-stack-offset: 0px;
+}
+@media (min-width: 768px) {
+  :root {
+    --fab-stack-offset: 72px;
+  }
+}
+@media (max-width: 767px) {
+  body.fab-visible {
+    --fab-stack-offset: calc(74px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 /* Prevent horizontal overflow on very small screens */
 @media (max-width: 430px) {
   .prose-blog {
@@ -178,7 +196,7 @@
 .hljs-number, .hljs-symbol, .hljs-bullet { color: #79c0ff; }
 .hljs-title, .hljs-class .hljs-title, .hljs-title.function_ { color: #d2a8ff; }
 .hljs-variable, .hljs-template-variable { color: #ffa657; }
-.hljs-built-in, .hljs-builtin-name { color: #79c0ff; }
+.hljs-built_in, .hljs-builtin-name { color: #79c0ff; }
 .hljs-tag, .hljs-name { color: #7ee787; }
 .hljs-attribute { color: #79c0ff; }
 .hljs-regexp, .hljs-link { color: #a5d6ff; }
