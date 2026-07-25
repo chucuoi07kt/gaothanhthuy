@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Check, MapPin, Plus } from 'lucide-react';
+import { ArrowRight, Check, MapPin, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, getFirstImage } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +14,6 @@ import type { Product, WeightOption } from '@/src/types';
 
 export function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((s) => s.addItem);
-  const setOpen = useCartStore((s) => s.setOpen);
 
   const [selectedWeight, setSelectedWeight] = useState<WeightOption>(
     product.weights[0]
@@ -32,10 +31,17 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card">
+      {/* Toàn bộ card là vùng bấm mở trang chi tiết */}
       <Link
         href={`/san-pham/${product.slug}`}
-        className="relative block aspect-[4/3] overflow-hidden"
+        className="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        aria-label={`Xem chi tiết sản phẩm ${product.name}`}
       >
+        <span className="sr-only">Xem chi tiết sản phẩm {product.name}</span>
+      </Link>
+
+      {/* Ảnh sản phẩm */}
+      <div className="relative block aspect-[4/3] overflow-hidden">
         <ProductImage
           src={getFirstImage(product.image)}
           alt={product.name}
@@ -44,23 +50,24 @@ export function ProductCard({ product }: { product: Product }) {
         />
 
         {product.bestSeller && (
-          <Badge className="absolute left-3 top-3 bg-gold-500 text-white shadow-soft">
+          <Badge className="absolute left-3 top-3 z-10 bg-gold-500 text-white shadow-soft">
             Bán chạy
           </Badge>
         )}
 
-        <div className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-brand-700 backdrop-blur">
+        <div className="absolute bottom-3 right-3 z-10 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-brand-700 backdrop-blur">
           <MapPin className="h-3 w-3" />
           {product.origin}
         </div>
-      </Link>
+      </div>
 
       <div className="flex flex-1 flex-col p-3">
-        <Link href={`/san-pham/${product.slug}`}>
+        <div className="flex items-start justify-between gap-2">
           <h3 className="line-clamp-1 text-[15px] font-semibold text-foreground transition-colors group-hover:text-brand-700">
             {product.name}
           </h3>
-        </Link>
+          <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-brand-400 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-brand-600" />
+        </div>
 
         <div className="mt-2">
           <VisualMeters
@@ -69,14 +76,18 @@ export function ProductCard({ product }: { product: Product }) {
           />
         </div>
 
-        <div className="mt-2 grid grid-cols-4 gap-1.5">
+        {/* Chọn khối lượng — nằm trên vùng link, ngắt sự kiện click */}
+        <div
+          className="relative z-20 mt-2 grid grid-cols-4 gap-1.5"
+          onClick={(e) => e.stopPropagation()}
+        >
           {product.weights.map((w) => (
             <button
               key={w}
               type="button"
               onClick={() => setSelectedWeight(w)}
               className={cn(
-                'w-full rounded-full border py-1 text-center text-xs font-medium transition-all',
+                'w-full rounded-full border py-1 text-center text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
                 selectedWeight === w
                   ? 'border-brand-600 bg-brand-600 text-white'
                   : 'border-border bg-white text-muted-foreground hover:border-brand-400 hover:text-brand-700'
@@ -100,12 +111,16 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         </div>
 
-        <div className="mt-3 flex gap-2">
+        {/* CTA báo giá — nằm trên vùng link, ngắt sự kiện click */}
+        <div
+          className="relative z-20 mt-3"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Button
             onClick={handleAdd}
             size="sm"
             className={cn(
-              'h-9 flex-1 gap-1 text-xs transition-all',
+              'h-9 w-full gap-1 text-xs transition-all',
               added
                 ? 'bg-brand-700 text-white'
                 : 'bg-brand-600 text-white hover:bg-brand-700'
@@ -122,15 +137,6 @@ export function ProductCard({ product }: { product: Product }) {
                 Báo Giá
               </>
             )}
-          </Button>
-
-          <Button
-            onClick={() => setOpen(true)}
-            size="sm"
-            variant="outline"
-            className="h-9 border-brand-200 px-3 text-xs text-brand-700 hover:bg-brand-50"
-          >
-            Xem
           </Button>
         </div>
       </div>
