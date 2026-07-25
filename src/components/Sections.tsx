@@ -93,7 +93,7 @@ export function BrandStory() {
             {[
               'Kho chính: 126 Nguyễn Lương Bằng, Hòa Khánh Bắc, Liên Chiểu',
               'Giao hỏa tốc nội thành Đà Nẵng - nhận trong 1-2 tiếng',
-              'Phục cấp B2B: nhà hàng, quán cơm, chương trình từ thiện',
+              'Phục vụ B2B: nhà hàng, quán cơm, chương trình từ thiện',
               'Gạo chính hãng, nguồn gốc rõ ràng, không tẩm ướp',
             ].map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-sm text-foreground/80">
