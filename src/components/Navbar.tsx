@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Menu, ShoppingCart, X, Phone, MapPin, ShieldAlert, Home, Wheat, Newspaper, Store, MessageCircle } from 'lucide-react';
+import { Menu, ShoppingCart, X, Phone, ShieldAlert, Home, Wheat, Newspaper, Store, MessageCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -56,32 +56,9 @@ export function Navbar() {
           : 'border-b border-transparent bg-white/70 backdrop-blur-sm'
       )}
     >
-      <div className="hidden bg-brand-700 text-white">
-        <div className="container-page flex h-9 items-center justify-between text-xs">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5" />
-              {BRAND.address}
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a
-              href={`tel:${BRAND.hotlineRaw}`}
-              className="flex items-center gap-1.5 font-medium transition-colors hover:text-gold-300"
-            >
-              <Phone className="h-3.5 w-3.5" />
-              Hotline: {BRAND.hotline}
-            </a>
-            <span className="hidden sm:inline text-brand-100">
-              {BRAND.hours}
-            </span>
-          </div>
-        </div>
-      </div>
-
       <div
         className={cn(
-          'container-page flex items-center gap-6 transition-[height] duration-300 ease-out',
+          'container-page flex items-center gap-4 transition-[height] duration-300 ease-out',
           scrolled ? 'h-14' : 'h-16'
         )}
       >
@@ -89,7 +66,7 @@ export function Navbar() {
         <Link
           href="/"
           className={cn(
-            'flex items-center gap-2.5 shrink-0 py-1 group transition-[height] duration-300 ease-out',
+            'flex items-center gap-2.5 shrink-0 group transition-[height] duration-300 ease-out',
             scrolled ? 'h-14' : 'h-16'
           )}
         >
@@ -118,7 +95,7 @@ export function Navbar() {
 
         {/* Navigation desktop — căn giữa */}
         <div className="hidden flex-1 justify-center md:flex">
-          <nav className="flex items-center gap-1.5">
+          <nav className="flex items-center gap-1" aria-label="Điều hướng chính">
             {navLinks.map((link) => {
               const active =
                 link.href === '/'
@@ -128,8 +105,9 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'rounded-full px-4 py-2 text-sm font-medium transition-all duration-200',
+                    'rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                     active
                       ? 'bg-brand-600 text-white shadow-sm'
                       : 'text-foreground/70 hover:bg-brand-50 hover:text-brand-700'
@@ -143,18 +121,19 @@ export function Navbar() {
         </div>
 
         {/* CTA bên phải */}
-        <div className="flex items-center gap-2.5 ml-auto">
+        <div className="flex items-center gap-2 ml-auto">
           <Button
             onClick={() => quickZaloConsult()}
-            className="hidden bg-zalo text-white hover:bg-zalo/90 sm:inline-flex"
+            className="hidden gap-1.5 bg-zalo text-white hover:bg-zalo/90 sm:inline-flex"
             size="sm"
           >
+            <MessageCircle className="h-4 w-4" />
             Tư vấn Zalo
           </Button>
 
           <button
             onClick={() => setOpen(true)}
-            className="relative hidden h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-brand-700 transition-all hover:bg-brand-50 hover:border-brand-200 md:flex"
+            className="relative hidden h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-brand-700 transition-all hover:bg-brand-50 hover:border-brand-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background md:flex"
             aria-label="Mở danh sách báo giá"
           >
             <ShoppingCart className="h-5 w-5" />
@@ -167,7 +146,7 @@ export function Navbar() {
 
           <Link
             href="/admin/login"
-            className="hidden sm:flex h-10 px-3.5 items-center gap-1.5 rounded-xl border border-border bg-white text-xs font-medium text-muted-foreground transition-all hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200 shadow-sm"
+            className="hidden sm:flex h-10 px-3.5 items-center gap-1.5 rounded-xl border border-border bg-white text-xs font-medium text-muted-foreground transition-all hover:bg-brand-50 hover:text-brand-700 hover:border-brand-200 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             title="Hệ thống quản trị nội bộ"
           >
             <ShieldAlert className="h-4 w-4 text-brand-600" />
@@ -176,8 +155,10 @@ export function Navbar() {
 
           <button
             onClick={() => setMobileOpen((v) => !v)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-foreground md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-foreground transition-colors hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background md:hidden"
             aria-label="Menu"
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-nav-panel"
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -185,8 +166,14 @@ export function Navbar() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-border bg-white md:hidden animate-fade-in">
-          <nav className="container-page flex flex-col py-4">
+        <div
+          id="mobile-nav-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu điều hướng di động"
+          className="border-t border-border bg-white md:hidden animate-fade-in"
+        >
+          <nav className="container-page flex flex-col py-4" aria-label="Điều hướng di động">
             {/* Nhóm điều hướng chính */}
             <div className="space-y-1">
               {navLinks.map((link) => {
@@ -200,8 +187,9 @@ export function Navbar() {
                   <div key={link.href}>
                     <Link
                       href={link.href}
+                      aria-current={active ? 'page' : undefined}
                       className={cn(
-                        'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                        'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                         active
                           ? 'bg-brand-50 text-brand-700'
                           : 'text-foreground/80 hover:bg-brand-50'
@@ -231,8 +219,9 @@ export function Navbar() {
                             <Link
                               key={cat.slug}
                               href={`/products?category=${cat.slug}`}
+                              aria-current={catActive ? 'page' : undefined}
                               className={cn(
-                                'flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors',
+                                'flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                                 catActive
                                   ? 'bg-brand-100 text-brand-700'
                                   : 'text-muted-foreground hover:bg-brand-50 hover:text-brand-700'
@@ -252,8 +241,9 @@ export function Navbar() {
                         })}
                         <Link
                           href="/products"
+                          aria-current={pathname === '/products' && activeCategory === 'all' ? 'page' : undefined}
                           className={cn(
-                            'flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-semibold transition-colors',
+                            'flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                             pathname === '/products' && activeCategory === 'all'
                               ? 'bg-brand-100 text-brand-700'
                               : 'text-brand-600 hover:bg-brand-50 hover:text-brand-700'
@@ -283,7 +273,7 @@ export function Navbar() {
               </Button>
               <a
                 href={`tel:${BRAND.hotlineRaw}`}
-                className="flex items-center justify-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2.5 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50"
+                className="flex items-center justify-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2.5 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <Phone className="h-4 w-4" />
                 Hotline: {BRAND.hotline}
@@ -295,7 +285,7 @@ export function Navbar() {
             {/* Nhóm quản trị — đặt cuối */}
             <Link
               href="/admin/login"
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-medium text-muted-foreground bg-gray-50 border border-border active:bg-brand-50 active:text-brand-700"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-medium text-muted-foreground bg-muted border border-border transition-colors hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <ShieldAlert className="h-4 w-4 text-brand-600" />
               <span>Đăng nhập hệ thống Admin</span>
