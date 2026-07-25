@@ -6,24 +6,28 @@ export const categories: Category[] = [
     label: 'Gạo ăn gia đình',
     description: 'Gạo thơm ngon, dẻo mềm, phù hợp bữa cơm gia đình mỗi ngày.',
     icon: 'home',
+    badges: ['ST25', 'Dẻo', 'Thơm'],
   },
   {
     slug: 'gao-quan-com-nha-hang',
     label: 'Gạo quán cơm - nhà hàng',
     description: 'Gạo nở xốp, lời cơm, tối ưu chi phí cho quán cơm, nhà hàng.',
     icon: 'utensils',
+    badges: ['Giá sỉ', 'Nở nhiều', 'Tiết kiệm'],
   },
   {
     slug: 'gao-tu-thien',
     label: 'Gạo từ thiện',
     description: 'Đóng gói 5kg - 10kg - 25kg, giá sỉ tốt nhất cho chương trình từ thiện.',
     icon: 'heart',
+    badges: ['5kg', '10kg', '25kg'],
   },
   {
     slug: 'gao-nau-bun-mi-pho',
     label: 'Gạo nấu bún - mì - phở',
     description: 'Gạo khô chuẩn, làm bún phở dai ngon, không nát.',
     icon: 'wheat',
+    badges: ['Chiết khấu', 'Phân phối', 'Sỉ'],
   },
 ];
 
