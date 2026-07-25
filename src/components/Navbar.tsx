@@ -4,18 +4,19 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Menu, ShoppingCart, X, Phone, MapPin, ShieldAlert } from 'lucide-react';
+import { Menu, ShoppingCart, X, Phone, MapPin, ShieldAlert, Home, Wheat, Newspaper, Store, MessageCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/src/store/cartStore';
 import { BRAND } from '@/src/lib/brand';
 import { quickZaloConsult } from '@/src/lib/zalo';
 
-const navLinks = [
-  { href: '/', label: 'Trang chủ' },
-  { href: '/products', label: 'Catalogue gạo' },
-  { href: '/blog', label: 'Tin tức' },
-  { href: '/about', label: 'Về chúng tôi' },
+const navLinks: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: '/', label: 'Trang chủ', icon: Home },
+  { href: '/products', label: 'Catalogue gạo', icon: Wheat },
+  { href: '/blog', label: 'Tin tức', icon: Newspaper },
+  { href: '/about', label: 'Về chúng tôi', icon: Store },
 ];
 
 export function Navbar() {
@@ -150,7 +151,7 @@ export function Navbar() {
 
           <button
             onClick={() => setOpen(true)}
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-brand-700 transition-all hover:bg-brand-50 hover:border-brand-200"
+            className="relative hidden h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-brand-700 transition-all hover:bg-brand-50 hover:border-brand-200 md:flex"
             aria-label="Mở danh sách báo giá"
           >
             <ShoppingCart className="h-5 w-5" />
@@ -182,38 +183,69 @@ export function Navbar() {
 
       {mobileOpen && (
         <div className="border-t border-border bg-white md:hidden animate-fade-in">
-          <nav className="container-page flex flex-col py-3 space-y-1">
-            {navLinks.map((link) => {
-              const active =
-                link.href === '/'
-                  ? pathname === '/'
-                  : pathname.startsWith(link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    'rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                    active
-                      ? 'bg-brand-50 text-brand-700'
-                      : 'text-foreground/80 hover:bg-brand-50'
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-            <Button
-              onClick={() => quickZaloConsult()}
-              className="mt-2 bg-zalo text-white hover:bg-zalo/90 w-full"
-              size="sm"
-            >
-              Tư vấn nhanh qua Zalo
-            </Button>
+          <nav className="container-page flex flex-col py-4">
+            {/* Nhóm điều hướng chính */}
+            <div className="space-y-1">
+              {navLinks.map((link) => {
+                const active =
+                  link.href === '/'
+                    ? pathname === '/'
+                    : pathname.startsWith(link.href);
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                      active
+                        ? 'bg-brand-50 text-brand-700'
+                        : 'text-foreground/80 hover:bg-brand-50'
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors',
+                        active
+                          ? 'bg-brand-600 text-white'
+                          : 'bg-brand-50 text-brand-600'
+                      )}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
 
+            <div className="my-3 h-px bg-border" />
+
+            {/* Nhóm CTA liên hệ */}
+            <div className="space-y-2">
+              <Button
+                onClick={() => quickZaloConsult()}
+                className="w-full gap-2 bg-zalo text-white hover:bg-zalo/90"
+                size="sm"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Tư vấn nhanh qua Zalo
+              </Button>
+              <a
+                href={`tel:${BRAND.hotlineRaw}`}
+                className="flex items-center justify-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2.5 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50"
+              >
+                <Phone className="h-4 w-4" />
+                Hotline: {BRAND.hotline}
+              </a>
+            </div>
+
+            <div className="my-3 h-px bg-border" />
+
+            {/* Nhóm quản trị — đặt cuối */}
             <Link
               href="/admin/login"
-              className="flex items-center justify-center gap-2 mt-1 py-2.5 px-3 rounded-lg text-xs font-medium text-muted-foreground bg-gray-50 border border-border active:bg-brand-50 active:text-brand-700"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-medium text-muted-foreground bg-gray-50 border border-border active:bg-brand-50 active:text-brand-700"
             >
               <ShieldAlert className="h-4 w-4 text-brand-600" />
               <span>Đăng nhập hệ thống Admin</span>
