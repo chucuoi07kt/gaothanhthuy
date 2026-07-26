@@ -17,7 +17,7 @@ export function Footer() {
             <div className="flex items-center gap-3 shrink-0 py-1">
               <div className="flex h-14 items-center justify-center">
                 <Image
-                  src="/logo.png"
+                  src="/logo1.png"
                   alt="Logo Gạo Ngọc Anh"
                   width={56}
                   height={56}
