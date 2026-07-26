@@ -72,7 +72,7 @@ export function Navbar() {
         >
           <div className="flex h-full items-center justify-center">
             <Image
-              src="/logo.webp"
+              src="/logo.png"
               alt="Logo Gạo Ngọc Anh"
               width={60}
               height={60}
