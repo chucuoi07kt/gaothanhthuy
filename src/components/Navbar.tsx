@@ -71,17 +71,18 @@ export function Navbar() {
           )}
         >
           <div className="flex h-full items-center justify-center">
-            <Image
-              src="/logo.png"
-              alt="Logo Gạo Ngọc Anh"
-              width={60}
-              height={60}
-              priority
-              className={cn(
-                'h-full w-auto object-contain transition-all duration-300 ease-out group-hover:scale-105',
-                scrolled ? 'max-h-[52px]' : 'max-h-[60px]'
-              )}
-            />
+        <Image
+  src="/logo.png"
+  alt="Logo Gạo Ngọc Anh"
+  width={120}
+  height={120}
+  priority
+  quality={100}
+  className={cn(
+    'w-auto object-contain transition-all duration-300',
+    scrolled ? 'h-[52px]' : 'h-[60px]'
+  )}
+/>
           </div>
           <div className="leading-tight">
             <span className="block font-display text-[15px] font-bold tracking-tight text-brand-800 transition-colors group-hover:text-brand-600">
