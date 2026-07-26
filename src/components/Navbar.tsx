@@ -72,7 +72,7 @@ export function Navbar() {
         >
           <div className="flex h-full items-center justify-center">
             <Image
-              src="/logo.png"
+              src="/logo.webp"
               alt="Logo Gạo Ngọc Anh"
               width={60}
               height={60}
@@ -85,7 +85,11 @@ export function Navbar() {
           </div>
           <div className="leading-tight">
             <span className="block font-display text-[15px] font-bold tracking-tight text-brand-800 transition-colors group-hover:text-brand-600">
-              Gạo Ngọc Anh
+
+
+
+
+              
             </span>
             <span className="hidden text-[11px] font-medium text-muted-foreground sm:block">
               {BRAND.yearsExperience} năm uy tín · Đà Nẵng
