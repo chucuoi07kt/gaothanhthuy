@@ -16,6 +16,20 @@ const trustBadges = [
 export function HeroBanner() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-900">
+      {/* Texture hạt gạo nền - opacity rất thấp để giữ nội dung nổi bật */}
+      <div className="absolute inset-0" aria-hidden="true">
+        <Image
+          src="https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=1200"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover opacity-[0.07]"
+        />
+        {/* Overlay trắng ngà + gradient rất nhẹ để đảm bảo độ tương phản */}
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-800/85 via-brand-700/80 to-brand-900/90" />
+        <div className="absolute inset-0 bg-[#fffbeb]/5" />
+      </div>
       <div className="absolute inset-0 opacity-20">
         <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-gold-400 blur-3xl" />
         <div className="absolute right-0 top-40 h-80 w-80 rounded-full bg-brand-400 blur-3xl" />
