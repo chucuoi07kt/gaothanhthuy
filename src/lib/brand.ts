@@ -1,7 +1,7 @@
 export const BRAND = {
   name: 'Gạo Ngọc Anh',
   shortName: 'Ngọc Anh',
-  domain: 'gaongocanh.com',
+  domain: 'gaothanhthuy.vercel.app',
   yearsExperience: 30,
   dailyTons: 15,
   hotline: '036 6219 885',
