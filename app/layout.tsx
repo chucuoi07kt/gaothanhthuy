@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     // ✅ OG Image
     images: [
       {
-        url: '/og.jpg',
+        url: '/og-image.jpg',
         width: 1200,
         height: 630,
         alt: `${BRAND.name} - Gạo sỉ Đà Nẵng`,
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
       'Giao hỏa tốc nội thành Đà Nẵng 1-2 giờ. Gạo chính hãng, giá sỉ tốt nhất.',
 
     // ✅ Twitter Image
-    images: ['/og.jpg'],
+    images: ['/og-image.jpg'],
   },
 
   alternates: {
@@ -97,7 +97,7 @@ const jsonLd = {
   url: `https://${BRAND.domain}`,
   telephone: BRAND.hotlineRaw,
   email: BRAND.email,
-  image: `https://${BRAND.domain}/og.jpg`,
+  image: `https://${BRAND.domain}/og-image.jpg`,
   address: {
     '@type': 'PostalAddress',
     streetAddress: '126 Nguyễn Lương Bằng, Phường Hòa Khánh Bắc',
