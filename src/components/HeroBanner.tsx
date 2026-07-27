@@ -15,22 +15,23 @@ const trustBadges = [
 
 export function HeroBanner() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-900">
-      {/* Texture hạt gạo nền - opacity rất thấp để giữ nội dung nổi bật */}
-      <div className="absolute inset-0" aria-hidden="true">
+    <section className="relative overflow-hidden bg-brand-900">
+      {/* Premium Rice Texture Background */}
+      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
         <Image
-          src="https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=1200"
+          src="/hero-rice-texture.webp"
           alt=""
           fill
           priority
+          quality={90}
           sizes="100vw"
-          className="object-cover opacity-[0.07]"
+          className="object-cover object-center opacity-25"
         />
-        {/* Overlay trắng ngà + gradient rất nhẹ để đảm bảo độ tương phản */}
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-800/85 via-brand-700/80 to-brand-900/90" />
-        <div className="absolute inset-0 bg-[#fffbeb]/5" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-900/55 via-brand-800/45 to-brand-900/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-50/10 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-black/10" />
       </div>
-      <div className="absolute inset-0 opacity-20">
+      <div className="absolute inset-0 opacity-35">
         <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-gold-400 blur-3xl" />
         <div className="absolute right-0 top-40 h-80 w-80 rounded-full bg-brand-400 blur-3xl" />
       </div>
@@ -89,7 +90,7 @@ export function HeroBanner() {
         </div>
 
         <div className="relative hidden lg:block">
-          <div className="relative mx-auto aspect-square max-w-md overflow-hidden rounded-3xl border-4 border-white/20 shadow-2xl">
+          <div className="relative mx-auto aspect-square max-w-md overflow-hidden rounded-[32px] border border-white/15 bg-white/5 shadow-[0_25px_80px_rgba(0,0,0,0.35)] backdrop-blur-sm">
             <Image
               src="https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=900"
               alt="Gạo Ngọc Anh - gạo sạch Đà Nẵng"
