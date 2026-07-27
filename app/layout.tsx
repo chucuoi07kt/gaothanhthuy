@@ -24,12 +24,15 @@ const sans = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(`https://${BRAND.domain}`),
+
   title: {
     default: `${BRAND.name} - Gạo sỉ Đà Nẵng, giao hỏa tốc 1-2 giờ | ${BRAND.domain}`,
     template: `%s | ${BRAND.name}`,
   },
+
   description:
     'Gạo Ngọc Anh - 30 năm uy tín phân phối gạo sỉ & lẻ tại Đà Nẵng. Giao hỏa tốc nội thành 1-2 giờ. Gạo ST25, Lài Miên, Hà Châu, Khang Dân chính hãng, giá sỉ tốt nhất.',
+
   keywords: [
     'gạo Đà Nẵng',
     'gạo sỉ Đà Nẵng',
@@ -40,8 +43,17 @@ export const metadata: Metadata = {
     'giao gạo hỏa tốc Đà Nẵng',
     'báo giá gạo sỉ',
   ],
+
   authors: [{ name: BRAND.name }],
   creator: BRAND.name,
+
+  // ✅ Favicon
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+  },
+
   openGraph: {
     type: 'website',
     locale: 'vi_VN',
@@ -50,12 +62,28 @@ export const metadata: Metadata = {
     title: `${BRAND.name} - Gạo sỉ Đà Nẵng, giao hỏa tốc 1-2 giờ`,
     description:
       '30 năm uy tín phân phối gạo sỉ & lẻ tại Đà Nẵng. Giao hỏa tốc nội thành 1-2 giờ. Gạo chính hãng, giá sỉ tốt nhất.',
+
+    // ✅ OG Image
+    images: [
+      {
+        url: '/og.jpg',
+        width: 1200,
+        height: 630,
+        alt: `${BRAND.name} - Gạo sỉ Đà Nẵng`,
+      },
+    ],
   },
+
   twitter: {
     card: 'summary_large_image',
     title: `${BRAND.name} - Gạo sỉ Đà Nẵng`,
-    description: 'Giao hỏa tốc nội thành Đà Nẵng 1-2 giờ. Gạo chính hãng, giá sỉ tốt nhất.',
+    description:
+      'Giao hỏa tốc nội thành Đà Nẵng 1-2 giờ. Gạo chính hãng, giá sỉ tốt nhất.',
+
+    // ✅ Twitter Image
+    images: ['/og.jpg'],
   },
+
   alternates: {
     canonical: `https://${BRAND.domain}`,
   },
@@ -69,7 +97,7 @@ const jsonLd = {
   url: `https://${BRAND.domain}`,
   telephone: BRAND.hotlineRaw,
   email: BRAND.email,
-  image: `https://${BRAND.domain}/og-image.jpg`,
+  image: `https://${BRAND.domain}/og.jpg`,
   address: {
     '@type': 'PostalAddress',
     streetAddress: '126 Nguyễn Lương Bằng, Phường Hòa Khánh Bắc',
