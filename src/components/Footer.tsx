@@ -9,8 +9,20 @@ import { quickZaloConsult } from '@/src/lib/zalo';
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-border bg-brand-800 text-brand-50">
-      <div className="container-page py-12">
+    <footer className="relative mt-16 overflow-hidden border-t border-border bg-brand-800 text-brand-50">
+      {/* Nền cánh đồng lúa - rất mờ, overlay tối 80% để nội dung luôn dễ đọc */}
+      <div className="absolute inset-0" aria-hidden="true">
+        <Image
+          src="/footer.webp"
+          alt=""
+          fill
+          loading="lazy"
+          sizes="100vw"
+          className="object-cover opacity-20"
+        />
+        <div className="absolute inset-0 bg-brand-800/80" />
+      </div>
+      <div className="container-page relative py-12">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
             {/* KHU VỰC LOGO + CHỮ Ở FOOTER: Logo vừa bằng khối chữ tương tự như trên Navbar */}
