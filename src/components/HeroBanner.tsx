@@ -19,7 +19,7 @@ export function HeroBanner() {
       {/* Cánh đồng lúa lúc bình minh - hiển thị tinh tế 20% */}
       <div className="absolute inset-0" aria-hidden="true">
         <Image
-          src="/hero-rice-texture.webp"
+          src="/hero.webp"
           alt=""
           fill
           priority
