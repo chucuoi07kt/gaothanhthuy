@@ -15,50 +15,46 @@ const trustBadges = [
 
 export function HeroBanner() {
   return (
-    <section className="relative overflow-hidden bg-brand-900">
-      {/* Premium Rice Texture Background */}
-      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+    <section className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-900">
+      {/* Cánh đồng lúa lúc bình minh - hiển thị tinh tế 20% */}
+      <div className="absolute inset-0" aria-hidden="true">
         <Image
           src="/hero-rice-texture.webp"
           alt=""
           fill
           priority
-          quality={90}
           sizes="100vw"
-          className="object-cover object-center opacity-25"
+          className="object-cover opacity-20"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-900/55 via-brand-800/45 to-brand-900/60" />
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-50/10 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-black/10" />
-      </div>
-      <div className="absolute inset-0 opacity-35">
-        <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-gold-400 blur-3xl" />
-        <div className="absolute right-0 top-40 h-80 w-80 rounded-full bg-brand-400 blur-3xl" />
+        {/* Ánh nắng vàng ấm dịu - cảm giác bình minh trên cánh đồng */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gold-400/10 via-transparent to-brand-900/40" />
+        {/* Overlay nhẹ giữ độ sâu nhưng không tối */}
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-800/50 via-brand-700/40 to-brand-900/60" />
       </div>
 
-      <div className="container-page relative grid items-center gap-8 py-12 sm:py-16 lg:grid-cols-2 lg:py-20">
+      <div className="container-page relative grid items-center gap-8 py-14 sm:py-20 lg:grid-cols-2 lg:py-24">
         <div className="text-white animate-fade-in-up">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium backdrop-blur-md">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium tracking-wide backdrop-blur-sm">
             <Wheat className="h-3.5 w-3.5 text-gold-300" />
             Phân phối gạo sỉ uy tín tại Đà Nẵng từ 1996
           </div>
 
-          <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-balance drop-shadow-md sm:text-4xl lg:text-5xl">
+          <h1 className="mt-6 text-3xl font-extrabold leading-tight tracking-tight text-balance text-shadow-soft sm:text-4xl lg:text-5xl">
             Gạo sạch sỉ &amp; lẻ -{' '}
-            <span className="text-gold-300 drop-shadow">Giao hỏa tốc Đà Nẵng 1-2 giờ</span>
+            <span className="text-gold-300">Giao hỏa tốc Đà Nẵng 1-2 giờ</span>
           </h1>
 
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/90 drop-shadow-sm sm:text-lg">
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">
             {BRAND.name} - {BRAND.yearsExperience} năm phân phối gạo chính hãng.
             Phục vụ gia đình, quán cơm, nhà hàng, chương trình từ thiện với giá
             sỉ tốt nhất khu vực.
           </p>
 
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link href="/products">
               <Button
                 size="lg"
-                className="w-full gap-2 bg-gold-500 text-white shadow-lg shadow-gold-500/20 transition-all hover:bg-gold-600 hover:shadow-xl hover:shadow-gold-500/30 sm:w-auto"
+                className="w-full gap-2 bg-gold-500 text-white shadow-lg shadow-gold-500/30 transition-colors hover:bg-gold-600 sm:w-auto"
               >
                 Xem catalogue gạo
                 <ArrowRight className="h-4 w-4" />
@@ -68,21 +64,21 @@ export function HeroBanner() {
               onClick={() => quickZaloConsult()}
               size="lg"
               variant="outline"
-              className="w-full gap-2 border-white/30 bg-white/10 text-white backdrop-blur-md transition-all hover:bg-white/20 hover:text-white sm:w-auto"
+              className="w-full gap-2 border-white/25 bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 hover:text-white sm:w-auto"
             >
               <MessageCircle className="h-4 w-4" />
               Tư vấn nhận báo giá sỉ
             </Button>
           </div>
 
-          <div className="mt-9 grid grid-cols-3 gap-3">
+          <div className="mt-10 grid grid-cols-3 gap-3">
             {trustBadges.map((b) => (
               <div
                 key={b.label}
-                className="flex h-full flex-col items-center rounded-xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/15 hover:shadow-lg hover:shadow-black/10"
+                className="flex h-full flex-col items-center rounded-xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur-sm transition-colors duration-200 hover:border-white/30 hover:bg-white/15"
               >
                 <b.icon className="h-5 w-5 text-gold-300" />
-                <p className="mt-2 text-sm font-bold text-white drop-shadow-sm">{b.value}</p>
+                <p className="mt-2 text-sm font-bold text-white">{b.value}</p>
                 <p className="mt-0.5 text-[11px] leading-tight text-brand-100">{b.label}</p>
               </div>
             ))}
@@ -90,7 +86,7 @@ export function HeroBanner() {
         </div>
 
         <div className="relative hidden lg:block">
-          <div className="relative mx-auto aspect-square max-w-md overflow-hidden rounded-[32px] border border-white/15 bg-white/5 shadow-[0_25px_80px_rgba(0,0,0,0.35)] backdrop-blur-sm">
+          <div className="relative mx-auto aspect-square max-w-md overflow-hidden rounded-3xl border-4 border-white/20 shadow-2xl">
             <Image
               src="https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=900"
               alt="Gạo Ngọc Anh - gạo sạch Đà Nẵng"
