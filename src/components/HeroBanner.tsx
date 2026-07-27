@@ -15,8 +15,8 @@ const trustBadges = [
 
 export function HeroBanner() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-900">
-      {/* Texture hạt gạo nền - opacity tinh tế 8% */}
+    <section className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-900">
+      {/* Cánh đồng lúa lúc bình minh - hiển thị tinh tế 20% */}
       <div className="absolute inset-0" aria-hidden="true">
         <Image
           src="https://images.pexels.com/photos/1393382/pexels-photo-1393382.jpeg?auto=compress&cs=tinysrgb&w=1200"
@@ -24,25 +24,27 @@ export function HeroBanner() {
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-[0.08]"
+          className="object-cover opacity-20"
         />
-        {/* Overlay đơn lớp - gradient tối nhẹ đảm bảo tương phản cao */}
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-900/90 via-brand-800/85 to-brand-900/95" />
+        {/* Ánh nắng vàng ấm dịu - cảm giác bình minh trên cánh đồng */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gold-400/10 via-transparent to-brand-900/40" />
+        {/* Overlay nhẹ giữ độ sâu nhưng không tối */}
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-800/50 via-brand-700/40 to-brand-900/60" />
       </div>
 
       <div className="container-page relative grid items-center gap-8 py-14 sm:py-20 lg:grid-cols-2 lg:py-24">
         <div className="text-white animate-fade-in-up">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium tracking-wide backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium tracking-wide backdrop-blur-sm">
             <Wheat className="h-3.5 w-3.5 text-gold-300" />
             Phân phối gạo sỉ uy tín tại Đà Nẵng từ 1996
           </div>
 
-          <h1 className="mt-6 text-3xl font-extrabold leading-tight tracking-tight text-balance sm:text-4xl lg:text-5xl">
+          <h1 className="mt-6 text-3xl font-extrabold leading-tight tracking-tight text-balance text-shadow-soft sm:text-4xl lg:text-5xl">
             Gạo sạch sỉ &amp; lẻ -{' '}
             <span className="text-gold-300">Giao hỏa tốc Đà Nẵng 1-2 giờ</span>
           </h1>
 
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">
             {BRAND.name} - {BRAND.yearsExperience} năm phân phối gạo chính hãng.
             Phục vụ gia đình, quán cơm, nhà hàng, chương trình từ thiện với giá
             sỉ tốt nhất khu vực.
@@ -52,7 +54,7 @@ export function HeroBanner() {
             <Link href="/products">
               <Button
                 size="lg"
-                className="w-full gap-2 bg-gold-500 text-white shadow-lg shadow-gold-500/20 transition-colors hover:bg-gold-600 sm:w-auto"
+                className="w-full gap-2 bg-gold-500 text-white shadow-lg shadow-gold-500/30 transition-colors hover:bg-gold-600 sm:w-auto"
               >
                 Xem catalogue gạo
                 <ArrowRight className="h-4 w-4" />
@@ -62,7 +64,7 @@ export function HeroBanner() {
               onClick={() => quickZaloConsult()}
               size="lg"
               variant="outline"
-              className="w-full gap-2 border-white/20 bg-white/5 text-white backdrop-blur-sm transition-colors hover:bg-white/15 hover:text-white sm:w-auto"
+              className="w-full gap-2 border-white/25 bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 hover:text-white sm:w-auto"
             >
               <MessageCircle className="h-4 w-4" />
               Tư vấn nhận báo giá sỉ
@@ -73,7 +75,7 @@ export function HeroBanner() {
             {trustBadges.map((b) => (
               <div
                 key={b.label}
-                className="flex h-full flex-col items-center rounded-xl border border-white/10 bg-white/5 p-3 text-center backdrop-blur-sm transition-colors duration-200 hover:border-white/20 hover:bg-white/10"
+                className="flex h-full flex-col items-center rounded-xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur-sm transition-colors duration-200 hover:border-white/30 hover:bg-white/15"
               >
                 <b.icon className="h-5 w-5 text-gold-300" />
                 <p className="mt-2 text-sm font-bold text-white">{b.value}</p>
@@ -84,7 +86,7 @@ export function HeroBanner() {
         </div>
 
         <div className="relative hidden lg:block">
-          <div className="relative mx-auto aspect-square max-w-md overflow-hidden rounded-3xl border-4 border-white/15 shadow-2xl">
+          <div className="relative mx-auto aspect-square max-w-md overflow-hidden rounded-3xl border-4 border-white/20 shadow-2xl">
             <Image
               src="https://images.pexels.com/photos/723198/pexels-photo-723198.jpeg?auto=compress&cs=tinysrgb&w=900"
               alt="Gạo Ngọc Anh - gạo sạch Đà Nẵng"
