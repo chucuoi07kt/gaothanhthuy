@@ -15,21 +15,21 @@ const trustBadges = [
 
 export function HeroBanner() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-900">
-      {/* Cánh đồng lúa lúc bình minh - hiển thị tinh tế 20% */}
+    <section className="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-brand-800">
+      {/* Cánh đồng lúa lúc bình minh - hiển thị rõ ràng 38% */}
       <div className="absolute inset-0" aria-hidden="true">
         <Image
-          src="/hero-rice-texture.webp"
+          src="/hero.webp"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-20"
+          className="object-cover opacity-[0.20]"
         />
         {/* Ánh nắng vàng ấm dịu - cảm giác bình minh trên cánh đồng */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gold-400/10 via-transparent to-brand-900/40" />
-        {/* Overlay nhẹ giữ độ sâu nhưng không tối */}
-        <div className="absolute inset-0 bg-gradient-to-b from-brand-800/50 via-brand-700/40 to-brand-900/60" />
+        <div className="absolute inset-0 bg-gradient-to-br from-gold-400/15 via-transparent to-brand-900/30" />
+        {/* Overlay nhẹ giữ độ sâu nhưng để hình ảnh thở */}
+        <div className="absolute inset-0 bg-gradient-to-b from-brand-700/40 via-brand-600/30 to-brand-800/50" />
       </div>
 
       <div className="container-page relative grid items-center gap-8 py-14 sm:py-20 lg:grid-cols-2 lg:py-24">
