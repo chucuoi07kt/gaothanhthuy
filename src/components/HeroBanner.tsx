@@ -24,7 +24,7 @@ export function HeroBanner() {
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-[0.38]"
+          className="object-cover opacity-[0.20]"
         />
         {/* Ánh nắng vàng ấm dịu - cảm giác bình minh trên cánh đồng */}
         <div className="absolute inset-0 bg-gradient-to-br from-gold-400/15 via-transparent to-brand-900/30" />
